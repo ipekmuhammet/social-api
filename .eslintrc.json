@@ -1,0 +1,6 @@
+{
+	"extends": [
+		"@ipekmuhammet/eslint-config-base-typescript",
+		"plugin:security/recommended"
+	]
+}
