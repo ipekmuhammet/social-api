@@ -6,8 +6,8 @@ const app = express()
 middlewares(app)
 
 app.get('/', (req, res) => {
-    console.log(req.body)
-    res.end('sa')
+	console.log(req.body)
+	res.end('sa')
 })
 
 export default app
