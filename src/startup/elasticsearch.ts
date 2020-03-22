@@ -1,7 +1,22 @@
 import { Client } from '@elastic/elasticsearch'
 
-export default () => {
-	const client = new Client({ node: 'http://127.0.0.1:9200' })
+class ElasticSeach {
+	private static client: Client
 
-	return client
+	/* eslint-disable no-useless-constructor */
+	// eslint-disable-next-line no-empty-function
+	private constructor() { }
+
+	static connect(url: string) {
+		this.client = new Client({ node: url })
+	}
+
+	static get getClient() {
+		if (!this.client) {
+			throw new Error('Elasticsearch not connected!')
+		}
+		return this.client
+	}
 }
+
+export default ElasticSeach

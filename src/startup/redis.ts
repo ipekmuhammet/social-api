@@ -1,16 +1,23 @@
 import redis from 'redis'
 import Promise from 'bluebird'
 
-export default () => {
-	const client = Promise.promisifyAll(redis).createClient({ port: 6379 })
+class Redis {
+	private static client: redis.RedisClient
 
-	client.on('connect', () => {
-		console.log('Redis Connected.')
-	})
+	/* eslint-disable no-useless-constructor */
+	// eslint-disable-next-line no-empty-function
+	private constructor() { }
 
-	client.on('error', (err) => {
-		console.log('An error occured', err)
-	})
+	static connect(url: string) {
+		this.client = Promise.promisifyAll(redis).createClient({ url })
+	}
 
-	return client
+	static get getInstance() {
+		if (!this.client) {
+			throw new Error('Redis not connected!')
+		}
+		return this.client
+	}
 }
+
+export default Redis

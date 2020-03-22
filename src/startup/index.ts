@@ -1,4 +1,4 @@
 export { default as middlewares } from './middlewares'
-export { default as mongo } from './mongo'
-export { default as redis } from './redis'
-export { default as elasticsearch } from './elasticsearch'
+export { default as Mongo } from './mongo'
+export { default as Redis } from './redis'
+export { default as Elasticsearch } from './elasticsearch'
