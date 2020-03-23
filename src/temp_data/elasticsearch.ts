@@ -49,7 +49,7 @@ const putSettings = () => (
 					tokenizer: {
 						my_tokenizer: {
 							type: 'ngram',
-							min_gram: 3,
+							min_gram: 2,
 							max_gram: 3,
 							token_chars: [
 								'letter',
@@ -126,21 +126,6 @@ const main = () => {
 		.catch((reason) => {
 			console.log(reason.meta.body.error)
 		})
-
-	// createIndex()
-	//	// .then(putSettings)
-	//	.then(putMapping)
-	//	.then(() => () => { })
-	//	.then(() => search(body))
-	//	.then((results) => {
-	//		results.body.hits.hits.map((hit: any) => {
-	//			// eslint-disable-next-line no-underscore-dangle
-	//			console.log(hit._source.name)
-	//		})
-	//	})
-	//	.catch((err) => {
-	//		console.log('err', err.meta)
-	//	})
 }
 
 export default main

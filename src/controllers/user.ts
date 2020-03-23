@@ -37,8 +37,7 @@ router.get('/searchProduct', (req, res) => {
 						// },
 						{
 							match_phrase_prefix: {
-								// name
-								name: 'pou'
+								name: 'po'
 							}
 						}
 					]
@@ -46,11 +45,8 @@ router.get('/searchProduct', (req, res) => {
 			}
 		}
 	}).then((vals: any) => {
-		console.log(vals.body.hits.hits)
+		res.json(vals.body.hits.hits)
 	})
-
-
-	res.end('sa')
 })
 
 export default router
