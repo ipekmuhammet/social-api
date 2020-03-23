@@ -10,8 +10,8 @@ router.get('/categories', (req, res) => {
 })
 
 router.get('/products', (req, res) => {
-	Redis.getInstance.hvals('productsx', (err: any, obj: any) => {
-		res.json(obj)
+	Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
+		res.json(Object.values(obj).reduce((previousValue, currentValue) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
 	})
 })
 

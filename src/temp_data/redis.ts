@@ -8,7 +8,7 @@ const main = () => {
 	x.setAsync('categories', JSON.stringify(categories))
 
 	categories.map((category: any) => {
-		x.hset('productsx', category.Id, JSON.stringify(Object.values(products.filter((product: any) => product.categoryId === category.Id))))
+		x.hset('productsx', category.Id, JSON.stringify({ [category.Id]: products.filter((product: any) => product.categoryId === category.Id) }))
 	})
 
 	x.exec((err) => {
