@@ -3,15 +3,19 @@ import categories from './Categories.json'
 import products from './Products.json'
 
 const main = () => {
-	const x = Redis.getInstance.multi()
+	const multi = Redis.getInstance.multi()
 
-	x.setAsync('categories', JSON.stringify(categories))
+	multi.setAsync('categories', JSON.stringify(categories))
 
 	categories.map((category: any) => {
-		x.hset('productsx', category.Id, JSON.stringify({ [category.Id]: products.filter((product: any) => product.categoryId === category.Id) }))
+		multi.hset('productsx', category.Id, JSON.stringify({ [category.Id]: products.filter((product: any) => product.categoryId === category.Id) }))
 	})
 
-	x.exec((err) => {
+	products.map((product) => {
+		multi.setAsync(product.Id, JSON.stringify(product))
+	})
+
+	multi.exec((err) => {
 		if (err) {
 			console.log('err', err)
 		}

@@ -11,12 +11,18 @@ router.get('/categories', (req, res) => {
 
 router.get('/products', (req, res) => {
 	Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
-		res.json(Object.values(obj).reduce((previousValue, currentValue) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
+		res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
 	})
 })
 
 router.get('/productsByCategoryId', (req, res) => {
 	Redis.getInstance.hget('productsx', req.body.categoryId, (err: any, obj: any) => {
+		res.json(JSON.parse(obj))
+	})
+})
+
+router.get('/productById', (req, res) => {
+	Redis.getInstance.getAsync(req.query.id).then((obj: any) => {
 		res.json(JSON.parse(obj))
 	})
 })
