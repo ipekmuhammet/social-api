@@ -1,12 +1,13 @@
 import { Router } from 'express'
-import { Category } from '../models'
 
 const router = Router()
 
-router.post('/', (req, res) => {
-    //new Category(req.body).save().then((document) => {
-    //	res.json(document)
-    //})
+router.post('/saveCategory', (req, res) => {
+	res.end('sa')
+})
+
+router.post('/saveProduct', (req, res) => {
+	res.end('sa')
 })
 
 export default router
