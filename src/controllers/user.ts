@@ -11,7 +11,7 @@ router.get('/categories', (req, res) => {
 
 router.get('/products', (req, res) => {
 	Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
-		res.json(obj)
+		res.json(Object.values(obj).map((x: any) => JSON.parse(x)))
 	})
 })
 
