@@ -1,11 +1,13 @@
 import { Router } from 'express'
 
-import manager from './manager'
 import user from './user'
+import manager from './manager'
+import admin from './admin'
 
 const router = Router()
 
-router.use('/manager', manager)
 router.use('/user', user)
+router.use('/manager', manager)
+router.use('/admin', admin)
 
 export default router
