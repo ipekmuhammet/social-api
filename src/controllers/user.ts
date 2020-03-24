@@ -64,24 +64,8 @@ router.post('/makeOrder', (req, res) => {
 		date: new Date().toLocaleString(),
 		// starts : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)
 		// price: (23.43 * 5) + (76.36 * 2), // Online ödemelerde manager'ın ücret ile işi yok.
-		products: [
-			{
-				Id: '1',
-				name: 'x',
-				price: '23.50',
-				categoryId: 0,
-				count: 5
-			},
-			{
-				Id: '12',
-				name: 'y',
-				price: '76.36',
-				categoryId: 1,
-				count: 2
-			}
-		]
+		products: Object.values(req.body.cart)
 	}
-
 
 	Redis.getInstance.hset('category1', id, JSON.stringify(val), (err) => {
 		if (!err) {
@@ -91,7 +75,7 @@ router.post('/makeOrder', (req, res) => {
 		}
 	})
 
-	//	Redis.getInstance.rpush('manager1', JSON.stringify(val), (err) => {
+	//	Redis.getInstance.rpush('manager₺1', JSON.stringify(val), (err) => {
 	//		if (!err) {
 	//			res.json({ status: true })
 	//		} else {
