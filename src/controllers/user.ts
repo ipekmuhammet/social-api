@@ -56,9 +56,9 @@ router.get('/searchProduct', (req, res) => {
 })
 
 router.post('/makeOrder', (req, res) => {
-
-	Redis.getInstance.rpush('manager1', JSON.stringify({
-		id: 1,
+	const id = Math.random().toString()
+	const val = {
+		id,
 		customer: 'Muhammet İpek',
 		address: 'Ayvasaray Mah. Ahmet Rufai sok. No : 6/1',
 		date: new Date().toLocaleString(),
@@ -80,13 +80,24 @@ router.post('/makeOrder', (req, res) => {
 				count: 2
 			}
 		]
-	}), (err) => {
+	}
+
+
+	Redis.getInstance.hset('category1', id, JSON.stringify(val), (err) => {
 		if (!err) {
 			res.json({ status: true })
 		} else {
 			res.json({ status: false })
 		}
 	})
+
+	//	Redis.getInstance.rpush('manager1', JSON.stringify(val), (err) => {
+	//		if (!err) {
+	//			res.json({ status: true })
+	//		} else {
+	//			res.json({ status: false })
+	//		}
+	//	})
 
 	// Redis.getInstance.rpop('manager1') // delete last item
 
