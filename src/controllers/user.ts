@@ -55,4 +55,49 @@ router.get('/searchProduct', (req, res) => {
 	})
 })
 
+router.post('/makeOrder', (req, res) => {
+
+	Redis.getInstance.rpush('manager1', JSON.stringify({
+		id: 1,
+		customer: 'Muhammet İpek',
+		address: 'Ayvasaray Mah. Ahmet Rufai sok. No : 6/1',
+		date: new Date().toLocaleString(),
+		// starts : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)
+		// price: (23.43 * 5) + (76.36 * 2), // Online ödemelerde manager'ın ücret ile işi yok.
+		products: [
+			{
+				Id: '1',
+				name: 'x',
+				price: '23.50',
+				categoryId: 0,
+				count: 5
+			},
+			{
+				Id: '12',
+				name: 'y',
+				price: '76.36',
+				categoryId: 1,
+				count: 2
+			}
+		]
+	}), (err) => {
+		if (!err) {
+			res.json({ status: true })
+		} else {
+			res.json({ status: false })
+		}
+	})
+
+	// Redis.getInstance.rpop('manager1') // delete last item
+
+	// Redis.getInstance.lrem('manager1', 0, 'product1', (err, reply) => { // delete all items with value product1 of key manager1
+	// 	if (err) console.log('err')
+	// 	console.log(reply)
+	// })
+
+	// Redis.getInstance.lrange('manager1', 0, -1, (err, reply) => {
+	// 	res.json(reply)
+	// })
+})
+
 export default router
