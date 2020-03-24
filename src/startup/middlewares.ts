@@ -1,13 +1,16 @@
 // eslint-disable-next-line no-unused-vars
-import { Application } from 'express'
+import express, { Application } from 'express'
 import morgan from 'morgan'
 import winston from 'winston'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import helmet from 'helmet'
+import path from 'path'
 import 'dotenv/config'
 
 export default (app: Application) => {
+	console.log(path.join(__dirname, '../../public'))
+	app.use(express.static(path.join(__dirname, '../../public')))
 	app.use(cors())
 	app.use(helmet())
 	app.use(bodyParser.json())
