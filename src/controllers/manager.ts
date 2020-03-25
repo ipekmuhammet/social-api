@@ -1,8 +1,20 @@
 import { Router } from 'express'
+import Nexmo from 'nexmo'
 
 import { Redis } from '../startup'
 
 const router = Router()
+
+const sendSms = (to: string, message: string) => {
+	const smsManager = new Nexmo({
+		apiKey: '14efe668',
+		apiSecret: 'ivcyJQr7tWmvT4yP',
+	})
+
+	const from = 'Platform app'
+
+	smsManager.message.sendSms(from, to, message)
+}
 
 router.get('/orders', (req, res) => {
 	// Redis.getInstance.del('category1', Object.keys(Redis.getInstance.hgetall('category1')))
@@ -23,6 +35,7 @@ router.put('/orders/cancel/:id', (req, res) => {
 			if (err) {
 				res.json({ status: false })
 			} else {
+				// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, Y nedeniyle iptal edilmiştir. Ödemeniz en kısa sürece hesabına geri aktarılacaktır. Anlayışınız için teşekkürler.')
 				res.json({ status: true })
 			}
 		})
@@ -35,6 +48,7 @@ router.put('/orders/confirm/:id', (req, res) => {
 			if (err) {
 				res.json({ status: false })
 			} else {
+				// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, X Kargoya verilmiştir, Kargo takip numarası : 0123456789')
 				res.json({ status: true })
 			}
 		})
