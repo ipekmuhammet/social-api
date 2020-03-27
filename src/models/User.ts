@@ -1,5 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 
+import Authority from '../controllers/authority-enum'
+
 const userSchema = new Schema({
 	phone_number: {
 		type: String,
@@ -11,7 +13,8 @@ const userSchema = new Schema({
 		}
 	}],
 	authority: {
-		type: Number
+		type: Number,
+		default: Authority.USER
 	}
 	// cart: {}
 })

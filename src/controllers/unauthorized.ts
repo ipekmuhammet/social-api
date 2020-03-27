@@ -4,6 +4,7 @@ import Nexmo from 'nexmo'
 
 import { Redis } from '../startup'
 import { User } from '../models'
+import Authority from './authority-enum'
 
 const router = Router()
 
