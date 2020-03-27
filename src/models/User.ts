@@ -10,9 +10,6 @@ const userSchema = new Schema({
 			type: String
 		}
 	}],
-	activationCode: {
-		type: String // need nested objects createdTime vs. last 3 minutes ?, when second activation code not created succesfully user can use the first one.
-	},
 	authority: {
 		type: Number
 	}
