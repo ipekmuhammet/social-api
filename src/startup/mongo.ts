@@ -8,7 +8,7 @@ class Mongo {
 	private constructor() { }
 
 	static connect(url: string) {
-		mongoose.connect(url, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
+		mongoose.connect(url, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: true })
 
 		mongoose.connection.on('open', () => {
 			console.log('Database: Connected.')
