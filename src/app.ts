@@ -14,7 +14,7 @@ Mongo.connect(process.env.DB_HOST)
 Elasticsearch.connect(process.env.ES_HOST)
 Redis.connect(process.env.REDIS_HOST)
 
-prepareRedis()
+// prepareRedis()
 prepareElasticsearch()
 
 app.use('/', controller)

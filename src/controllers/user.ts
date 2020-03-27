@@ -11,7 +11,12 @@ router.get('/categories', (req, res) => {
 
 router.get('/products', (req, res) => {
 	Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
-		res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
+		if (err) {
+			console.log(err)
+			throw new Error('err /products')
+		} else {
+			res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
+		}
 	})
 })
 

@@ -1,13 +1,22 @@
 import { Router } from 'express'
+import { Category, Product } from '../models'
 
 const router = Router()
 
 router.post('/saveCategory', (req, res) => {
-	res.end('sa')
+	new Category(req.body).save().then((doc) => {
+		res.json(doc)
+	}).catch((reason) => {
+		res.json(reason)
+	})
 })
 
 router.post('/saveProduct', (req, res) => {
-	res.end('sa')
+	new Product(req.body).save().then((doc) => {
+		res.json(doc)
+	}).catch((reason) => {
+		res.json(reason)
+	})
 })
 
 router.post('/saveManager', (req, res) => {

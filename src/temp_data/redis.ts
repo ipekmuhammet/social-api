@@ -1,25 +1,35 @@
 import { Redis } from '../startup'
-import categories from './Categories.json'
-import products from './Products.json'
+import { Product, Category } from '../models'
 
 const main = () => {
 	const multi = Redis.getInstance.multi()
 
-	multi.setAsync('categories', JSON.stringify(categories))
+	Category.find().then((categories) => {
+		multi.setAsync('categories', JSON.stringify(categories))
 
-	categories.map((category: any) => {
-		multi.hset('productsx', category.Id, JSON.stringify({ [category.Id]: products.filter((product: any) => product.categoryId === category.Id) }))
+		// console.log('---------------')
+		// multi.del('productsx', (x, y) => {
+		// 	console.log(x, y)
+		// })
+
+		categories.map((category: any) => {
+			Product.find().then((products) => {
+				products.map((product) => {
+					multi.setAsync(product.id, JSON.stringify(product))
+				})
+
+				multi.hset('productsx', category.id, JSON.stringify({ [category.id]: products.filter((product: any) => product.category === category.id) }))
+			})
+		})
 	})
 
-	products.map((product) => {
-		multi.setAsync(product.Id, JSON.stringify(product))
-	})
-
-	multi.exec((err) => {
-		if (err) {
-			console.log('err', err)
-		}
-	})
+	setTimeout(() => {
+		multi.exec((err) => {
+			if (err) {
+				console.log('err', err)
+			}
+		})
+	}, 1000 * 10)
 }
 
 export default main

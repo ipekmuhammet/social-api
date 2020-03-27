@@ -94,7 +94,7 @@ const saveCategories = () => (
 		body: categories.reduce((previousValue, currentValue) => previousValue.concat({
 			index: {
 				_index: index,
-				_id: currentValue.Id
+				_id: currentValue.id
 			}
 		}, currentValue), [])
 	})
@@ -108,7 +108,7 @@ const saveProducts = () => (
 		body: products.reduce((previousValue, currentValue) => previousValue.concat({
 			index: {
 				_index: index,
-				_id: currentValue.Id
+				_id: currentValue.id
 			}
 		}, currentValue), [])
 	})

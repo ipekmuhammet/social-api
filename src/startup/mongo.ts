@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 
+import { load, test } from '../models/data'
+
 class Mongo {
 	/* eslint-disable no-useless-constructor */
 	// eslint-disable-next-line no-empty-function
@@ -10,6 +12,9 @@ class Mongo {
 
 		mongoose.connection.on('open', () => {
 			console.log('Database: Connected.')
+
+			// load()
+			// test()
 		})
 
 		mongoose.connection.on('error', (error) => {
