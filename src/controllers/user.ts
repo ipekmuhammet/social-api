@@ -1,7 +1,12 @@
 import { Router } from 'express'
+
 import { Redis, Elasticsearch } from '../startup'
+import { validateAuthority } from './auth-middleware'
+import Authority from './authority-enum'
 
 const router = Router()
+
+// router.use(validateAuthority(Authority.USER))
 
 router.get('/categories', (req, res) => {
 	Redis.getInstance.getAsync('categories').then((val: any) => {

@@ -2,8 +2,12 @@ import { Router } from 'express'
 import Nexmo from 'nexmo'
 
 import { Redis } from '../startup'
+import { validateAuthority } from './auth-middleware'
+import Authority from './authority-enum'
 
 const router = Router()
+
+// router.use(validateAuthority(Authority.MANAGER))
 
 const sendSms = (to: string, message: string) => {
 	const smsManager = new Nexmo({

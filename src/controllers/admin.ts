@@ -1,7 +1,12 @@
 import { Router } from 'express'
+
 import { Category, Product } from '../models'
+import { validateAuthority } from './auth-middleware'
+import Authority from './authority-enum'
 
 const router = Router()
+
+// router.use(validateAuthority(Authority.ADMIN))
 
 router.post('/saveCategory', (req, res) => {
 	new Category(req.body).save().then((doc) => {
