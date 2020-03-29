@@ -46,7 +46,7 @@ router.post('/register', (req, res) => {
 						res.json({ status: false })
 					} else {
 						Redis.getInstance.hdel('activationCode', req.body.phone_number)
-						res.json({ token })
+						res.json({ token, user })
 					}
 				})
 			}).catch((reason) => {
@@ -74,7 +74,7 @@ router.post('/login', (req, res) => {
 							res.json({ status: false })
 						} else {
 							Redis.getInstance.hdel('activationCode', req.body.phone_number)
-							res.json({ token })
+							res.json({ token, user })
 						}
 					})
 				} else {
