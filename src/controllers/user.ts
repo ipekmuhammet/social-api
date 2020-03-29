@@ -82,6 +82,23 @@ router.put('/add-address', (req, res) => {
 	})
 })
 
+router.put('/delete-address', (req, res) => {
+	User.findById(req.userId).then((user: any) => {
+		if (user) {
+			// eslint-disable-next-line no-underscore-dangle
+			user.addresses.splice(user.addresses.indexOf(user.addresses.find((address: any) => address._id.toString() === req.body._id)), 1)
+			user.save().then((result: any) => {
+				res.json(result)
+			})
+		} else {
+			res.status(401).json({ status: false, error: 'User does not exists on Database, but in cache.' })
+		}
+	}).catch((reason) => {
+		console.log(reason)
+		res.status(401).json({ status: false, error: 'Database error.' })
+	})
+})
+
 router.post('/makeOrder', (req, res) => {
 	const id = Math.random().toString()
 	const val = {
