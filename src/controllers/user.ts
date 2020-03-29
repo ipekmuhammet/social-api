@@ -1,12 +1,13 @@
 import { Router } from 'express'
 
 import { Redis, Elasticsearch } from '../startup'
+import { User } from '../models'
 import { validateAuthority } from './auth-middleware'
 import Authority from './authority-enum'
 
 const router = Router()
 
-// router.use(validateAuthority(Authority.USER))
+router.use(validateAuthority(Authority.USER))
 
 router.get('/categories', (req, res) => {
 	Redis.getInstance.getAsync('categories').then((val: any) => {
@@ -65,6 +66,22 @@ router.get('/searchProduct', (req, res) => {
 	})
 })
 
+router.put('/add-address', (req, res) => {
+	User.findById(req.userId).then((user: any) => {
+		if (user) {
+			user.addresses.push(req.body)
+			user.save().then((result: any) => {
+				res.json(result)
+			})
+		} else {
+			res.status(401).json({ status: false, error: 'User does not exists on Database, but in cache.' })
+		}
+	}).catch((reason) => {
+		console.log(reason)
+		res.status(401).json({ status: false, error: 'Database error.' })
+	})
+})
+
 router.post('/makeOrder', (req, res) => {
 	const id = Math.random().toString()
 	const val = {
@@ -85,7 +102,7 @@ router.post('/makeOrder', (req, res) => {
 		}
 	})
 
-	//	Redis.getInstance.rpush('manager₺1', JSON.stringify(val), (err) => {
+	//	Redis.getInstance.rpush('manager1', JSON.stringify(val), (err) => {
 	//		if (!err) {
 	//			res.json({ status: true })
 	//		} else {
