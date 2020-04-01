@@ -89,4 +89,29 @@ router.post('/login', (req, res) => {
 	})
 })
 
+router.put('/reset-password', (req, res) => {
+	User.findOne({ phone_number: req.body.phone_number }).then((user) => {
+		if (user) {
+			// @ts-ignore
+			bcrypt.compare(req.body.old_password, user.password).then((validPassword) => {
+				if (!validPassword) {
+					res.status(401).end('Unauthorized')
+				} else {
+					// @ts-ignore
+					// eslint-disable-next-line no-param-reassign
+					user.password = req.body.new_password
+					user.save().then(() => {
+						res.json({ status: true })
+					})
+				}
+			})
+		} else {
+			res.status(401).end('Unauthorized')
+		}
+	}).catch((reason) => {
+		console.log(reason)
+		res.status(401).end('Unauthorized')
+	})
+})
+
 export default router
