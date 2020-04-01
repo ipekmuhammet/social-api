@@ -89,7 +89,7 @@ router.post('/login', (req, res) => {
 	})
 })
 
-router.put('/reset-password', (req, res) => {
+router.put('/change-password', (req, res) => {
 	User.findOne({ phone_number: req.body.phone_number }).then((user) => {
 		if (user) {
 			// @ts-ignore
