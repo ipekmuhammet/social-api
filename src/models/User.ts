@@ -24,7 +24,13 @@ const userSchema = new Schema({
 	},
 	addresses: [{
 		open_address: {
-			type: String
+			type: String,
+			required: true
+		},
+		type: {
+			type: Number,
+			required: true,
+			default: 0
 		}
 	}],
 	authority: {
