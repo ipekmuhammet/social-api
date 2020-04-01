@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 import Nexmo from 'nexmo'
 
 import { Redis } from '../startup'
@@ -38,8 +39,9 @@ router.post('/register', (req, res) => {
 			console.log(err)
 			res.json({ status: false, error: 'Network Error!' })
 		} else if (req.body.activation_code === reply) {
-			new User({ phone_number: req.body.phone_number }).save().then((user) => {
+			new User(req.body).save().then((user) => {
 				// sendSms('905468133198', `${activationCode} is your activation code to activate your account.`)
+				console.log(user)
 				jwt.sign({ payload: user }, 'secret', (jwtErr: any, token: any) => {
 					if (jwtErr) {
 						console.log(jwtErr)
@@ -61,32 +63,29 @@ router.post('/register', (req, res) => {
 
 
 router.post('/login', (req, res) => {
-	Redis.getInstance.hget('activationCode', req.body.phone_number, (err, reply) => {
-		if (err) {
-			console.log(err)
-			res.json({ status: false, error: 'Network Error!' })
-		} else if (req.body.activation_code === reply) {
-			User.findOne({ phone_number: req.body.phone_number }).then((user) => {
-				if (user) {
+	User.findOne({ phone_number: req.body.phone_number }).then((user) => {
+		if (user) {
+			// @ts-ignore
+			bcrypt.compare(req.body.password, user.password).then((validPassword) => {
+				if (!validPassword) {
+					res.status(401).end('Unauthorized')
+				} else {
 					jwt.sign({ payload: user }, 'secret', (jwtErr: any, token: any) => {
 						if (jwtErr) {
 							console.log(jwtErr)
 							res.json({ status: false })
 						} else {
-							Redis.getInstance.hdel('activationCode', req.body.phone_number)
 							res.json({ token, user })
 						}
 					})
-				} else {
-					res.status(401).end('Unauthorized')
 				}
-			}).catch((reason) => {
-				console.log(reason)
-				res.status(401).end('Unauthorized')
 			})
 		} else {
 			res.status(401).end('Unauthorized')
 		}
+	}).catch((reason) => {
+		console.log(reason)
+		res.status(401).end('Unauthorized')
 	})
 })
 
