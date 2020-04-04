@@ -2,16 +2,15 @@ import { Router } from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import Nexmo from 'nexmo'
-import JoiBase from '@hapi/joi'
-// @ts-ignore
-import JoiPhoneNumber from 'joi-phone-number'
 
 import { Redis } from '../startup'
 import { User } from '../models'
 import Authority from './authority-enum'
+import { validatePhone } from './auth-middleware'
 
-const Joi = JoiBase.extend(JoiPhoneNumber)
 const router = Router()
+
+router.use(validatePhone())
 
 const sendSms = (to: string, message: string) => {
 	const smsManager: any = new Nexmo({
@@ -27,30 +26,20 @@ const sendSms = (to: string, message: string) => {
 router.post('/send-activation-code', (req, res) => {
 	const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()
 
-	const schema = Joi.object({
-		phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'e164', strict: true })
+	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError, reply) => {
+		if (redisError) {
+			res.status(500).json({ status: false, error: redisError })
+		} else {
+			res.status(202).json({ status: true })
+		}
 	})
-
-	const { value, error } = schema.validate({ phone_number: req.body.phone_number })
-
-	if (!error) {
-		Redis.getInstance.hset('activationCode', value, activationCode, (redisError) => {
-			if (!redisError) {
-				res.status(202).json({ status: true })
-			} else {
-				res.status(500).json({ status: false, error: redisError })
-			}
-		})
-	} else {
-		res.status(400).json({ status: false, error: 'Phone number is invalid.' })
-	}
 })
 
 router.post('/register', (req, res) => {
-	Redis.getInstance.hget('activationCode', req.body.phone_number, (err, reply) => {
-		if (err) {
+	Redis.getInstance.hget('activationCode', req.body.phone_number, (redisError, reply) => {
+		if (redisError) {
 			console.log(err)
-			res.json({ status: false, error: 'Network Error!' })
+			res.json({ status: false, error: redisError })
 		} else if (req.body.activation_code === reply) {
 			new User(req.body).save().then((user) => {
 				// sendSms('905468133198', `${activationCode} is your activation code to activate your account.`)
