@@ -26,9 +26,9 @@ router.post('/send-activation-code', (req, res) => {
 
 	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (err) => {
 		if (err) {
-			res.json({ status: false })
+			res.status(400).end()
 		} else {
-			res.json({ status: true })
+			res.status(202).end()
 		}
 	})
 })

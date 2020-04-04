@@ -67,6 +67,7 @@ router.get('/searchProduct', (req, res) => {
 })
 
 router.put('/add-address', (req, res) => {
+	// @ts-ignore
 	User.findById(req.userId).then((user: any) => {
 		if (user) {
 			user.addresses.push(req.body)
@@ -83,6 +84,7 @@ router.put('/add-address', (req, res) => {
 })
 
 router.put('/delete-address', (req, res) => {
+	// @ts-ignore
 	User.findById(req.userId).then((user: any) => {
 		if (user) {
 			// eslint-disable-next-line no-underscore-dangle
