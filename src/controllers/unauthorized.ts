@@ -2,11 +2,15 @@ import { Router } from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import Nexmo from 'nexmo'
+import JoiBase from '@hapi/joi'
+// @ts-ignore
+import JoiPhoneNumber from 'joi-phone-number'
 
 import { Redis } from '../startup'
 import { User } from '../models'
 import Authority from './authority-enum'
 
+const Joi = JoiBase.extend(JoiPhoneNumber)
 const router = Router()
 
 const sendSms = (to: string, message: string) => {
@@ -21,16 +25,25 @@ const sendSms = (to: string, message: string) => {
 }
 
 router.post('/send-activation-code', (req, res) => {
-	const activationCode = parseInt(Math.floor(999 + Math.random() * 9000).toString(), 10).toString()
-	console.log('activationCode', activationCode)
+	const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()
 
-	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (err) => {
-		if (err) {
-			res.status(400).end()
-		} else {
-			res.status(202).end()
-		}
+	const schema = Joi.object({
+		phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'e164', strict: true })
 	})
+
+	const { value, error } = schema.validate({ phone_number: req.body.phone_number })
+
+	if (!error) {
+		Redis.getInstance.hset('activationCode', value, activationCode, (redisError) => {
+			if (!redisError) {
+				res.status(202).json({ status: true })
+			} else {
+				res.status(500).json({ status: false, error: redisError })
+			}
+		})
+	} else {
+		res.status(400).json({ status: false, error: 'Phone number is invalid.' })
+	}
 })
 
 router.post('/register', (req, res) => {
