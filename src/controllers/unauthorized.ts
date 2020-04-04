@@ -21,7 +21,7 @@ const sendSms = (to: string, message: string) => {
 }
 
 router.post('/send-activation-code', (req, res) => {
-	const activationCode = parseInt(Math.floor(999 + Math.random() * 9000).toString(), 10).toString()
+	const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()
 	console.log('activationCode', activationCode)
 
 	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (err) => {
