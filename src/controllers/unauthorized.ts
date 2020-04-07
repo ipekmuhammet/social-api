@@ -26,7 +26,7 @@ const sendSms = (to: string, message: string) => {
 router.post('/send-activation-code', (req, res) => {
 	const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()
 
-	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError, reply) => {
+	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError) => {
 		if (redisError) {
 			res.status(500).json({ status: false, error: redisError })
 		} else {
@@ -38,7 +38,7 @@ router.post('/send-activation-code', (req, res) => {
 router.post('/register', (req, res) => {
 	Redis.getInstance.hget('activationCode', req.body.phone_number, (redisError, reply) => {
 		if (redisError) {
-			console.log(err)
+			console.log(redisError)
 			res.json({ status: false, error: redisError })
 		} else if (req.body.activation_code === reply) {
 			new User(req.body).save().then((user) => {
