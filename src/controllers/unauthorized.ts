@@ -53,10 +53,11 @@ router.post('/register', (req, res) => {
 				})
 			}).catch((reason) => {
 				console.log(reason)
-				res.json({ status: false })
+				res.status(401).json({ status: false })
 			})
 		} else {
-			res.status(401).end('Unauthorized')
+			console.log(req.body.activation_code, reply)
+			res.status(401).json('Unauthorized')
 		}
 	})
 })

@@ -101,10 +101,11 @@ router.put('/delete-address', (req, res) => {
 
 router.post('/makeOrder', (req, res) => {
 	const id = Math.random().toString()
+
 	const val = {
 		id,
-		customer: 'Muhammet İpek',
-		address: 'Ayvasaray Mah. Ahmet Rufai sok. No : 6/1',
+		customer: req.body.customer,
+		address: req.body.address,
 		date: new Date().toLocaleString(),
 		// starts : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)
 		// price: (23.43 * 5) + (76.36 * 2), // Online ödemelerde manager'ın ücret ile işi yok.
