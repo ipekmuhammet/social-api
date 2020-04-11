@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import Nexmo from 'nexmo'
 
-import { Redis } from '../startup'
+import { Redis, Elasticsearch } from '../startup'
 import { User } from '../models'
 import Authority from './authority-enum'
 
@@ -19,6 +19,64 @@ const sendSms = (to: string, message: string) => {
 
 	smsManager.message.sendSms(from, to, message)
 }
+
+
+router.get('/categories', (req, res) => {
+	Redis.getInstance.getAsync('categories').then((val: any) => {
+		res.json(JSON.parse(val))
+	})
+})
+
+router.get('/products', (req, res) => {
+	Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
+		if (err) {
+			console.log(err)
+			throw new Error('err /products')
+		} else {
+			res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
+		}
+	})
+})
+
+router.get('/productsByCategoryId', (req, res) => {
+	Redis.getInstance.hget('productsx', req.body.categoryId, (err: any, obj: any) => {
+		res.json(JSON.parse(obj))
+	})
+})
+
+router.get('/productById', (req, res) => {
+	Redis.getInstance.getAsync(req.query.id).then((obj: any) => {
+		res.json(JSON.parse(obj))
+	})
+})
+
+router.get('/searchProduct', (req, res) => {
+	Elasticsearch.getClient.search({
+		index: 'doc',
+		type: 'doc',
+		body: {
+			query: {
+				bool: {
+					must: [
+						// {
+						// 	geo_distance: {
+						// 		distance: '1km',
+						// 		'geometry.location': location
+						// 	}
+						// },
+						{
+							match_phrase_prefix: {
+								name: 'po'
+							}
+						}
+					]
+				}
+			}
+		}
+	}).then((vals: any) => {
+		res.json(vals.body.hits.hits)
+	})
+})
 
 router.post('/send-activation-code', (req, res) => {
 	const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()

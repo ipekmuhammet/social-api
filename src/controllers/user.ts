@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import { Redis, Elasticsearch } from '../startup'
+import { Redis } from '../startup'
 import { User } from '../models'
 import { validateAuthority } from './auth-middleware'
 import Authority from './authority-enum'
@@ -9,64 +9,8 @@ const router = Router()
 
 router.use(validateAuthority(Authority.USER))
 
-router.get('/categories', (req, res) => {
-	Redis.getInstance.getAsync('categories').then((val: any) => {
-		res.json(JSON.parse(val))
-	})
-})
-
-router.get('/products', (req, res) => {
-	Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
-		if (err) {
-			console.log(err)
-			throw new Error('err /products')
-		} else {
-			res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
-		}
-	})
-})
-
-router.get('/productsByCategoryId', (req, res) => {
-	Redis.getInstance.hget('productsx', req.body.categoryId, (err: any, obj: any) => {
-		res.json(JSON.parse(obj))
-	})
-})
-
-router.get('/productById', (req, res) => {
-	Redis.getInstance.getAsync(req.query.id).then((obj: any) => {
-		res.json(JSON.parse(obj))
-	})
-})
-
-router.get('/searchProduct', (req, res) => {
-	Elasticsearch.getClient.search({
-		index: 'doc',
-		type: 'doc',
-		body: {
-			query: {
-				bool: {
-					must: [
-						// {
-						// 	geo_distance: {
-						// 		distance: '1km',
-						// 		'geometry.location': location
-						// 	}
-						// },
-						{
-							match_phrase_prefix: {
-								name: 'po'
-							}
-						}
-					]
-				}
-			}
-		}
-	}).then((vals: any) => {
-		res.json(vals.body.hits.hits)
-	})
-})
-
 router.put('/add-address', (req, res) => {
+	// @ts-ignore
 	User.findById(req.userId).then((user: any) => {
 		if (user) {
 			user.addresses.push(req.body)
@@ -83,6 +27,7 @@ router.put('/add-address', (req, res) => {
 })
 
 router.put('/delete-address', (req, res) => {
+	// @ts-ignore
 	User.findById(req.userId).then((user: any) => {
 		if (user) {
 			// eslint-disable-next-line no-underscore-dangle
