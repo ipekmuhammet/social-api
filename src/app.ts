@@ -15,7 +15,7 @@ Elasticsearch.connect(process.env.ES_HOST)
 Redis.connect(process.env.REDIS_HOST)
 
 // prepareRedis()
-prepareElasticsearch()
+// prepareElasticsearch()
 
 app.use('/', controller)
 

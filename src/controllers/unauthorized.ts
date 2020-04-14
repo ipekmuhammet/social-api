@@ -7,7 +7,11 @@ import { Redis, Elasticsearch } from '../startup'
 import { User } from '../models'
 import Authority from './authority-enum'
 
+import { validateAuthority } from './auth-middleware'
+
 const router = Router()
+
+router.use(validateAuthority(Authority.ANONIM))
 
 const sendSms = (to: string, message: string) => {
 	const smsManager: any = new Nexmo({
@@ -28,29 +32,89 @@ router.get('/categories', (req, res) => {
 })
 
 router.get('/products', (req, res) => {
-	Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
-		if (err) {
-			console.log(err)
-			throw new Error('err /products')
+	if (req.query.categoryId) {
+		Redis.getInstance.hget('productsx', req.body.categoryId, (err: any, obj: any) => {
+			if (err) {
+				console.log(err)
+				throw new Error('err /products') // TODO
+			} else {
+				res.json(JSON.parse(obj))
+			}
+		})
+	} else {
+		Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
+			if (err) {
+				console.log(err)
+				throw new Error('err /products') // TODO
+			} else {
+				res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
+			}
+		})
+	}
+})
+
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImF1dGhvcml0eSI6MCwiX2lkIjoiNWU4NDBhNTFjYzFjYzMzMjBjY2M5NmNhIiwicGhvbmVfbnVtYmVyIjoiOTA1NDY4MTMzMTk4IiwicGFzc3dvcmQiOiIkMmIkMTAkVlEvek1KWm5zaUouSnJkNnFwek9KT2dDYk9ISm5qRXF4UGpIUHIxb3E0SzRFQk4wMzVrZVciLCJuYW1lX3N1cm5hbWUiOiJNdWhhbW1ldCDEsHBlayIsImVtYWlsIjoibXVoYW1tZXRpcGVrNTdAaG90bWFpbC5jb20iLCJhZGRyZXNzZXMiOlt7InR5cGUiOjAsIl9pZCI6IjVlOTA3ODU1YzU2MTJmMWMyY2JmZGZiZSIsIm9wZW5fYWRkcmVzcyI6IkF5dmFuc2FyYXksIEFobWV0IFJ1ZmFpIFNrLiBObzo2LCAzNDA4NyBGYXRpaC_EsHN0YW5idWwsIFR1cmtleSJ9LHsidHlwZSI6MCwiX2lkIjoiNWU5NDVhNWNjZDBhOTUyY2ZjMWIxMGY1Iiwib3Blbl9hZGRyZXNzIjoiQXl2YW5zYXJheSwgQWhtZXQgUnVmYWkgU2suIE5vOjYsIDM0MDg3IEZhdGloL8Swc3RhbmJ1bCwgVHVya2V5In1dLCJfX3YiOjQ0fSwiaWF0IjoxNTg2ODE1ODYyfQ.tiNKwye4-sGhmOJ9iaXqYr4tNJmjE187bZShBnvFLnA
+
+router.get('/product/:id', (req, res) => {
+	const multi = Redis.getInstance.multi()
+
+	multi.getAsync(req.params.id)
+
+	// @ts-ignore
+	if (req.userId) {
+		// @ts-ignore
+		multi.hget('cart', req.userId)
+	}
+
+	multi.exec((error, results) => { // 37695 38532 37295
+		if (error) {
+			res.status(500).json('Unknown Error') // TODO
+		} else if (results[0]) {
+			// @ts-ignore
+			if (req.userId) {
+				if (results[1]) {
+					if (Object.keys(JSON.parse(results[1])).includes(req.params.id)) {
+						Redis.getInstance.hset(
+							'cart',
+							// @ts-ignore
+							req.userId,
+							JSON.stringify(Object.assign(
+								JSON.parse(results[1]),
+								{ [req.params.id]: Object.assign(JSON.parse(results[0]), { quantity: (JSON.parse(results[1])[req.params.id].quantity ?? 1) + 1 }) }
+							))
+						)
+					} else {
+						Redis.getInstance.hset(
+							'cart',
+							// @ts-ignore
+							req.userId,
+							JSON.stringify(Object.assign(
+								JSON.parse(results[1]),
+								{ [req.params.id]: results[0] }
+							))
+						)
+					}
+				} else {
+					Redis.getInstance.hset(
+						'cart',
+						// @ts-ignore
+						req.userId,
+						JSON.stringify({ [req.params.id]: Object.assign(JSON.parse(results[0]), { quantity: 1 }) })
+					)
+				}
+			}
+			res.json(JSON.parse(results[0]))
 		} else {
-			res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
+			res.status(500).json('Unknown Error') // TODO
 		}
 	})
+
+	//	multi.getAsync(req.params.id).then((obj: any) => {
+	//		res.json(JSON.parse(obj))
+	//	})
 })
 
-router.get('/productsByCategoryId', (req, res) => {
-	Redis.getInstance.hget('productsx', req.body.categoryId, (err: any, obj: any) => {
-		res.json(JSON.parse(obj))
-	})
-})
-
-router.get('/productById', (req, res) => {
-	Redis.getInstance.getAsync(req.query.id).then((obj: any) => {
-		res.json(JSON.parse(obj))
-	})
-})
-
-router.get('/searchProduct', (req, res) => {
+router.get('/search-product', (req, res) => {
 	Elasticsearch.getClient.search({
 		index: 'doc',
 		type: 'doc',
