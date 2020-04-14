@@ -7,12 +7,15 @@ import { Redis, Elasticsearch } from '../startup'
 import { User } from '../models'
 import Authority from './authority-enum'
 
-import { validateAuthority } from './auth-middleware'
+import { validateAuthority, validatePhone } from './auth-middleware'
 
 const router = Router()
 
 router.use(validateAuthority(Authority.ANONIM))
+router.use(validatePhone())
 
+
+// eslint-disable-next-line no-unused-vars
 const sendSms = (to: string, message: string) => {
 	const smsManager: any = new Nexmo({
 		apiKey: '14efe668',
@@ -146,20 +149,20 @@ router.post('/send-activation-code', (req, res) => {
 	const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()
 	console.log('activationCode', activationCode)
 
-	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (err) => {
-		if (err) {
-			res.json({ status: false })
+	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError) => {
+		if (redisError) {
+			res.status(500).json({ status: false, error: redisError })
 		} else {
-			res.json({ status: true })
+			res.status(202).json({ status: true })
 		}
 	})
 })
 
 router.post('/register', (req, res) => {
-	Redis.getInstance.hget('activationCode', req.body.phone_number, (err, reply) => {
-		if (err) {
-			console.log(err)
-			res.json({ status: false, error: 'Network Error!' })
+	Redis.getInstance.hget('activationCode', req.body.phone_number, (redisError, reply) => {
+		if (redisError) {
+			console.log(redisError)
+			res.json({ status: false, error: redisError })
 		} else if (req.body.activation_code === reply) {
 			new User(req.body).save().then((user) => {
 				// sendSms('905468133198', `${activationCode} is your activation code to activate your account.`)
