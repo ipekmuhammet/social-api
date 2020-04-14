@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import Joi from '@hapi/joi'
 
 import { Redis } from '../startup'
 import { User } from '../models'
@@ -10,14 +11,39 @@ const router = Router()
 router.use(validateAuthority(Authority.USER))
 
 router.post('/cart', (req, res) => {
-	// @ts-ignore
-	Redis.getInstance.hset('cart', req.userId, JSON.stringify(req.body), (err) => {
-		if (err) {
-			res.status(500).json('Network Error') // TODO Validate with joi is it object and childs has required props.
-		} else {
-			res.json({ status: true })
-		}
+	const schema = Joi.object({
+		brand: Joi.string().required(),
+		id: [
+			Joi.string().required(),
+			Joi.number().required(),
+		],
+		kind_name: Joi.string().allow(null, ''),
+		product_name: Joi.string().required(),
+		old_price: Joi.number().required(),
+		price: Joi.number().required(),
+		title: Joi.string().required(),
+		category_breadcrumb: Joi.string().allow(null, ''),
+		images: Joi.array().items(Joi.string()).required(),
+		// images: Joi.array().items(Joi.string().required()).required(),
+		image_types: Joi.object().required(),
+		units: Joi.string().allow(null, ''),
+		quantity: Joi.number().min(1).required()
 	})
+
+	const { error } = Joi.array().items(schema).validate(Object.values(req.body))
+
+	if (!error) {
+		// @ts-ignore
+		Redis.getInstance.hset('cart', req.userId, JSON.stringify(req.body), (err) => {
+			if (err) {
+				res.status(500).json('Network Error')
+			} else {
+				res.json({ status: true })
+			}
+		})
+	} else {
+		res.status(400).json('Bad Request')
+	}
 })
 
 router.get('/cart', (req, res) => {
