@@ -41,16 +41,15 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 	}
 }
 
-export const validatePhone = () => (
-	(req: Request, res: Response, next: NextFunction) => {
-		const { value, error } = Validator.getInstance.validatePhoneNumber({ phone_number: req.body.phone_number })
+export const validatePhone = () => (req: Request, res: Response, next: NextFunction) => {
+	const { value, error } = Validator.getInstance.validatePhoneNumber({ phone_number: req.body.phone_number })
 
-		if (!error && value.phone_number) {
-			// @ts-ignore
-			req.body.phone_number = value.phone_number
-			next()
-		} else {
-			res.status(400).json({ status: false, error: 'Phone number is invalid.' })
-		}
+	// if (!error && value.phone_number) {
+	if (!error) {
+		// @ts-ignore
+		req.body.phone_number = value.phone_number
+		next()
+	} else {
+		res.status(400).json({ status: false, error: 'Phone number is invalid.' })
 	}
-)
+}

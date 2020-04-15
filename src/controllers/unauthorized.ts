@@ -189,7 +189,6 @@ router.post('/register', (req, res) => {
 	})
 })
 
-
 router.post('/login', (req, res) => {
 	User.findOne({ phone_number: req.body.phone_number }).then((user) => {
 		if (user) {
