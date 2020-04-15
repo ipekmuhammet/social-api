@@ -4,6 +4,7 @@ import {
 	middlewares, Mongo, Redis, Elasticsearch
 } from './startup'
 import controller from './controllers'
+import errorHandlerMiddleware from './middlewares/error-handler-middleware'
 
 import { prepareElasticsearch, prepareRedis } from './temp_data'
 
@@ -18,5 +19,6 @@ Redis.connect(process.env.REDIS_HOST)
 // prepareElasticsearch()
 
 app.use('/', controller)
+app.use(errorHandlerMiddleware)
 
 export default app

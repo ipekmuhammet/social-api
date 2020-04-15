@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
+import HttpStatusCodes from 'http-status-codes'
 
-import Validator from './validator'
-import Authority from './authority-enum'
+import Validator from '../controllers/validator'
+import Authority from '../enums/authority-enum'
 
 // eslint-disable-next-line import/prefer-default-export
 export const validateAuthority = (authority: Authority) => (req: Request, res: Response, next: NextFunction) => {
@@ -50,6 +51,6 @@ export const validatePhone = () => (req: Request, res: Response, next: NextFunct
 		req.body.phone_number = value.phone_number
 		next()
 	} else {
-		res.status(400).json({ status: false, error: 'Phone number is invalid.' })
+		res.status(HttpStatusCodes.BAD_REQUEST).json({ status: false, error: 'Phone number is invalid.' })
 	}
 }

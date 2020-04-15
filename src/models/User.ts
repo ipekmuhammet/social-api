@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
-import Authority from '../controllers/authority-enum'
+import Authority from '../enums/authority-enum'
 
 const userSchema = new Schema({
 	phone_number: {

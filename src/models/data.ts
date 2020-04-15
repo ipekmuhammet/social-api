@@ -10,7 +10,7 @@ import icecek from './jsons/src/icecek-products.json'
 import kahvaltilik from './jsons/src/kahvaltilik-products.json'
 import kisisel from './jsons/src/kisisel-products.json'
 import temizlik from './jsons/src/temizlik-products.json'
-import Categories from './category-enum'
+import Categories from '../enums/category-enum'
 
 const saveProducts = (products: any, category: any) => {
 	products.forEach((el: any) => {

@@ -2,19 +2,22 @@ import { Router } from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import Nexmo from 'nexmo'
+import HttpStatusCodes from 'http-status-codes'
 
 import { Redis, Elasticsearch } from '../startup'
 import { User } from '../models'
-import Authority from './authority-enum'
+import Authority from '../enums/authority-enum'
 
 // eslint-disable-next-line no-unused-vars
-import { validateAuthority, validatePhone } from './auth-middleware'
+import { validateAuthority, validatePhone } from '../middlewares/auth-middleware'
+
+
+import ServerError from '../errors/ServerError'
 
 const router = Router()
 
 router.use(validateAuthority(Authority.ANONIM))
-router.use(validatePhone()) // TODO AÇ + ile kaydediyor eski verileri + sız kaydettiğimiz için verileri 0 dan test ettiğimizde açılacak.
-
+router.use(validatePhone())
 
 // eslint-disable-next-line no-unused-vars
 const sendSms = (to: string, message: string) => {
@@ -27,7 +30,6 @@ const sendSms = (to: string, message: string) => {
 
 	smsManager.message.sendSms(from, to, message)
 }
-
 
 router.get('/categories', (req, res) => {
 	Redis.getInstance.getAsync('categories').then((val: any) => {
@@ -72,7 +74,7 @@ router.get('/product/:id', (req, res) => {
 
 	multi.exec((error, results) => { // 37695 38532 37295
 		if (error) {
-			res.status(500).json('Unknown Error') // TODO
+			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true)
 		} else if (results[0]) {
 			// @ts-ignore
 			if (req.userId) {
@@ -109,7 +111,7 @@ router.get('/product/:id', (req, res) => {
 			}
 			res.json(JSON.parse(results[0]))
 		} else {
-			res.status(500).json('Unknown Error') // TODO
+			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'Unknown Error.', true)
 		}
 	})
 
@@ -153,9 +155,9 @@ router.post('/send-activation-code', (req, res) => {
 	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError) => {
 		if (redisError) {
 			console.log(redisError)
-			res.status(500).json({ status: false, error: redisError })
+			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true)
 		} else {
-			res.status(202).json({ status: true })
+			res.status(HttpStatusCodes.ACCEPTED).json({ status: true })
 		}
 	})
 })
@@ -181,10 +183,10 @@ router.post('/register', (req, res) => {
 				})
 			}).catch((reason) => {
 				console.log(reason)
-				res.status(400).json({ status: false })
+				res.status(HttpStatusCodes.BAD_REQUEST).json({ status: false })
 			})
 		} else {
-			res.status(400).json('Wrong activation code.')
+			res.status(HttpStatusCodes.BAD_REQUEST).json('Wrong activation code.')
 		}
 	})
 })
@@ -195,7 +197,7 @@ router.post('/login', (req, res) => {
 			// @ts-ignore
 			bcrypt.compare(req.body.password, user.password).then((validPassword) => {
 				if (!validPassword) {
-					res.status(401).end('Unauthorized')
+					res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 				} else {
 					jwt.sign({ payload: user }, 'secret', (jwtErr: any, token: any) => {
 						if (jwtErr) {
@@ -208,11 +210,11 @@ router.post('/login', (req, res) => {
 				}
 			})
 		} else {
-			res.status(401).end('Unauthorized')
+			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 		}
 	}).catch((reason) => {
 		console.log(reason)
-		res.status(401).end('Unauthorized')
+		res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 	})
 })
 
@@ -222,7 +224,7 @@ router.put('/change-password', (req, res) => {
 			// @ts-ignore
 			bcrypt.compare(req.body.old_password, user.password).then((validPassword) => {
 				if (!validPassword) {
-					res.status(401).end('Unauthorized')
+					res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 				} else {
 					// @ts-ignore
 					// eslint-disable-next-line no-param-reassign
@@ -233,11 +235,11 @@ router.put('/change-password', (req, res) => {
 				}
 			})
 		} else {
-			res.status(401).end('Unauthorized')
+			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 		}
 	}).catch((reason) => {
 		console.log(reason)
-		res.status(401).end('Unauthorized')
+		res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 	})
 })
 

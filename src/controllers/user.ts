@@ -1,10 +1,12 @@
 import { Router } from 'express'
 import Joi from '@hapi/joi'
+import HttpStatusCodes from 'http-status-codes'
 
 import { Redis } from '../startup'
 import { User } from '../models'
-import { validateAuthority } from './auth-middleware'
-import Authority from './authority-enum'
+import { validateAuthority } from '../middlewares/auth-middleware'
+import Authority from '../enums/authority-enum'
+import ServerError from '../errors/ServerError'
 
 const router = Router()
 
@@ -34,24 +36,23 @@ router.post('/cart', (req, res) => {
 
 	if (!error) {
 		// @ts-ignore
-		Redis.getInstance.hset('cart', req.userId, JSON.stringify(req.body), (err) => {
-			if (err) {
-				res.status(500).json('Network Error')
+		Redis.getInstance.hset('cart', req.userId, JSON.stringify(req.body), (redisError) => {
+			if (redisError) {
+				throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true)
 			} else {
 				res.json({ status: true })
 			}
 		})
 	} else {
-		res.status(400).json('Bad Request')
+		throw new ServerError('', HttpStatusCodes.BAD_REQUEST, JSON.stringify(req.body), true)
 	}
 })
 
 router.get('/cart', (req, res) => {
 	//  @ts-ignore
-	Redis.getInstance.hget('cart', req.userId, (err, reply) => {
-		if (err) {
-			console.log(err)
-			res.status(500).json('Network Error')
+	Redis.getInstance.hget('cart', req.userId, (error, reply) => {
+		if (error) {
+			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true)
 		} else {
 			res.json(JSON.parse(reply))
 		}
@@ -67,11 +68,10 @@ router.put('/add-address', (req, res) => {
 				res.json(result)
 			})
 		} else {
-			res.status(401).json({ status: false, error: 'User does not exists on Database, but in cache.' })
+			throw new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, 'User does not exists on Database, but in cache.', false)
 		}
 	}).catch((reason) => {
-		console.log(reason)
-		res.status(401).json({ status: false, error: 'Database error.' })
+		throw new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, reason.message, false)
 	})
 })
 
@@ -85,11 +85,10 @@ router.put('/delete-address', (req, res) => {
 				res.json(result)
 			})
 		} else {
-			res.status(401).json({ status: false, error: 'User does not exists on Database, but in cache.' })
+			throw new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, 'User does not exists on Database, but in cache.', false)
 		}
 	}).catch((reason) => {
-		console.log(reason)
-		res.status(401).json({ status: false, error: 'Database error.' })
+		throw new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, reason.message, false)
 	})
 })
 
@@ -116,17 +115,15 @@ router.post('/makeOrder', (req, res) => {
 			// @ts-ignore
 			multi.hdel('cart', req.userId)
 
-			multi.exec((error, results) => {
-				console.log(error, results)
-
-				if (!error) {
-					res.json({ status: true })
+			multi.exec((error) => {
+				if (error) {
+					throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true)
 				} else {
-					res.status(500).json({ status: false })
+					res.json({ status: true })
 				}
 			})
 		} else {
-			res.status(500).json({ status: false })
+			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, getErr.message, true)
 		}
 	})
 

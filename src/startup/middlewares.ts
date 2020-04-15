@@ -9,7 +9,6 @@ import path from 'path'
 import 'dotenv/config'
 
 export default (app: Application) => {
-	console.log(path.join(__dirname, '../../public'))
 	app.use(express.static(path.join(__dirname, '../../public')))
 	app.use(cors())
 	app.use(helmet())
@@ -34,19 +33,25 @@ export default (app: Application) => {
 		}
 	}
 
-	const logger = winston.createLogger({
+	const loggerOptions = {
 		transports: [
 			new winston.transports.File(options.file),
 			new winston.transports.Console(options.console)
 		],
 		exitOnError: false
-	})
+	}
 
-	app.use(morgan('combined', {
-		stream: {
-			write(message: string) {
-				logger.info(message)
+	const logger = winston.createLogger(loggerOptions)
+
+	winston.loggers.add('logger', loggerOptions)
+
+	app.use(
+		morgan('combined', {
+			stream: {
+				write(message: string) {
+					logger.info(message)
+				}
 			}
-		}
-	}))
+		})
+	)
 }
