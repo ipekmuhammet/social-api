@@ -6,7 +6,6 @@ import HttpStatusCodes from 'http-status-codes'
 import Validator from '../controllers/validator'
 import Authority from '../enums/authority-enum'
 
-// eslint-disable-next-line import/prefer-default-export
 export const validateAuthority = (authority: Authority) => (req: Request, res: Response, next: NextFunction) => {
 	if (authority === Authority.ANONIM) {
 		if (req.headers.authorization) {
@@ -14,15 +13,14 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 
 			if (decoded) {
 				// @ts-ignore
-				// eslint-disable-next-line no-underscore-dangle
-				req.userId = decoded.payload._id
+				req.user = decoded.payload._id
 				next()
 			} else {
 				res.status(401).end('Unauthorized')
 			}
 		} else {
 			// @ts-ignore
-			req.userId = null
+			req.user = null
 			next()
 		}
 	} else if (req.headers.authorization) {
@@ -31,8 +29,7 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 		//	if (decoded) {
 
 		// @ts-ignore
-		// eslint-disable-next-line no-underscore-dangle
-		req.userId = decoded.payload._id
+		req.user = decoded.payload
 		next()
 		//	} else {
 		//		res.status(401).end('Unauthorized')

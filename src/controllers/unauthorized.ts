@@ -67,9 +67,9 @@ router.get('/product/:id', (req, res) => {
 	multi.getAsync(req.params.id)
 
 	// @ts-ignore
-	if (req.userId) {
+	if (req.user._id) {
 		// @ts-ignore
-		multi.hget('cart', req.userId)
+		multi.hget('cart', req.user._id)
 	}
 
 	multi.exec((error, results) => { // 37695 38532 37295
@@ -77,13 +77,13 @@ router.get('/product/:id', (req, res) => {
 			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true)
 		} else if (results[0]) {
 			// @ts-ignore
-			if (req.userId) {
+			if (req.user._id) {
 				if (results[1]) {
 					if (Object.keys(JSON.parse(results[1])).includes(req.params.id)) {
 						Redis.getInstance.hset(
 							'cart',
 							// @ts-ignore
-							req.userId,
+							req.user._id,
 							JSON.stringify(Object.assign(
 								JSON.parse(results[1]),
 								{ [req.params.id]: Object.assign(JSON.parse(results[0]), { quantity: (JSON.parse(results[1])[req.params.id].quantity ?? 1) + 1 }) }
@@ -93,7 +93,7 @@ router.get('/product/:id', (req, res) => {
 						Redis.getInstance.hset(
 							'cart',
 							// @ts-ignore
-							req.userId,
+							req.user._id,
 							JSON.stringify(Object.assign(
 								JSON.parse(results[1]),
 								{ [req.params.id]: results[0] }
@@ -104,7 +104,7 @@ router.get('/product/:id', (req, res) => {
 					Redis.getInstance.hset(
 						'cart',
 						// @ts-ignore
-						req.userId,
+						req.user._id,
 						JSON.stringify({ [req.params.id]: Object.assign(JSON.parse(results[0]), { quantity: 1 }) })
 					)
 				}

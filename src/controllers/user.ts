@@ -1,16 +1,59 @@
 import { Router } from 'express'
 import Joi from '@hapi/joi'
 import HttpStatusCodes from 'http-status-codes'
+import Iyzipay from 'iyzipay'
 
 import { Redis } from '../startup'
 import { User } from '../models'
 import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
 import ServerError from '../errors/ServerError'
+import Validator from './validator'
 
 const router = Router()
 
+const iyzipay = new Iyzipay({
+	apiKey: 'sandbox-hbjzTU7CZDxarIUKVMhWLvHOIMIb3Z40',
+	secretKey: 'sandbox-F01xQT4VMHAdFDB4RFNgo2l0kMImhCPX',
+	uri: 'https://sandbox-api.iyzipay.com'
+})
+
 router.use(validateAuthority(Authority.USER))
+
+router.get('/list-cards', (req, res) => {
+	iyzipay.cardList.retrieve({
+		locale: Iyzipay.LOCALE.TR,
+		conversationId: '123456789',
+		cardUserKey: 'ojBya0o8ecs7ynou3l94xmdB8f8='
+	}, (error: any, result: any) => {
+		if (error) {
+			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), false)
+		} else {
+			res.json(result)
+		}
+	})
+})
+
+router.post('/payment-card', (req, res) => {
+	iyzipay.card.create({
+		locale: Iyzipay.LOCALE.TR,
+		// conversationId: '123456789',
+		cardUserKey: 'ojBya0o8ecs7ynou3l94xmdB8f8=', // TODO get from user object from database/redis
+		card: req.body.card // Validate card datas	//	{
+		//		cardAlias: 'card alias',
+		//		cardHolderName: 'John Doe',
+		//		cardNumber: '5890040000000016',
+		//		expireMonth: '12',
+		//		expireYear: '2030'
+		//	}
+	}, (error: any, result: any) => {
+		if (error) {
+			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), false)
+		} else {
+			res.json(result)
+		}
+	})
+})
 
 router.post('/cart', (req, res) => {
 	const schema = Joi.object({
@@ -32,11 +75,11 @@ router.post('/cart', (req, res) => {
 		quantity: Joi.number().min(1).required()
 	})
 
-	const { error } = Joi.array().items(schema).validate(Object.values(req.body))
+	const { error } = Validator.getInstance.validateProducts(Object.values(req.body))
 
 	if (!error) {
 		// @ts-ignore
-		Redis.getInstance.hset('cart', req.userId, JSON.stringify(req.body), (redisError) => {
+		Redis.getInstance.hset('cart', req.user._id, JSON.stringify(req.body), (redisError) => {
 			if (redisError) {
 				throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true)
 			} else {
@@ -50,7 +93,7 @@ router.post('/cart', (req, res) => {
 
 router.get('/cart', (req, res) => {
 	//  @ts-ignore
-	Redis.getInstance.hget('cart', req.userId, (error, reply) => {
+	Redis.getInstance.hget('cart', req.user._id, (error, reply) => {
 		if (error) {
 			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true)
 		} else {
@@ -61,7 +104,7 @@ router.get('/cart', (req, res) => {
 
 router.put('/add-address', (req, res) => {
 	// @ts-ignore
-	User.findById(req.userId).then((user: any) => {
+	User.findById(req.user._id).then((user: any) => {
 		if (user) {
 			user.addresses.push(req.body)
 			user.save().then((result: any) => {
@@ -77,9 +120,8 @@ router.put('/add-address', (req, res) => {
 
 router.put('/delete-address', (req, res) => {
 	// @ts-ignore
-	User.findById(req.userId).then((user: any) => {
+	User.findById(req.user._id).then((user: any) => {
 		if (user) {
-			// eslint-disable-next-line no-underscore-dangle
 			user.addresses.splice(user.addresses.indexOf(user.addresses.find((address: any) => address._id.toString() === req.body._id)), 1)
 			user.save().then((result: any) => {
 				res.json(result)
@@ -94,7 +136,7 @@ router.put('/delete-address', (req, res) => {
 
 router.post('/makeOrder', (req, res) => {
 	// @ts-ignore
-	Redis.getInstance.hget('cart', req.userId, (getErr, cart) => {
+	Redis.getInstance.hget('cart', req.user._id, (getErr, cart) => {
 		if (!getErr) {
 			const id = Math.random().toString()
 
@@ -113,7 +155,7 @@ router.post('/makeOrder', (req, res) => {
 			multi.hset('category1', id, JSON.stringify(val))
 
 			// @ts-ignore
-			multi.hdel('cart', req.userId)
+			multi.hdel('cart', req.user._id)
 
 			multi.exec((error) => {
 				if (error) {
@@ -126,25 +168,6 @@ router.post('/makeOrder', (req, res) => {
 			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, getErr.message, true)
 		}
 	})
-
-	//	Redis.getInstance.rpush('manager1', JSON.stringify(val), (err) => {
-	//		if (!err) {
-	//			res.json({ status: true })
-	//		} else {
-	//			res.json({ status: false })
-	//		}
-	//	})
-
-	// Redis.getInstance.rpop('manager1') // delete last item
-
-	// Redis.getInstance.lrem('manager1', 0, 'product1', (err, reply) => { // delete all items with value product1 of key manager1
-	// 	if (err) console.log('err')
-	// 	console.log(reply)
-	// })
-
-	// Redis.getInstance.lrange('manager1', 0, -1, (err, reply) => {
-	// 	res.json(reply)
-	// })
 })
 
 export default router

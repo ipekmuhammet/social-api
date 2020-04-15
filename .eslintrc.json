@@ -2,5 +2,8 @@
 	"extends": [
 		"@ipekmuhammet/eslint-config-base-typescript",
 		"plugin:security/recommended"
-	]
+	],
+	"rules": {
+		"no-underscore-dangle": "off"
+	}
 }
