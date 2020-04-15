@@ -161,7 +161,6 @@ router.post('/send-activation-code', (req, res) => {
 })
 
 router.post('/register', (req, res) => {
-	console.log(req.body)
 	Redis.getInstance.hget('activationCode', req.body.phone_number, (redisError, reply) => {
 		console.log(req.body.activation_code, reply)
 		if (redisError) {
@@ -192,13 +191,11 @@ router.post('/register', (req, res) => {
 
 
 router.post('/login', (req, res) => {
-	console.log(req.body)
 	User.findOne({ phone_number: req.body.phone_number }).then((user) => {
 		if (user) {
 			// @ts-ignore
 			bcrypt.compare(req.body.password, user.password).then((validPassword) => {
 				if (!validPassword) {
-					console.log('y')
 					res.status(401).end('Unauthorized')
 				} else {
 					jwt.sign({ payload: user }, 'secret', (jwtErr: any, token: any) => {
@@ -212,7 +209,6 @@ router.post('/login', (req, res) => {
 				}
 			})
 		} else {
-			console.log('x')
 			res.status(401).end('Unauthorized')
 		}
 	}).catch((reason) => {
