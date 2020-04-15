@@ -9,6 +9,7 @@ const router = Router()
 
 router.use(validateAuthority(Authority.MANAGER))
 
+// eslint-disable-next-line no-unused-vars
 const sendSms = (to: string, message: string) => {
 	const smsManager: any = new Nexmo({
 		apiKey: '14efe668',

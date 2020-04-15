@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import winston from 'winston'
 
 import { load, test } from '../models/data'
 
@@ -11,14 +12,14 @@ class Mongo {
 		mongoose.connect(url, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: true })
 
 		mongoose.connection.on('open', () => {
-			console.log('Database: Connected.')
+			winston.loggers.get('logger').info('Database: Connected.')
 
 			// load()
 			// test()
 		})
 
 		mongoose.connection.on('error', (error) => {
-			console.error('Database: Error', error)
+			winston.loggers.get('logger').error('Database: Error', error)
 		})
 
 		mongoose.Promise = global.Promise

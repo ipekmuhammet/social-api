@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import Joi from '@hapi/joi'
 import HttpStatusCodes from 'http-status-codes'
 import Iyzipay from 'iyzipay'
 
@@ -56,25 +55,6 @@ router.post('/payment-card', (req, res) => {
 })
 
 router.post('/cart', (req, res) => {
-	const schema = Joi.object({
-		brand: Joi.string().required(),
-		id: [
-			Joi.string().required(),
-			Joi.number().required(),
-		],
-		kind_name: Joi.string().allow(null, ''),
-		product_name: Joi.string().required(),
-		old_price: Joi.number().required(),
-		price: Joi.number().required(),
-		title: Joi.string().required(),
-		category_breadcrumb: Joi.string().allow(null, ''),
-		images: Joi.array().items(Joi.string()).required(),
-		// images: Joi.array().items(Joi.string().required()).required(),
-		image_types: Joi.object().required(),
-		units: Joi.string().allow(null, ''),
-		quantity: Joi.number().min(1).required()
-	})
-
 	const { error } = Validator.getInstance.validateProducts(Object.values(req.body))
 
 	if (!error) {
@@ -142,7 +122,8 @@ router.post('/makeOrder', (req, res) => {
 
 			const val = {
 				id,
-				customer: req.body.customer, // TODO ben zaten biliyorum customer'ın kim olduğunu
+				// @ts-ignore
+				customer: req.user.name_surname,
 				address: req.body.address, // TODO hangi addressi olduğunu gönderecek ben user adreslerinden alıcam.
 				date: new Date().toLocaleString(),
 				// starts : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)

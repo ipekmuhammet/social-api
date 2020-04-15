@@ -41,8 +41,7 @@ router.get('/products', (req, res) => {
 	if (req.query.categoryId) {
 		Redis.getInstance.hget('productsx', req.body.categoryId, (err: any, obj: any) => {
 			if (err) {
-				console.log(err)
-				throw new Error('err /products') // TODO
+				throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'err /products', false)
 			} else {
 				res.json(JSON.parse(obj))
 			}
@@ -50,8 +49,7 @@ router.get('/products', (req, res) => {
 	} else {
 		Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
 			if (err) {
-				console.log(err)
-				throw new Error('err /products') // TODO
+				throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'err /products', false)
 			} else {
 				res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
 			}
@@ -154,7 +152,6 @@ router.post('/send-activation-code', (req, res) => {
 
 	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError) => {
 		if (redisError) {
-			console.log(redisError)
 			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true)
 		} else {
 			res.status(HttpStatusCodes.ACCEPTED).json({ status: true })
@@ -164,26 +161,21 @@ router.post('/send-activation-code', (req, res) => {
 
 router.post('/register', (req, res) => {
 	Redis.getInstance.hget('activationCode', req.body.phone_number, (redisError, reply) => {
-		console.log(req.body.activation_code, reply)
 		if (redisError) {
-			console.log(redisError)
-			res.json({ status: false, error: redisError })
+			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, false)
 		} else if (req.body.activation_code === reply) {
 			new User(req.body).save().then((user) => {
 				// sendSms('905468133198', `${activationCode} is your activation code to activate your account.`)
-				console.log(user)
 				jwt.sign({ payload: user }, 'secret', (jwtErr: any, token: any) => {
 					if (jwtErr) {
-						console.log(jwtErr)
-						res.json({ status: false })
+						throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(jwtErr), false)
 					} else {
 						Redis.getInstance.hdel('activationCode', req.body.phone_number)
 						res.json({ token, user })
 					}
 				})
 			}).catch((reason) => {
-				console.log(reason)
-				res.status(HttpStatusCodes.BAD_REQUEST).json({ status: false })
+				throw new ServerError('Redis', HttpStatusCodes.BAD_REQUEST, JSON.stringify(reason.message), false)
 			})
 		} else {
 			res.status(HttpStatusCodes.BAD_REQUEST).json('Wrong activation code.')
@@ -201,8 +193,7 @@ router.post('/login', (req, res) => {
 				} else {
 					jwt.sign({ payload: user }, 'secret', (jwtErr: any, token: any) => {
 						if (jwtErr) {
-							console.log(jwtErr)
-							res.json({ status: false })
+							throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(jwtErr.message), true)
 						} else {
 							res.json({ token, user })
 						}
@@ -213,8 +204,7 @@ router.post('/login', (req, res) => {
 			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 		}
 	}).catch((reason) => {
-		console.log(reason)
-		res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
+		throw new ServerError('Mongo', HttpStatusCodes.UNAUTHORIZED, JSON.stringify(reason.message), true)
 	})
 })
 
@@ -238,8 +228,7 @@ router.put('/change-password', (req, res) => {
 			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 		}
 	}).catch((reason) => {
-		console.log(reason)
-		res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
+		throw new ServerError('Mongo', HttpStatusCodes.UNAUTHORIZED, JSON.stringify(reason.message), true)
 	})
 })
 
