@@ -8,7 +8,7 @@ class Validator {
     static instance: Validator
 
     phoneSchema = Joi.object({
-    	phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'e164', strict: true })
+    	phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true })
     })
 
     // eslint-disable-next-line no-useless-constructor, no-empty-function

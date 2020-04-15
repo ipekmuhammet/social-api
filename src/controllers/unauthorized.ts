@@ -7,12 +7,13 @@ import { Redis, Elasticsearch } from '../startup'
 import { User } from '../models'
 import Authority from './authority-enum'
 
+// eslint-disable-next-line no-unused-vars
 import { validateAuthority, validatePhone } from './auth-middleware'
 
 const router = Router()
 
 router.use(validateAuthority(Authority.ANONIM))
-router.use(validatePhone())
+router.use(validatePhone()) // TODO AÇ + ile kaydediyor eski verileri + sız kaydettiğimiz için verileri 0 dan test ettiğimizde açılacak.
 
 
 // eslint-disable-next-line no-unused-vars
@@ -151,6 +152,7 @@ router.post('/send-activation-code', (req, res) => {
 
 	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError) => {
 		if (redisError) {
+			console.log(redisError)
 			res.status(500).json({ status: false, error: redisError })
 		} else {
 			res.status(202).json({ status: true })
@@ -159,7 +161,9 @@ router.post('/send-activation-code', (req, res) => {
 })
 
 router.post('/register', (req, res) => {
+	console.log(req.body)
 	Redis.getInstance.hget('activationCode', req.body.phone_number, (redisError, reply) => {
+		console.log(req.body.activation_code, reply)
 		if (redisError) {
 			console.log(redisError)
 			res.json({ status: false, error: redisError })
@@ -178,22 +182,23 @@ router.post('/register', (req, res) => {
 				})
 			}).catch((reason) => {
 				console.log(reason)
-				res.status(401).json({ status: false })
+				res.status(400).json({ status: false })
 			})
 		} else {
-			console.log(req.body.activation_code, reply)
-			res.status(401).json('Unauthorized')
+			res.status(400).json('Wrong activation code.')
 		}
 	})
 })
 
 
 router.post('/login', (req, res) => {
+	console.log(req.body)
 	User.findOne({ phone_number: req.body.phone_number }).then((user) => {
 		if (user) {
 			// @ts-ignore
 			bcrypt.compare(req.body.password, user.password).then((validPassword) => {
 				if (!validPassword) {
+					console.log('y')
 					res.status(401).end('Unauthorized')
 				} else {
 					jwt.sign({ payload: user }, 'secret', (jwtErr: any, token: any) => {
@@ -207,6 +212,7 @@ router.post('/login', (req, res) => {
 				}
 			})
 		} else {
+			console.log('x')
 			res.status(401).end('Unauthorized')
 		}
 	}).catch((reason) => {

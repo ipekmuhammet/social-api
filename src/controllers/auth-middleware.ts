@@ -45,7 +45,7 @@ export const validatePhone = () => (
 	(req: Request, res: Response, next: NextFunction) => {
 		const { value, error } = Validator.getInstance.validatePhoneNumber({ phone_number: req.body.phone_number })
 
-		if (!error) {
+		if (!error && value.phone_number) {
 			// @ts-ignore
 			req.body.phone_number = value.phone_number
 			next()
