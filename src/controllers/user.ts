@@ -19,21 +19,21 @@ const iyzipay = new Iyzipay({
 
 router.use(validateAuthority(Authority.USER))
 
-router.get('/list-cards', (req, res) => {
+router.get('/list-cards', (req, res, next) => {
 	iyzipay.cardList.retrieve({
 		locale: Iyzipay.LOCALE.TR,
 		conversationId: '123456789',
 		cardUserKey: 'ojBya0o8ecs7ynou3l94xmdB8f8='
 	}, (error: any, result: any) => {
 		if (error) {
-			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), false)
+			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), false))
 		} else {
 			res.json(result)
 		}
 	})
 })
 
-router.post('/payment-card', (req, res) => {
+router.post('/payment-card', (req, res, next) => {
 	iyzipay.card.create({
 		locale: Iyzipay.LOCALE.TR,
 		// conversationId: '123456789',
@@ -47,42 +47,42 @@ router.post('/payment-card', (req, res) => {
 		//	}
 	}, (error: any, result: any) => {
 		if (error) {
-			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), false)
+			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), false))
 		} else {
 			res.json(result)
 		}
 	})
 })
 
-router.post('/cart', (req, res) => {
+router.post('/cart', (req, res, next) => {
 	const { error } = Validator.getInstance.validateProducts(Object.values(req.body))
 
 	if (!error) {
 		// @ts-ignore
 		Redis.getInstance.hset('cart', req.user._id, JSON.stringify(req.body), (redisError) => {
 			if (redisError) {
-				throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true)
+				next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true))
 			} else {
 				res.json({ status: true })
 			}
 		})
 	} else {
-		throw new ServerError('', HttpStatusCodes.BAD_REQUEST, JSON.stringify(req.body), true)
+		next(new ServerError('Redis', HttpStatusCodes.BAD_REQUEST, JSON.stringify(req.body), true))
 	}
 })
 
-router.get('/cart', (req, res) => {
+router.get('/cart', (req, res, next) => {
 	//  @ts-ignore
 	Redis.getInstance.hget('cart', req.user._id, (error, reply) => {
 		if (error) {
-			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true)
+			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
 		} else {
 			res.json(JSON.parse(reply))
 		}
 	})
 })
 
-router.put('/add-address', (req, res) => {
+router.put('/add-address', (req, res, next) => {
 	// @ts-ignore
 	User.findById(req.user._id).then((user: any) => {
 		if (user) {
@@ -91,14 +91,14 @@ router.put('/add-address', (req, res) => {
 				res.json(result)
 			})
 		} else {
-			throw new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, 'User does not exists on Database, but in cache.', false)
+			next(new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, 'User does not exists on Database, but in cache.', false))
 		}
 	}).catch((reason) => {
-		throw new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, reason.message, false)
+		next(new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, reason.message, false))
 	})
 })
 
-router.put('/delete-address', (req, res) => {
+router.put('/delete-address', (req, res, next) => {
 	// @ts-ignore
 	User.findById(req.user._id).then((user: any) => {
 		if (user) {
@@ -107,14 +107,14 @@ router.put('/delete-address', (req, res) => {
 				res.json(result)
 			})
 		} else {
-			throw new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, 'User does not exists on Database, but in cache.', false)
+			next(new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, 'User does not exists on Database, but in cache.', false))
 		}
 	}).catch((reason) => {
-		throw new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, reason.message, false)
+		next(new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, reason.message, false))
 	})
 })
 
-router.post('/makeOrder', (req, res) => {
+router.post('/makeOrder', (req, res, next) => {
 	// @ts-ignore
 	Redis.getInstance.hget('cart', req.user._id, (getErr, cart) => {
 		if (!getErr) {
@@ -140,13 +140,13 @@ router.post('/makeOrder', (req, res) => {
 
 			multi.exec((error) => {
 				if (error) {
-					throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true)
+					next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
 				} else {
 					res.json({ status: true })
 				}
 			})
 		} else {
-			throw new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, getErr.message, true)
+			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, getErr.message, true))
 		}
 	})
 })
