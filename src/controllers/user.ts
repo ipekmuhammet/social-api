@@ -102,9 +102,9 @@ router.delete('/address', (req, res, next) => {
 	// @ts-ignore
 	User.findById(req.user._id).then((user: any) => {
 		if (user) {
-			const address = user.addresses.indexOf(user.addresses.find((address: any) => address._id.toString() === req.body._id))
-			if (address !== -1) {
-				user.addresses.splice(address, 1)
+			const deletedAddress = user.addresses.indexOf(user.addresses.find((address: any) => address._id.toString() === req.body._id))
+			if (deletedAddress !== -1) {
+				user.addresses.splice(deletedAddress, 1)
 				user.save().then((result: any) => {
 					res.json(result)
 				})
@@ -112,7 +112,7 @@ router.delete('/address', (req, res, next) => {
 				next(new ServerError('Address not found!', HttpStatusCodes.BAD_REQUEST, '/DELETE address', false))
 			}
 		} else {
-			next(new ServerError('User does not exists on Database, but in cache.', HttpStatusCodes.BAD_REQUEST, 'DELETE /address', true))
+			next(new ServerError('User does not exists on Database, but in cache!', HttpStatusCodes.BAD_REQUEST, 'DELETE /address', true))
 		}
 	}).catch((reason) => {
 		next(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, '/DELETE address', true))
