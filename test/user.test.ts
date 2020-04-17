@@ -129,7 +129,7 @@ describe('user', () => {
 			.post('/user/order')
 			.set({ Authorization: token })
 			.send({
-				address: 0
+				address: user.addresses[0]._id
 			})
 			.expect(200)
 	))
