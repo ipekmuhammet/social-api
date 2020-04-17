@@ -108,7 +108,7 @@ describe('user', () => {
 				if (error) {
 					done(error)
 				}
-				expect(response.body._id).to.be.exist('string')
+				expect(response.body).to.contains.all.keys('_id')
 				user = response.body
 				done()
 			})
@@ -116,7 +116,7 @@ describe('user', () => {
 
 	it('POST /order', () => (
 		request(app)
-			.delete('/user/order')
+			.post('/user/order')
 			.set({ Authorization: token })
 			.send({
 				address: 0

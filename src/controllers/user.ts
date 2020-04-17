@@ -102,10 +102,15 @@ router.delete('/address', (req, res, next) => {
 	// @ts-ignore
 	User.findById(req.user._id).then((user: any) => {
 		if (user) {
-			user.addresses.splice(user.addresses.indexOf(user.addresses.find((address: any) => address._id.toString() === req.body._id)), 1)
-			user.save().then((result: any) => {
-				res.json(result)
-			})
+			const address = user.addresses.indexOf(user.addresses.find((address: any) => address._id.toString() === req.body._id))
+			if (address !== -1) {
+				user.addresses.splice(address, 1)
+				user.save().then((result: any) => {
+					res.json(result)
+				})
+			} else {
+				next(new ServerError('Address not found!', HttpStatusCodes.BAD_REQUEST, '/DELETE address', false))
+			}
 		} else {
 			next(new ServerError('User does not exists on Database, but in cache.', HttpStatusCodes.BAD_REQUEST, 'DELETE /address', true))
 		}
