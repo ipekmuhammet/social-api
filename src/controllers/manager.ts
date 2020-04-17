@@ -1,9 +1,11 @@
+import HttpStatusCodes from 'http-status-codes'
 import { Router } from 'express'
 import Nexmo from 'nexmo'
 
 import { Redis } from '../startup'
 import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
+import ServerError from '../errors/ServerError'
 
 const router = Router()
 
@@ -21,42 +23,58 @@ const sendSms = (to: string, message: string) => {
 	smsManager.message.sendSms(from, to, message)
 }
 
-router.get('/orders', (req, res) => {
+router.get('/orders', (req, res, next) => {
 	// Redis.getInstance.del('category1', Object.keys(Redis.getInstance.hgetall('category1')))
-	Redis.getInstance.hgetall('category1', (err, reply) => {
-		res.json(reply)
+	Redis.getInstance.hgetall('category1', (error, reply) => {
+		if (!error) {
+			res.json(reply)
+		} else {
+			next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/orders', true))
+		}
 	})
 })
 
-router.get('/orders/:id', (req, res) => {
-	Redis.getInstance.hget('category1', req.params.id, (err, reply) => {
-		res.json(JSON.parse(reply))
+router.get('/order/:id', (req, res, next) => {
+	Redis.getInstance.hget('category1', req.params.id, (error, reply) => {
+		if (!error) {
+			res.json(JSON.parse(reply))
+		} else {
+			next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/order/:id', true))
+		}
 	})
 })
 
-router.put('/orders/cancel/:id', (req, res) => {
+router.put('/orders/cancel/:id', (req, res, next) => {
 	Redis.getInstance.hget('category1', req.params.id, (err0, reply0) => {
-		Redis.getInstance.hset('category1', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: false })), (err) => {
-			if (err) {
-				res.json({ status: false })
-			} else {
-				// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, Y nedeniyle iptal edilmiştir. Ödemeniz en kısa sürece hesabına geri aktarılacaktır. Anlayışınız için teşekkürler.')
-				res.json({ status: true })
-			}
-		})
+		if (!err0) {
+			next(new ServerError(err0.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/cancel/:id', true))
+		} else {
+			Redis.getInstance.hset('category1', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: false })), (error) => {
+				if (!error) {
+					res.json({ status: true })
+				} else {
+					// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, Y nedeniyle iptal edilmiştir. Ödemeniz en kısa sürece hesabına geri aktarılacaktır. Anlayışınız için teşekkürler.')
+					next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/order/:id', true))
+				}
+			})
+		}
 	})
 })
 
-router.put('/orders/confirm/:id', (req, res) => {
+router.put('/orders/confirm/:id', (req, res, next) => {
 	Redis.getInstance.hget('category1', req.params.id, (err0, reply0) => {
-		Redis.getInstance.hset('category1', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: true })), (err) => {
-			if (err) {
-				res.json({ status: false })
-			} else {
-				// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, X Kargoya verilmiştir, Kargo takip numarası : 0123456789')
-				res.json({ status: true })
-			}
-		})
+		if (!err0) {
+			next(new ServerError(err0.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:id', true))
+		} else {
+			Redis.getInstance.hset('category1', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: true })), (error) => {
+				if (error) {
+					next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:id', true))
+				} else {
+					// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, X Kargoya verilmiştir, Kargo takip numarası : 0123456789')
+					res.json({ status: true })
+				}
+			})
+		}
 	})
 })
 

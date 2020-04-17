@@ -2,11 +2,12 @@ import mongoose, { Schema } from 'mongoose'
 
 
 const categorySchema = new Schema({
-	id: {
+	id: { // TODO ??
 		type: Number
 	},
 	name: {
-		type: String
+		type: String,
+		unique: true
 	}
 })
 
