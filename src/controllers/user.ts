@@ -26,7 +26,7 @@ router.get('/list-cards', (req, res, next) => {
 		cardUserKey: 'ojBya0o8ecs7ynou3l94xmdB8f8='
 	}, (error: any, result: any) => {
 		if (error) {
-			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), false))
+			next(new ServerError(JSON.stringify(error), HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /list-cards', true))
 		} else {
 			res.json(result)
 		}
@@ -47,7 +47,7 @@ router.post('/payment-card', (req, res, next) => {
 		//	}
 	}, (error: any, result: any) => {
 		if (error) {
-			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), false))
+			next(new ServerError(JSON.stringify(error), HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /payment-card', true))
 		} else {
 			res.json(result)
 		}
@@ -59,30 +59,30 @@ router.post('/cart', (req, res, next) => {
 
 	if (!error) {
 		// @ts-ignore
-		Redis.getInstance.hset('cart', req.user._id, JSON.stringify(req.body), (redisError) => {
+		Redis.getInstance.hset('cart', req.user._id.toString(), JSON.stringify(req.body), (redisError) => {
 			if (redisError) {
-				next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true))
+				next(new ServerError(redisError.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /cart', true))
 			} else {
 				res.json({ status: true })
 			}
 		})
 	} else {
-		next(new ServerError('Redis', HttpStatusCodes.BAD_REQUEST, JSON.stringify(req.body), true))
+		next(new ServerError(JSON.stringify(error), HttpStatusCodes.BAD_REQUEST, 'POST /cart', true))
 	}
 })
 
 router.get('/cart', (req, res, next) => {
 	//  @ts-ignore
-	Redis.getInstance.hget('cart', req.user._id, (error, reply) => {
+	Redis.getInstance.hget('cart', req.user._id.toString(), (error, reply) => {
 		if (error) {
-			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
+			next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /cart', true))
 		} else {
 			res.json(JSON.parse(reply))
 		}
 	})
 })
 
-router.put('/add-address', (req, res, next) => {
+router.post('/address', (req, res, next) => {
 	// @ts-ignore
 	User.findById(req.user._id).then((user: any) => {
 		if (user) {
@@ -91,14 +91,14 @@ router.put('/add-address', (req, res, next) => {
 				res.json(result)
 			})
 		} else {
-			next(new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, 'User does not exists on Database, but in cache.', false))
+			next(new ServerError('User does not exists on Database, but in cache.', HttpStatusCodes.BAD_REQUEST, 'POST /address', true))
 		}
 	}).catch((reason) => {
-		next(new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, reason.message, false))
+		next(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, 'POST /address', true))
 	})
 })
 
-router.put('/delete-address', (req, res, next) => {
+router.delete('/address', (req, res, next) => {
 	// @ts-ignore
 	User.findById(req.user._id).then((user: any) => {
 		if (user) {
@@ -107,24 +107,31 @@ router.put('/delete-address', (req, res, next) => {
 				res.json(result)
 			})
 		} else {
-			next(new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, 'User does not exists on Database, but in cache.', false))
+			next(new ServerError('User does not exists on Database, but in cache.', HttpStatusCodes.BAD_REQUEST, 'DELETE /address', true))
 		}
 	}).catch((reason) => {
-		next(new ServerError('Mongo', HttpStatusCodes.BAD_REQUEST, reason.message, false))
+		next(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, '/DELETE address', true))
 	})
 })
 
-router.post('/makeOrder', (req, res, next) => {
+router.post('/order', (req, res, next) => {
 	// @ts-ignore
-	Redis.getInstance.hget('cart', req.user._id, (getErr, cart) => {
-		if (!getErr) {
+	Redis.getInstance.hget('cart', req.user._id.toString(), (getErr, cart) => {
+		if (!cart) {
+			next(new ServerError('Empty cart!', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /order', false))
+			// @ts-ignore
+		} else if (!req.user.addresses[req.body.address]) {
+			next(new ServerError('Need an address!', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /order', false))
+		} else if (!getErr) {
 			const id = Math.random().toString()
 
+			// @ts-ignore
 			const val = {
 				id,
 				// @ts-ignore
 				customer: req.user.name_surname,
-				address: req.body.address, // TODO hangi addressi olduğunu gönderecek ben user adreslerinden alıcam.
+				// @ts-ignore
+				address: req.user.addresses[req.body.address],
 				date: new Date().toLocaleString(),
 				// starts : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)
 				// price: (23.43 * 5) + (76.36 * 2), // Online ödemelerde manager'ın ücret ile işi yok.
@@ -136,17 +143,17 @@ router.post('/makeOrder', (req, res, next) => {
 			multi.hset('category1', id, JSON.stringify(val))
 
 			// @ts-ignore
-			multi.hdel('cart', req.user._id)
+			multi.hdel('cart', req.user._id.toString())
 
 			multi.exec((error) => {
 				if (error) {
-					next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
+					next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /order', true))
 				} else {
 					res.json({ status: true })
 				}
 			})
 		} else {
-			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, getErr.message, true))
+			next(new ServerError(getErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /order', true))
 		}
 	})
 })

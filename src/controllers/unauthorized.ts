@@ -37,17 +37,17 @@ router.get('/categories', (req, res) => {
 
 router.get('/products', (req, res, next) => {
 	if (req.query.categoryId) {
-		Redis.getInstance.hget('productsx', req.body.categoryId, (err: any, obj: any) => {
-			if (err) {
-				next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'err /products', false))
+		Redis.getInstance.hget('productsx', req.body.categoryId, (error: Error, obj: any) => {
+			if (error) {
+				next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /products', true))
 			} else {
 				res.json(JSON.parse(obj))
 			}
 		})
 	} else {
-		Redis.getInstance.hgetall('productsx', (err: any, obj: any) => {
-			if (err) {
-				next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'err /products', false))
+		Redis.getInstance.hgetall('productsx', (error: Error, obj: any) => {
+			if (error) {
+				next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /products', true))
 			} else {
 				res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
 			}
@@ -65,21 +65,21 @@ router.get('/product/:id', (req, res, next) => {
 	// @ts-ignore
 	if (req.user._id) {
 		// @ts-ignore
-		multi.hget('cart', req.user._id)
+		multi.hget('cart', req.user._id.toString())
 	}
 
 	multi.exec((error, results) => { // 37695 38532 37295
 		if (error) {
-			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
+			next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /product/:id', true))
 		} else if (results[0]) {
 			// @ts-ignore
-			if (req.user._id) {
+			if (req.user._id.toString()) {
 				if (results[1]) {
 					if (Object.keys(JSON.parse(results[1])).includes(req.params.id)) {
 						Redis.getInstance.hset(
 							'cart',
 							// @ts-ignore
-							req.user._id,
+							req.user._id.toString(),
 							JSON.stringify(Object.assign(
 								JSON.parse(results[1]),
 								{ [req.params.id]: Object.assign(JSON.parse(results[0]), { quantity: (JSON.parse(results[1])[req.params.id].quantity ?? 1) + 1 }) }
@@ -89,7 +89,7 @@ router.get('/product/:id', (req, res, next) => {
 						Redis.getInstance.hset(
 							'cart',
 							// @ts-ignore
-							req.user._id,
+							req.user._id.toString(),
 							JSON.stringify(Object.assign(
 								JSON.parse(results[1]),
 								{ [req.params.id]: results[0] }
@@ -100,14 +100,14 @@ router.get('/product/:id', (req, res, next) => {
 					Redis.getInstance.hset(
 						'cart',
 						// @ts-ignore
-						req.user._id,
+						req.user._id.toString(),
 						JSON.stringify({ [req.params.id]: Object.assign(JSON.parse(results[0]), { quantity: 1 }) })
 					)
 				}
 			}
 			res.json(JSON.parse(results[0]))
 		} else {
-			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'Unknown Error.', true))
+			next(new ServerError('Unknown product', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /product/:id', false))
 		}
 	})
 
@@ -150,7 +150,7 @@ router.post('/send-activation-code', (req, res, next) => {
 
 	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError) => {
 		if (redisError) {
-			next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true))
+			next(new ServerError(redisError.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /send-activation-code', true))
 		} else {
 			res.status(HttpStatusCodes.ACCEPTED).json({ status: true })
 		}
@@ -160,23 +160,23 @@ router.post('/send-activation-code', (req, res, next) => {
 router.post('/register', (req, res, next) => {
 	Redis.getInstance.hget('activationCode', req.body.phone_number, (redisError, reply) => {
 		if (redisError) {
-			next(new ServerError('Redis Error', HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, false))
+			next(new ServerError(redisError.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', true))
 		} else if (req.body.activation_code === reply) {
 			new User(req.body).save().then((user) => {
 				// sendSms('905468133198', `${activationCode} is your activation code to activate your account.`)
-				jwt.sign({ payload: user }, 'secret', (jwtErr: any, token: any) => {
+				jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
 					if (jwtErr) {
-						next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(jwtErr), false))
+						next(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', true))
 					} else {
 						Redis.getInstance.hdel('activationCode', req.body.phone_number)
 						res.json({ token, user })
 					}
 				})
 			}).catch((reason) => {
-				next(new ServerError('Mongo Error', HttpStatusCodes.BAD_REQUEST, JSON.stringify(reason.message), false))
+				next(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, 'POST /register', true))
 			})
 		} else {
-			next(new ServerError('Activation code', HttpStatusCodes.BAD_REQUEST, 'Wrong activation code.', false))
+			next(new ServerError('Wrong activation code!', HttpStatusCodes.BAD_REQUEST, 'POST /register', false))
 		}
 	})
 })
@@ -189,9 +189,9 @@ router.post('/login', (req, res, next) => {
 				if (!validPassword) {
 					res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 				} else {
-					jwt.sign({ payload: user }, 'secret', (jwtErr: any, token: any) => {
+					jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
 						if (jwtErr) {
-							next(new ServerError('Redis', HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(jwtErr.message), true))
+							next(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login', true))
 						} else {
 							res.json({ token, user })
 						}
@@ -202,7 +202,7 @@ router.post('/login', (req, res, next) => {
 			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 		}
 	}).catch((reason) => {
-		next(new ServerError('Mongo', HttpStatusCodes.UNAUTHORIZED, JSON.stringify(reason.message), true))
+		next(new ServerError(reason.message, HttpStatusCodes.UNAUTHORIZED, 'POST /login', true))
 	})
 })
 
@@ -226,7 +226,7 @@ router.put('/change-password', (req, res, next) => {
 			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 		}
 	}).catch((reason) => {
-		next(new ServerError('Mongo', HttpStatusCodes.UNAUTHORIZED, JSON.stringify(reason.message), true))
+		next(new ServerError(reason.message, HttpStatusCodes.UNAUTHORIZED, 'PUT /change-password', true))
 	})
 })
 

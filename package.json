@@ -11,7 +11,7 @@
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
-    "test": "jest --forceExit --coverage --verbose",
+    "test": "jest --forceExit --coverage --verbose --runInBand",
     "watch-test": "npm run test -- --watchAll"
   },
   "keywords": [],

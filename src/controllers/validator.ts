@@ -45,7 +45,7 @@ class Validator {
 	}
 
 	validateProducts(products: any[]) {
-		return Joi.array().items(this.productSchema).validate(products)
+		return Joi.array().items(this.productSchema).sparse(true).validate(products)
 	}
 }
 

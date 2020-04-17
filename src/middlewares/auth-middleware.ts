@@ -5,6 +5,7 @@ import HttpStatusCodes from 'http-status-codes'
 
 import Validator from '../controllers/validator'
 import Authority from '../enums/authority-enum'
+import { User } from '../models'
 
 export const validateAuthority = (authority: Authority) => (req: Request, res: Response, next: NextFunction) => {
 	if (authority === Authority.ANONIM) {
@@ -12,9 +13,11 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 			const decoded: any = jwt.verify(req.headers.authorization, 'secret')
 
 			if (decoded) {
-				// @ts-ignore
-				req.user = decoded.payload._id
-				next()
+				User.findById(decoded.payload._id).then((user) => {
+					// @ts-ignore
+					req.user = user
+					next()
+				})
 			} else {
 				res.status(401).end('Unauthorized')
 			}
@@ -29,8 +32,11 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 		//	if (decoded) {
 
 		// @ts-ignore
-		req.user = decoded.payload
-		next()
+		User.findById(decoded.payload._id).then((user) => {
+			// @ts-ignore
+			req.user = user
+			next()
+		})
 		//	} else {
 		//		res.status(401).end('Unauthorized')
 		//	}
