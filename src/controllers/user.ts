@@ -123,10 +123,10 @@ router.post('/order', (req, res, next) => {
 	// @ts-ignore
 	Redis.getInstance.hget('cart', req.user._id.toString(), (getErr, cart) => {
 		if (!cart) {
-			next(new ServerError('Empty cart!', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /order', false))
+			next(new ServerError('Empty cart!', HttpStatusCodes.BAD_REQUEST, 'POST /order', false))
 			// @ts-ignore
 		} else if (!req.user.addresses[req.body.address]) {
-			next(new ServerError('Need an address!', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /order', false))
+			next(new ServerError('Need an address!', HttpStatusCodes.BAD_REQUEST, 'POST /order', false))
 		} else if (!getErr) {
 			const id = Math.random().toString()
 

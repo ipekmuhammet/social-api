@@ -73,6 +73,16 @@ const cart = {
 let user
 
 describe('user', () => {
+	it('POST /order with empty cart', () => (// May this test not pass, should try with new created user.
+		request(app)
+			.post('/user/order')
+			.set({ Authorization: token })
+			.send({
+				address: 0
+			})
+			.expect(400)
+	))
+
 	it('POST /cart', () => (
 		request(app)
 			.post('/user/cart')
