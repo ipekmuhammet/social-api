@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import HttpStatusCodes from 'http-status-codes'
 
-import Validator from '../controllers/validator'
+import { validatePhoneNumber } from '../controllers/validator'
 import Authority from '../enums/authority-enum'
 import { User } from '../models'
 
@@ -46,7 +46,7 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 }
 
 export const validatePhone = () => (req: Request, res: Response, next: NextFunction) => {
-	const { value, error } = Validator.getInstance.validatePhoneNumber({ phone_number: req.body.phone_number })
+	const { value, error } = validatePhoneNumber({ phone_number: req.body.phone_number })
 
 	// if (!error && value.phone_number) {
 	if (!error) {

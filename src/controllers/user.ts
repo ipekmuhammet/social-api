@@ -7,7 +7,7 @@ import { User } from '../models'
 import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
 import ServerError from '../errors/ServerError'
-import Validator from './validator'
+import { validateProducts, comparePasswords } from './validator'
 
 const router = Router()
 
@@ -55,7 +55,7 @@ router.post('/payment-card', (req, res, next) => {
 })
 
 router.post('/cart', (req, res, next) => {
-	const { error } = Validator.getInstance.validateProducts(Object.values(req.body))
+	const { error } = validateProducts(Object.values(req.body))
 
 	if (!error) {
 		// @ts-ignore
@@ -164,6 +164,21 @@ router.post('/order', (req, res, next) => {
 		} else {
 			next(new ServerError(getErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /user/order', true))
 		}
+	})
+})
+
+router.put('/change-password', (req, res, next) => {
+	// @ts-ignore
+	comparePasswords(req.body.old_password, req.user.password, 'Current password is wrong!').then(() => {
+		// @ts-ignore
+		// eslint-disable-next-line no-param-reassign
+		req.user.password = req.body.new_password
+		// @ts-ignore
+		req.user.save().then(() => {
+			res.json({ status: true })
+		})
+	}).catch((reason: Error) => {
+		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /user/change-password', true))
 	})
 })
 

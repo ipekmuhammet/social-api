@@ -1,16 +1,16 @@
 import { Router } from 'express'
 import jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
 import Nexmo from 'nexmo'
 import HttpStatusCodes from 'http-status-codes'
 
 import { Redis, Elasticsearch } from '../startup'
-import { User } from '../models'
 import Authority from '../enums/authority-enum'
 
 // eslint-disable-next-line no-unused-vars
 import { validateAuthority, validatePhone } from '../middlewares/auth-middleware'
 import ServerError from '../errors/ServerError'
+import { register } from '../services/unauthorized'
+import { isUserNonExists, isUserExists, getActivationCode, compareActivationCode, comparePasswords } from './validator'
 
 const router = Router()
 
@@ -158,76 +158,59 @@ router.post('/send-activation-code', (req, res, next) => {
 })
 
 router.post('/register', (req, res, next) => {
-	Redis.getInstance.hget('activationCode', req.body.phone_number, (redisError, reply) => {
-		if (redisError) {
-			next(new ServerError(redisError.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', true))
-		} else if (req.body.activation_code === reply) {
-			new User(req.body).save().then((user) => {
-				// sendSms('905468133198', `${activationCode} is your activation code to activate your account.`)
-				jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
-					if (jwtErr) {
-						next(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', true))
-					} else {
-						Redis.getInstance.hdel('activationCode', req.body.phone_number)
-						res.json({ token, user })
-					}
-				})
-			}).catch((reason) => {
-				next(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, 'POST /register', true))
-			})
-		} else {
-			next(new ServerError('Wrong activation code!', HttpStatusCodes.BAD_REQUEST, 'POST /register', false))
-		}
-	})
+	// isUserNonExists(req.body.user.phone_number)
+	isUserNonExists(req.body.phone_number)
+		.then(() => getActivationCode(req.body.phone_number))
+		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
+		.then(() => register(req.body, req.body.phone_number))
+		.then((response) => {
+			res.json(response)
+		})
+		.catch((error) => {
+			next(error)
+		})
 })
 
 router.post('/login', (req, res, next) => {
-	User.findOne({ phone_number: req.body.phone_number }).then((user) => {
-		if (user) {
+	isUserExists(req.body.phone_number)
+		.then((user) => (
 			// @ts-ignore
-			bcrypt.compare(req.body.password, user.password).then((validPassword) => {
-				if (!validPassword) {
-					res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
-				} else {
-					jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
-						if (jwtErr) {
-							next(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login', true))
-						} else {
-							res.json({ token, user })
-						}
-					})
-				}
+			comparePasswords(req.body.password, user.password, 'Wrong Phone number or Password!').then(() => {
+				jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
+					if (jwtErr) {
+						next(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login', true))
+					} else {
+						res.json({ token, user })
+					}
+				})
 			})
-		} else {
-			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
-		}
-	}).catch((reason) => {
-		next(new ServerError(reason.message, HttpStatusCodes.UNAUTHORIZED, 'POST /login', true))
-	})
+		)).catch((reason) => {
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login', true))
+		})
 })
 
-router.put('/change-password', (req, res, next) => {
-	User.findOne({ phone_number: req.body.phone_number }).then((user) => {
-		if (user) {
+router.put('/reset-password', (req, res, next) => {
+	getActivationCode(req.body.phone_number)
+		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
+		.then(() => isUserExists(req.body.phone_number))
+		.then((user) => {
 			// @ts-ignore
-			bcrypt.compare(req.body.old_password, user.password).then((validPassword) => {
-				if (!validPassword) {
-					res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
-				} else {
+			comparePasswords(req.body.old_password, user.password, 'Current password is wrong!')
+				.then(() => {
 					// @ts-ignore
 					// eslint-disable-next-line no-param-reassign
 					user.password = req.body.new_password
 					user.save().then(() => {
 						res.json({ status: true })
 					})
-				}
-			})
-		} else {
-			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
-		}
-	}).catch((reason) => {
-		next(new ServerError(reason.message, HttpStatusCodes.UNAUTHORIZED, 'PUT /change-password', true))
-	})
+				})
+				.catch((reason: Error) => {
+					next(new ServerError(reason.message, HttpStatusCodes.UNAUTHORIZED, 'PUT /reset-password', true))
+				})
+		})
+		.catch((reason: Error) => {
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /reset-password', true))
+		})
 })
 
 export default router
