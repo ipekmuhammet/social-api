@@ -88,7 +88,7 @@ export const compareActivationCode = (activationCodeFromRequest: string, correct
 		if (activationCodeFromRequest === correctActivationCode) {
 			resolve()
 		} else {
-			reject(new Error('Wrong activation code!'))
+			reject(new ServerError(null, HttpStatusCodes.BAD_REQUEST, 'Wrong activation code!', false))
 		}
 	})
 )
