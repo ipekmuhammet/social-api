@@ -7,6 +7,7 @@ import JoiPhoneNumber from 'joi-phone-number'
 import { Redis } from '../startup'
 import { User } from '../models'
 import ServerError from '../errors/ServerError'
+import ErrorMessages from '../errors/ErrorMessages'
 
 const Joi = JoiBase.extend(JoiPhoneNumber)
 
@@ -53,7 +54,7 @@ export const comparePasswords = (oldPassword: string, newPassword: string, error
 export const isUserNonExists = (phoneNumber: string) => (
 	User.findOne({ phone_number: phoneNumber }).then((foundUser) => {
 		if (foundUser) {
-			throw new ServerError('User already exists!', HttpStatusCodes.UNAUTHORIZED, 'POST /register', false)
+			throw new ServerError(null, HttpStatusCodes.BAD_REQUEST, ErrorMessages.USER_ALREADY_EXISTS, false)
 		}
 	})
 )
@@ -62,7 +63,7 @@ export const isUserNonExists = (phoneNumber: string) => (
 export const isUserExists = (phoneNumber: string) => (
 	User.findOne({ phone_number: phoneNumber }).then((foundUser) => {
 		if (!foundUser) {
-			throw new Error('User not exists!')
+			throw new Error(ErrorMessages.USER_IS_NOT_EXISTS)
 		} else {
 			return foundUser
 		}
@@ -74,7 +75,7 @@ export const getActivationCode = (phoneNumber: string) => (
 	new Promise((resolve, reject) => {
 		Redis.getInstance.hget('activationCode', phoneNumber, (redisError, reply) => {
 			if (redisError || !reply) {
-				reject(new ServerError(redisError.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', true))
+				reject(new ServerError(redisError.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, ErrorMessages.UNEXPECTED_ERROR, true))
 			} else {
 				resolve(reply)
 			}
@@ -88,7 +89,7 @@ export const compareActivationCode = (activationCodeFromRequest: string, correct
 		if (activationCodeFromRequest === correctActivationCode) {
 			resolve()
 		} else {
-			reject(new ServerError(null, HttpStatusCodes.BAD_REQUEST, 'Wrong activation code!', false))
+			reject(new ServerError(null, HttpStatusCodes.BAD_REQUEST, ErrorMessages.WRONG_ACTIVATION_CODE, false))
 		}
 	})
 )

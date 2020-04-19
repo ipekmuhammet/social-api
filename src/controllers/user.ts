@@ -8,6 +8,7 @@ import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
 import ServerError from '../errors/ServerError'
 import { validateProducts, comparePasswords } from './validator'
+import ErrorMessages from '../errors/ErrorMessages'
 
 const router = Router()
 
@@ -26,7 +27,7 @@ router.get('/list-cards', (req, res, next) => {
 		cardUserKey: 'ojBya0o8ecs7ynou3l94xmdB8f8='
 	}, (error: any, result: any) => {
 		if (error) {
-			next(new ServerError(JSON.stringify(error), HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /user/list-cards', true))
+			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), true))
 		} else {
 			res.json(result)
 		}
@@ -47,7 +48,7 @@ router.post('/payment-card', (req, res, next) => {
 		//	}
 	}, (error: any, result: any) => {
 		if (error) {
-			next(new ServerError(JSON.stringify(error), HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /user/payment-card', true))
+			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, JSON.stringify(error), true))
 		} else {
 			res.json(result)
 		}
@@ -61,13 +62,13 @@ router.post('/cart', (req, res, next) => {
 		// @ts-ignore
 		Redis.getInstance.hset('cart', req.user._id.toString(), JSON.stringify(req.body), (redisError) => {
 			if (redisError) {
-				next(new ServerError(redisError.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /user/cart', true))
+				next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true))
 			} else {
 				res.json({ status: true })
 			}
 		})
 	} else {
-		next(new ServerError(JSON.stringify(error), HttpStatusCodes.BAD_REQUEST, 'POST /user/cart', true))
+		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.BAD_REQUEST, JSON.stringify(error), true))
 	}
 })
 
@@ -76,7 +77,7 @@ router.get('/cart', (req, res, next) => {
 	// Redis.getInstance.hdel('cart', req.user._id.toString())
 	Redis.getInstance.hget('cart', req.user._id.toString(), (error, reply) => {
 		if (error) {
-			next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /user/cart', true))
+			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
 		} else {
 			res.json(JSON.parse(reply))
 		}
@@ -92,10 +93,10 @@ router.post('/address', (req, res, next) => {
 				res.json(result)
 			})
 		} else {
-			next(new ServerError('User does not exists on Database, but in cache.', HttpStatusCodes.BAD_REQUEST, 'POST /user/address', true))
+			next(new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.BAD_REQUEST, 'POST /user/address', true))
 		}
 	}).catch((reason) => {
-		next(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, 'POST /user/address', true))
+		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.BAD_REQUEST, reason.message, true))
 	})
 })
 
@@ -110,13 +111,13 @@ router.delete('/address/:id', (req, res, next) => {
 					res.json(result)
 				})
 			} else {
-				next(new ServerError('Address not found!', HttpStatusCodes.BAD_REQUEST, 'DELETE /user/address', false))
+				next(new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, 'DELETE /user/address', false))
 			}
 		} else {
-			next(new ServerError('User does not exists on Database, but in cache!', HttpStatusCodes.BAD_REQUEST, 'DELETE /user/address', true))
+			next(new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.BAD_REQUEST, 'DELETE /user/address', true))
 		}
 	}).catch((reason) => {
-		next(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, 'DELETE /user/address', true))
+		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.BAD_REQUEST, reason.message, true))
 	})
 })
 
@@ -127,10 +128,10 @@ router.post('/order', (req, res, next) => {
 	// @ts-ignore
 	Redis.getInstance.hget('cart', req.user._id.toString(), (getErr, cart) => {
 		if (!cart) {
-			next(new ServerError('Empty cart!', HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
+			next(new ServerError(ErrorMessages.EMPTY_CART, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
 			// @ts-ignore
 		} else if (!selecetedAddress) {
-			next(new ServerError('Need an address!', HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
+			next(new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
 		} else if (!getErr) {
 			const id = Math.random().toString()
 
@@ -156,20 +157,20 @@ router.post('/order', (req, res, next) => {
 
 			multi.exec((error) => {
 				if (error) {
-					next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /user/order', true))
+					next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
 				} else {
 					res.json({ status: true })
 				}
 			})
 		} else {
-			next(new ServerError(getErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /user/order', true))
+			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, getErr.message, true))
 		}
 	})
 })
 
 router.put('/change-password', (req, res, next) => {
 	// @ts-ignore
-	comparePasswords(req.body.old_password, req.user.password, 'Current password is wrong!').then(() => {
+	comparePasswords(req.body.old_password, req.user.password, ErrorMessages.WRONG_PASSWORD).then(() => {
 		// @ts-ignore
 		// eslint-disable-next-line no-param-reassign
 		req.user.password = req.body.new_password
@@ -178,7 +179,7 @@ router.put('/change-password', (req, res, next) => {
 			res.json({ status: true })
 		})
 	}).catch((reason: Error) => {
-		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /user/change-password', true))
+		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, true))
 	})
 })
 

@@ -40,7 +40,7 @@ const userSchema = new Schema({
 })
 
 // eslint-disable-next-line func-names, consistent-return
-userSchema.pre('save', function (next) {
+userSchema.pre('save', function (next) { // do not update.
 	const user = this
 	if (!user.isModified('password')) return next()
 

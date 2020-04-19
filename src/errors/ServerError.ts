@@ -2,23 +2,26 @@
 import { HttpStatusCode } from './HttpStatusCode'
 
 class ServerError extends Error {
-    public readonly name: string
+	public readonly name: string
 
-    public readonly httpCode: HttpStatusCode
+	public readonly httpCode: HttpStatusCode
 
-    public readonly isOperational: boolean
+	// public readonly errorCode: number
 
-    constructor(name: string, httpCode: HttpStatusCode, description: string, isOperational: boolean) {
-    	super(description)
+	public readonly isOperational: boolean
 
-    	Object.setPrototypeOf(this, new.target.prototype) // restore prototype chain
+	constructor(name: string, httpCode: HttpStatusCode, description: string, isOperational: boolean) {
+		super(description)
 
-    	this.name = name
-    	this.httpCode = httpCode
-    	this.isOperational = isOperational
+		Object.setPrototypeOf(this, new.target.prototype) // restore prototype chain
 
-    	Error.captureStackTrace(this)
-    }
+		this.name = name
+		this.httpCode = httpCode
+		// this.errorCode = 0 // TODO
+		this.isOperational = isOperational
+
+		Error.captureStackTrace(this)
+	}
 }
 
 export default ServerError

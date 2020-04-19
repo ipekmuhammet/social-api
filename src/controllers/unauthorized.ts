@@ -10,7 +10,10 @@ import Authority from '../enums/authority-enum'
 import { validateAuthority, validatePhone } from '../middlewares/auth-middleware'
 import ServerError from '../errors/ServerError'
 import { register } from '../services/unauthorized'
-import { isUserNonExists, isUserExists, getActivationCode, compareActivationCode, comparePasswords } from './validator'
+import {
+	isUserNonExists, isUserExists, getActivationCode, compareActivationCode, comparePasswords
+} from './validator'
+import ErrorMessages from '../errors/ErrorMessages'
 
 const router = Router()
 
@@ -39,7 +42,7 @@ router.get('/products', (req, res, next) => {
 	if (req.query.categoryId) {
 		Redis.getInstance.hget('productsx', req.body.categoryId, (error: Error, obj: any) => {
 			if (error) {
-				next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /products', true))
+				next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
 			} else {
 				res.json(JSON.parse(obj))
 			}
@@ -47,7 +50,7 @@ router.get('/products', (req, res, next) => {
 	} else {
 		Redis.getInstance.hgetall('productsx', (error: Error, obj: any) => {
 			if (error) {
-				next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /products', true))
+				next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
 			} else {
 				res.json(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
 			}
@@ -63,14 +66,14 @@ router.get('/product/:id', (req, res, next) => {
 	multi.getAsync(req.params.id)
 
 	// @ts-ignore
-	if (req.user._id) {
+	if (req.user?._id) {
 		// @ts-ignore
 		multi.hget('cart', req.user._id.toString())
 	}
 
 	multi.exec((error, results) => { // 37695 38532 37295
 		if (error) {
-			next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /product/:id', true))
+			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
 		} else if (results[0]) {
 			// @ts-ignore
 			if (req.user._id.toString()) {
@@ -107,7 +110,7 @@ router.get('/product/:id', (req, res, next) => {
 			}
 			res.json(JSON.parse(results[0]))
 		} else {
-			next(new ServerError('Unknown product', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /product/:id', false))
+			next(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, false))
 		}
 	})
 
@@ -132,7 +135,7 @@ router.get('/search-product', (req, res) => {
 						// },
 						{
 							match_phrase_prefix: {
-								name: 'po'
+								product_name: req.query.name
 							}
 						}
 					]
@@ -150,7 +153,7 @@ router.post('/send-activation-code', (req, res, next) => {
 
 	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError) => {
 		if (redisError) {
-			next(new ServerError(redisError.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /send-activation-code', true))
+			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true))
 		} else {
 			res.status(HttpStatusCodes.ACCEPTED).json({ status: true })
 		}
@@ -166,8 +169,8 @@ router.post('/register', (req, res, next) => {
 		.then((response) => {
 			res.json(response)
 		})
-		.catch((error) => {
-			next(error)
+		.catch((reason) => {
+			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', reason.isOperational ?? true))
 		})
 })
 
@@ -178,14 +181,14 @@ router.post('/login', (req, res, next) => {
 			comparePasswords(req.body.password, user.password, 'Wrong Phone number or Password!').then(() => {
 				jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
 					if (jwtErr) {
-						next(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login', true))
+						next(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, ErrorMessages.UNEXPECTED_ERROR, true))
 					} else {
 						res.json({ token, user })
 					}
 				})
 			})
 		)).catch((reason) => {
-			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login', true))
+			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login', reason.isOperational ?? true))
 		})
 })
 
@@ -195,21 +198,14 @@ router.put('/reset-password', (req, res, next) => {
 		.then(() => isUserExists(req.body.phone_number))
 		.then((user) => {
 			// @ts-ignore
-			comparePasswords(req.body.old_password, user.password, 'Current password is wrong!')
-				.then(() => {
-					// @ts-ignore
-					// eslint-disable-next-line no-param-reassign
-					user.password = req.body.new_password
-					user.save().then(() => {
-						res.json({ status: true })
-					})
-				})
-				.catch((reason: Error) => {
-					next(new ServerError(reason.message, HttpStatusCodes.UNAUTHORIZED, 'PUT /reset-password', true))
-				})
+			// eslint-disable-next-line no-param-reassign
+			user.password = req.body.new_password
+			user.save().then(() => {
+				res.json({ status: true })
+			})
 		})
-		.catch((reason: Error) => {
-			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /reset-password', true))
+		.catch((reason) => {
+			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /reset-password', reason.isOperational ?? true))
 		})
 })
 

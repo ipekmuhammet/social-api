@@ -3,12 +3,13 @@ import {
 } from '../startup'
 
 import categories from './Categories.json'
-import products from './Products.json'
+import products from '../models/jsons/src/atistirmalik-products.json'
 
 const index = 'doc'
 const type = 'doc'
 
 const deleteIndex = () => (
+	// eslint-disable-next-line security/detect-non-literal-fs-filename
 	Elasticsearch.getClient.indices.exists({ index }).then((result) => {
 		if (result.body) {
 			Elasticsearch.getClient.indices.delete({ index })
@@ -31,6 +32,7 @@ const closeIndex = () => (
 )
 
 const openIndex = () => (
+	// eslint-disable-next-line security/detect-non-literal-fs-filename
 	Elasticsearch.getClient.indices.open({ index })
 )
 
@@ -77,7 +79,7 @@ const putMapping = () => (
 					// 		}
 					// 	}
 					// },
-					name: {
+					product_name: {
 						type: 'text'
 					}
 				}
