@@ -7,6 +7,8 @@ import { validatePhoneNumber } from '../controllers/validator'
 import Authority from '../enums/authority-enum'
 import { User } from '../models'
 
+import ServerError from '../errors/ServerError'
+
 export const validateAuthority = (authority: Authority) => (req: Request, res: Response, next: NextFunction) => {
 	if (authority === Authority.ANONIM) {
 		if (req.headers.authorization) {
@@ -54,6 +56,6 @@ export const validatePhone = () => (req: Request, res: Response, next: NextFunct
 		req.body.phone_number = value.phone_number
 		next()
 	} else {
-		res.status(HttpStatusCodes.BAD_REQUEST).json({ status: false, error: 'Phone number is invalid.' })
+		next(new ServerError('Phone number is invalid.', 400, 'Phone number is invalid.', false))
 	}
 }

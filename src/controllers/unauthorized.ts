@@ -76,7 +76,7 @@ router.get('/product/:id', (req, res, next) => {
 			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
 		} else if (results[0]) {
 			// @ts-ignore
-			if (req.user._id.toString()) {
+			if (req.user?._id.toString()) {
 				if (results[1]) {
 					if (Object.keys(JSON.parse(results[1])).includes(req.params.id)) {
 						Redis.getInstance.hset(
@@ -149,7 +149,7 @@ router.get('/search-product', (req, res) => {
 
 router.post('/send-activation-code', (req, res, next) => {
 	const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()
-	console.log('activationCode', activationCode)
+	console.log(activationCode)
 
 	Redis.getInstance.hset('activationCode', req.body.phone_number, activationCode, (redisError) => {
 		if (redisError) {

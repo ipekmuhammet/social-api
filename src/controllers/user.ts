@@ -55,6 +55,13 @@ router.post('/payment-card', (req, res, next) => {
 	})
 })
 
+router.put('/profile', (req, res) => {
+	// @ts-ignore
+	User.findByIdAndUpdate(req.user._id, req.body).then((user) => {
+		res.json(user)
+	})
+})
+
 router.post('/cart', (req, res, next) => {
 	const { error } = validateProducts(Object.values(req.body))
 
