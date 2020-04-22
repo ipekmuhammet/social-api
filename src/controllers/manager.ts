@@ -24,8 +24,8 @@ const sendSms = (to: string, message: string) => {
 }
 
 router.get('/orders', (req, res, next) => {
-	// Redis.getInstance.del('category1', Object.keys(Redis.getInstance.hgetall('category1')))
-	Redis.getInstance.hgetall('category1', (error, reply) => {
+	// Redis.getInstance.del('orders', Object.keys(Redis.getInstance.hgetall('orders')))
+	Redis.getInstance.hgetall('orders', (error, reply) => {
 		if (!error) {
 			res.json(reply)
 		} else {
@@ -35,7 +35,7 @@ router.get('/orders', (req, res, next) => {
 })
 
 router.get('/order/:id', (req, res, next) => {
-	Redis.getInstance.hget('category1', req.params.id, (error, reply) => {
+	Redis.getInstance.hget('orders', req.params.id, (error, reply) => {
 		if (!error) {
 			res.json(JSON.parse(reply))
 		} else {
@@ -45,11 +45,11 @@ router.get('/order/:id', (req, res, next) => {
 })
 
 router.put('/orders/cancel/:id', (req, res, next) => {
-	Redis.getInstance.hget('category1', req.params.id, (err0, reply0) => {
+	Redis.getInstance.hget('orders', req.params.id, (err0, reply0) => {
 		if (!err0) {
 			next(new ServerError(err0.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/cancel/:id', true))
 		} else {
-			Redis.getInstance.hset('category1', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: false })), (error) => {
+			Redis.getInstance.hset('orders', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: false })), (error) => {
 				if (!error) {
 					res.json({ status: true })
 				} else {
@@ -62,11 +62,11 @@ router.put('/orders/cancel/:id', (req, res, next) => {
 })
 
 router.put('/orders/confirm/:id', (req, res, next) => {
-	Redis.getInstance.hget('category1', req.params.id, (err0, reply0) => {
+	Redis.getInstance.hget('orders', req.params.id, (err0, reply0) => {
 		if (!err0) {
 			next(new ServerError(err0.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:id', true))
 		} else {
-			Redis.getInstance.hset('category1', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: true })), (error) => {
+			Redis.getInstance.hset('orders', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: true })), (error) => {
 				if (error) {
 					next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:id', true))
 				} else {

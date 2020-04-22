@@ -16,7 +16,8 @@ import {
 	getProduct,
 	getAllProducts,
 	getCategories,
-	addProductToCart
+	addProductToCart,
+	isManagerVerified
 } from '../services/unauthorized'
 
 import {
@@ -24,7 +25,8 @@ import {
 	isUserExists,
 	getActivationCode,
 	compareActivationCode,
-	isManagerNonExists
+	isManagerNonExists,
+	isManagerExists
 } from './validator'
 
 import ErrorMessages from '../errors/ErrorMessages'
@@ -96,6 +98,18 @@ router.post('/register-manager', (req, res) => {
 		.then(() => registerManager(req.body, req.body.phone_number))
 		.then((response) => {
 			res.json(response)
+		})
+})
+
+router.post('/login-manager', (req, res, next) => {
+	isManagerExists(req.body.phone_number)
+		.then((manager) => login(manager, req.body.password))
+		.then(({ user, token }) => isManagerVerified(user, { user, token }))
+		.then((response) => {
+			res.json(response)
+		})
+		.catch((reason) => {
+			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login-manager', reason.isOperational ?? true))
 		})
 })
 

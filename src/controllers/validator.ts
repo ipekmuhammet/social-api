@@ -59,6 +59,17 @@ export const isManagerNonExists = (phoneNumber: string) => (
 	})
 )
 
+/** If User not exists, throws Error. */
+export const isManagerExists = (phoneNumber: string) => (
+	Manager.findOne({ phone_number: phoneNumber }).then((foundManager) => {
+		if (!foundManager) {
+			throw new Error(ErrorMessages.MANAGER_IS_NOT_EXISTS)
+		} else {
+			return foundManager
+		}
+	})
+)
+
 /** If User exists, throws Error. */
 export const isUserNonExists = (phoneNumber: string) => (
 	User.findOne({ phone_number: phoneNumber }).then((foundUser) => {

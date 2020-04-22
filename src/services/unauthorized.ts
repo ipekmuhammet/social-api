@@ -165,6 +165,16 @@ export const login = (user: any, password: string) => (
 	})
 )
 
+export const isManagerVerified = (manager: any, retrnVal: any) => (
+	new Promise((resolve, reject) => {
+		if (!manager.verified) {
+			reject(new ServerError(null, HttpStatusCodes.UNAUTHORIZED, 'Manager is not verified', true))
+		} else {
+			resolve(retrnVal)
+		}
+	})
+)
+
 export const registerUser = (userContext: any, phoneNumber: string) => (
 	new Promise((resolve, reject) => {
 		new User(userContext).save().then((user) => {

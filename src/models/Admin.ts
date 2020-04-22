@@ -1,9 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
-import { Order } from './index'
-
-const managerSchema = new Schema({
+const adminSchema = new Schema({
 	phone_number: {
 		type: String,
 		required: true,
@@ -21,20 +19,11 @@ const managerSchema = new Schema({
 	password: {
 		type: String,
 		required: true
-	},
-	orders: {
-		type: [Order],
-		required: true
-	},
-	verified: {
-		type: Boolean,
-		required: true,
-		default: false
 	}
 })
 
 // eslint-disable-next-line func-names, consistent-return
-managerSchema.pre('save', function (next) { // do not update.
+adminSchema.pre('save', function (next) { // do not update.
 	const manager = this
 	if (!manager.isModified('password')) return next()
 
@@ -47,4 +36,4 @@ managerSchema.pre('save', function (next) { // do not update.
 })
 
 
-export default mongoose.model('Manager', managerSchema)
+export default mongoose.model('Admin', adminSchema)

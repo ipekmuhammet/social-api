@@ -137,7 +137,7 @@ export const makeOrder = (user: any, context: any) => (
 
 				const multi = Redis.getInstance.multi()
 
-				multi.hset('category1', id, JSON.stringify(val))
+				multi.hset('orders', id, JSON.stringify(val))
 
 				// @ts-ignore
 				multi.hdel('cart', user._id.toString())

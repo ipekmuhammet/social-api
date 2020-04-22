@@ -1,5 +1,6 @@
-export { default as Category } from './Category'
-export { default as Product } from './Product'
 export { default as User } from './User'
 export { default as Manager } from './Manager'
+export { default as Admin } from './Admin'
+export { default as Category } from './Category'
+export { default as Product } from './Product'
 export { default as Order } from './Order'

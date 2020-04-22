@@ -17,6 +17,8 @@ class ErrorMessages {
 
 
     static MANAGER_ALREADY_EXISTS = 'Telefon numarasına ait yönetici var'
+
+    static MANAGER_IS_NOT_EXISTS = 'Telefon numarasına ait yönetici bulunamadı'
 }
 
 export default ErrorMessages
