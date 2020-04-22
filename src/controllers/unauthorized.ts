@@ -17,7 +17,8 @@ import {
 	getAllProducts,
 	getCategories,
 	addProductToCart,
-	isManagerVerified
+	isManagerVerified,
+	handleError
 } from '../services/unauthorized'
 
 import {
@@ -60,7 +61,7 @@ router.get('/product/:id', (req, res, next) => {
 		.then((response) => {
 			res.json(response)
 		}).catch((reason) => {
-			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /product/:id', reason.isOperational ?? true))
+			next((handleError(reason, 'POST /product/:id')))
 		})
 })
 
@@ -75,8 +76,8 @@ router.post('/send-activation-code', (req, res, next) => {
 		.then(() => {
 			res.status(HttpStatusCodes.ACCEPTED).json({ status: true })
 		})
-		.catch((error) => {
-			next(error)
+		.catch((reason) => {
+			next((handleError(reason, 'POST /send-activation-code')))
 		})
 })
 
@@ -90,7 +91,7 @@ router.post('/register', (req, res, next) => {
 			res.json(response)
 		})
 		.catch((reason) => {
-			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, reason.isOperational ?? true))
+			next(handleError(reason, 'POST /register'))
 		})
 })
 
@@ -101,7 +102,7 @@ router.post('/register-manager', (req, res, next) => {
 			res.json(response)
 		})
 		.catch((reason) => {
-			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login-manager', reason.isOperational ?? true))
+			next(handleError(reason, 'POST /register-manager'))
 		})
 })
 
@@ -113,7 +114,7 @@ router.post('/login-manager', (req, res, next) => {
 			res.json(response)
 		})
 		.catch((reason) => {
-			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login-manager', reason.isOperational ?? true))
+			next(handleError(reason, 'POST /login-manager'))
 		})
 })
 

@@ -210,3 +210,10 @@ export const registerManager = (managerContext: any, phoneNumber: string) => (
 		})
 	})
 )
+
+export const handleError = (error: any, path: string) => {
+	if (error.httpCode) {
+		return error
+	}
+	return new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, path, true)
+}
