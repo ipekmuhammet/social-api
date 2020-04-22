@@ -14,6 +14,9 @@ class ErrorMessages {
     static EMPTY_CART = 'Lütfen sepetinize ürün ekleyiniz'
 
     static NO_ADDRESS = 'Lütfen adres seçiniz'
+
+
+    static MANAGER_ALREADY_EXISTS = 'Telefon numarasına ait yönetici var'
 }
 
 export default ErrorMessages

@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
-import { Product } from './index'
+import { Order } from './index'
 
 const managerSchema = new Schema({
 	phone_number: {
@@ -23,28 +23,7 @@ const managerSchema = new Schema({
 		required: true
 	},
 	orders: {
-		type: [{
-			id: {
-				type: String,
-				required: true
-			},
-			customer: {
-				type: String,
-				required: true
-			},
-			address: {
-				type: String,
-				required: true
-			},
-			date: {
-				type: Date,
-				required: true
-			},
-			products: {
-				type: [Product],
-				required: true
-			}
-		}],
+		type: [Order],
 		required: true
 	}
 })

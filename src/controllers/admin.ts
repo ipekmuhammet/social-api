@@ -42,6 +42,10 @@ router.put('/product/:id', (req, res, next) => {
 	})
 })
 
+router.get('/manager-requests', (req, res, next) => {
+	res.end('sa')
+})
+
 router.post('/manager', (req, res, next) => {
 	res.end('sa')
 })

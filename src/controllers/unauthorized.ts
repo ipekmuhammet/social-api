@@ -9,9 +9,9 @@ import Authority from '../enums/authority-enum'
 // eslint-disable-next-line no-unused-vars
 import { validateAuthority, validatePhone } from '../middlewares/auth-middleware'
 import ServerError from '../errors/ServerError'
-import { register } from '../services/unauthorized'
+import { registerUser, registerManager } from '../services/unauthorized'
 import {
-	isUserNonExists, isUserExists, getActivationCode, compareActivationCode, comparePasswords
+	isUserNonExists, isUserExists, getActivationCode, compareActivationCode, comparePasswords, isManagerNonExists
 } from './validator'
 import ErrorMessages from '../errors/ErrorMessages'
 
@@ -165,12 +165,20 @@ router.post('/register', (req, res, next) => {
 	isUserNonExists(req.body.phone_number)
 		.then(() => getActivationCode(req.body.phone_number))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
-		.then(() => register(req.body, req.body.phone_number))
+		.then(() => registerUser(req.body, req.body.phone_number))
 		.then((response) => {
 			res.json(response)
 		})
 		.catch((reason) => {
-			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', reason.isOperational ?? true))
+			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', reason.isOperational ?? false))
+		})
+})
+
+router.post('/register-manager', (req, res) => {
+	isManagerNonExists(req.body.phoneNumber)
+		.then(() => registerManager(req.body, req.body.phone_number))
+		.then((response) => {
+			res.json(response)
 		})
 })
 

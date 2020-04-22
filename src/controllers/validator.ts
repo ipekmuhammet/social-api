@@ -5,7 +5,7 @@ import JoiBase from '@hapi/joi'
 import JoiPhoneNumber from 'joi-phone-number'
 
 import { Redis } from '../startup'
-import { User } from '../models'
+import { User, Manager } from '../models'
 import ServerError from '../errors/ServerError'
 import ErrorMessages from '../errors/ErrorMessages'
 
@@ -46,6 +46,15 @@ export const comparePasswords = (oldPassword: string, newPassword: string, error
 	bcrypt.compare(oldPassword, newPassword).then((validPassword) => {
 		if (!validPassword) {
 			throw new Error(errorMessage)
+		}
+	})
+)
+
+/** If User exists, throws Error. */
+export const isManagerNonExists = (phoneNumber: string) => (
+	Manager.findOne({ phone_number: phoneNumber }).then((foundManager) => {
+		if (foundManager) {
+			throw new ServerError(null, HttpStatusCodes.BAD_REQUEST, ErrorMessages.MANAGER_ALREADY_EXISTS, false)
 		}
 	})
 )
