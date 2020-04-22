@@ -94,8 +94,10 @@ export const isUserExists = (phoneNumber: string) => (
 export const getActivationCode = (phoneNumber: string) => (
 	new Promise((resolve, reject) => {
 		Redis.getInstance.hget('activationCode', phoneNumber, (redisError, reply) => {
-			if (redisError || !reply) {
-				reject(new ServerError(redisError.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, ErrorMessages.UNEXPECTED_ERROR, true))
+			if (!reply) {
+				reject(new ServerError(null, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'Aktivasyon kodu bulunamadı!', false))
+			} else if (redisError) {
+				reject(new ServerError(redisError?.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, ErrorMessages.UNEXPECTED_ERROR, true))
 			} else {
 				resolve(reply)
 			}
