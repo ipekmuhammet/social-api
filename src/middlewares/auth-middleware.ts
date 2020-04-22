@@ -11,23 +11,23 @@ import ServerError from '../errors/ServerError'
 
 export const validateAuthority = (authority: Authority) => (req: Request, res: Response, next: NextFunction) => {
 	if (authority === Authority.ANONIM) {
-		//	if (req.headers.authorization) {
-		//		const decoded: any = jwt.verify(req.headers.authorization, 'secret')
-		//
-		//		if (decoded) {
-		//			User.findById(decoded.payload._id).then((user) => {
-		//				// @ts-ignore
-		//				req.user = user
-		//				next()
-		//			})
-		//		} else {
-		//			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
-		//		}
-		//	} else {
-		// @ts-ignore
-		req.user = null
-		next()
-		// }
+		if (req.headers.authorization) {
+			const decoded: any = jwt.verify(req.headers.authorization, 'secret')
+
+			if (decoded) {
+				User.findById(decoded.payload._id).then((user) => {
+					// @ts-ignore
+					req.user = user
+					next()
+				})
+			} else {
+				res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
+			}
+		} else {
+			// @ts-ignore
+			req.user = null
+			next()
+		}
 	} else if (req.headers.authorization) {
 		try {
 			const decoded: any = jwt.verify(req.headers.authorization, 'secret')
@@ -36,7 +36,7 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 					// @ts-ignore
 					User.findById(decoded.payload._id).then((user) => {
 						// @ts-ignore
-						req.user = decoded.payload
+						req.user = user
 						next()
 					})
 				} else if (authority === Authority.MANAGER) {

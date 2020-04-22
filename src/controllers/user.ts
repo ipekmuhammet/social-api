@@ -14,7 +14,8 @@ import {
 	updateUser,
 	saveCart,
 	makeOrder,
-	deleteAddress
+	deleteAddress,
+	getCart
 } from '../services/user'
 
 const router = Router()
