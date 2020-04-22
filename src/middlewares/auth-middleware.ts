@@ -29,33 +29,36 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 		next()
 		// }
 	} else if (req.headers.authorization) {
-		const decoded: any = jwt.verify(req.headers.authorization, 'secret')
-		//	if (decoded) {
-
-		if (authority === Authority.USER) {
-			// @ts-ignore
-			User.findById(decoded.payload._id).then((user) => {
-				// @ts-ignore
-				req.user = user
-				next()
-			})
-		} else if (authority === Authority.MANAGER) {
-			// @ts-ignore
-			Manager.findById(decoded.payload._id).then((manager) => {
-				// @ts-ignore
-				req.manager = manager
-				next()
-			})
-		} else if (authority === Authority.ADMIN) {
-			Admin.findById(decoded.payload._id).then((admin) => {
-				// @ts-ignore
-				req.admin = admin
-				next()
-			})
+		try {
+			const decoded: any = jwt.verify(req.headers.authorization, 'secret')
+			if (decoded) {
+				if (authority === Authority.USER) {
+					// @ts-ignore
+					User.findById(decoded.payload._id).then((user) => {
+						// @ts-ignore
+						req.user = decoded.payload
+						next()
+					})
+				} else if (authority === Authority.MANAGER) {
+					// @ts-ignore
+					Manager.findById(decoded.payload._id).then((manager) => {
+						// @ts-ignore
+						req.manager = manager
+						next()
+					})
+				} else if (authority === Authority.ADMIN) {
+					Admin.findById(decoded.payload._id).then((admin) => {
+						// @ts-ignore
+						req.admin = admin
+						next()
+					})
+				}
+			} else {
+				res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
+			}
+		} catch (error) {
+			res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 		}
-		//	} else {
-		//		res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
-		//	}
 	} else {
 		res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
 	}

@@ -64,7 +64,7 @@ export const getProduct = (productId: string, user: any) => (
 	})
 )
 
-export const addProductToCart = (productId: string, product: any, cart: any) => (
+export const addProductToCart = (productId: string, product: any, cart: any, user: any) => (
 	new Promise((resolve) => {
 		// @ts-ignore
 		if (user?._id.toString()) {
@@ -181,14 +181,14 @@ export const registerUser = (userContext: any, phoneNumber: string) => (
 			// sendSms('905468133198', `${activationCode} is your activation code to activate your account.`)
 			jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
 				if (jwtErr) {
-					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', true))
+					reject(new ServerError(null, HttpStatusCodes.INTERNAL_SERVER_ERROR, jwtErr.message, true))
 				} else {
 					Redis.getInstance.hdel('activationCode', phoneNumber)
 					resolve({ token, user })
 				}
 			})
 		}).catch((reason) => {
-			reject(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, 'POST /register', true))
+			reject(new ServerError(null, HttpStatusCodes.BAD_REQUEST, reason.message, true))
 		})
 	})
 )

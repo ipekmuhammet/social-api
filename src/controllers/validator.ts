@@ -63,7 +63,7 @@ export const isManagerNonExists = (phoneNumber: string) => (
 export const isManagerExists = (phoneNumber: string) => (
 	Manager.findOne({ phone_number: phoneNumber }).then((foundManager) => {
 		if (!foundManager) {
-			throw new Error(ErrorMessages.MANAGER_IS_NOT_EXISTS)
+			throw new ServerError(null, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.MANAGER_IS_NOT_EXISTS, false)
 		} else {
 			return foundManager
 		}
@@ -83,7 +83,7 @@ export const isUserNonExists = (phoneNumber: string) => (
 export const isUserExists = (phoneNumber: string) => (
 	User.findOne({ phone_number: phoneNumber }).then((foundUser) => {
 		if (!foundUser) {
-			throw new Error(ErrorMessages.USER_IS_NOT_EXISTS)
+			throw new ServerError(null, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.USER_IS_NOT_EXISTS, false)
 		} else {
 			return foundUser
 		}

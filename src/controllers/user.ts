@@ -96,7 +96,7 @@ router.delete('/address/:id', (req, res, next) => {
 
 router.post('/order', (req, res, next) => {
 	// @ts-ignore
-	makeOrder(req.user._id.toString(), req.body).then((result) => {
+	makeOrder(req.user, req.body).then((result) => {
 		res.json(result)
 	}).catch((reason) => {
 		if (reason.httpCode) {

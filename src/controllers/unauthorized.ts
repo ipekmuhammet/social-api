@@ -55,7 +55,8 @@ router.get('/products', (req, res, next) => {
 router.get('/product/:id', (req, res, next) => {
 	// @ts-ignore
 	getProduct(req.params.id, req.user)
-		.then(({ product, cart }) => addProductToCart(req.params.id, product, cart))
+		// @ts-ignore
+		.then(({ product, cart }) => addProductToCart(req.params.id, product, cart, req.user))
 		.then((response) => {
 			res.json(response)
 		}).catch((reason) => {
@@ -89,15 +90,18 @@ router.post('/register', (req, res, next) => {
 			res.json(response)
 		})
 		.catch((reason) => {
-			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register', reason.isOperational ?? true))
+			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, reason.isOperational ?? true))
 		})
 })
 
-router.post('/register-manager', (req, res) => {
+router.post('/register-manager', (req, res, next) => {
 	isManagerNonExists(req.body.phoneNumber)
 		.then(() => registerManager(req.body, req.body.phone_number))
 		.then((response) => {
 			res.json(response)
+		})
+		.catch((reason) => {
+			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login-manager', reason.isOperational ?? true))
 		})
 })
 
