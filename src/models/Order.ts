@@ -20,7 +20,7 @@ const orderSchema = new Schema({
 		required: true
 	},
 	products: {
-		type: [Product],
+		type: [Product.schema],
 		required: true
 	}
 })

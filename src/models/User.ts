@@ -1,8 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
-import Authority from '../enums/authority-enum'
-
 const userSchema = new Schema({
 	phone_number: {
 		type: String,
@@ -14,7 +12,8 @@ const userSchema = new Schema({
 		required: true
 	},
 	email: {
-		type: String
+		type: String,
+		unique: true
 	},
 	password: {
 		type: String,
@@ -24,18 +23,14 @@ const userSchema = new Schema({
 		open_address: {
 			type: String,
 			required: true
-		},
-		type: {
-			type: Number,
-			required: true,
-			default: 0
 		}
-	}],
-	authority: {
-		type: Authority,
-		default: Authority.USER,
-		required: true
-	}
+		//	,
+		//	type: {
+		//		type: Number,
+		//		required: true,
+		//		default: 0
+		//	}
+	}]
 	// cart: {}
 })
 

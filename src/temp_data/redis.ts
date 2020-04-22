@@ -8,7 +8,7 @@ const main = () => {
 		multi.setAsync('categories', JSON.stringify(categories))
 
 		// console.log('---------------')
-		// multi.del('productsx', (x, y) => {
+		// multi.del('products', (x, y) => {
 		// 	console.log(x, y)
 		// })
 
@@ -18,7 +18,7 @@ const main = () => {
 					multi.setAsync(product.id, JSON.stringify(product))
 				})
 
-				multi.hset('productsx', category.id, JSON.stringify({ [category.id]: products.filter((product: any) => product.category === category.id) }))
+				multi.hset('products', category.id, JSON.stringify({ [category.id]: products.filter((product: any) => product.category === category.id) }))
 			})
 		})
 	})
