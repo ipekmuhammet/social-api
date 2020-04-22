@@ -96,7 +96,7 @@ router.post('/register', (req, res, next) => {
 
 router.post('/register-manager', (req, res, next) => {
 	isManagerNonExists(req.body.phoneNumber)
-		.then(() => registerManager(req.body, req.body.phone_number))
+		.then(() => registerManager({ ...req.body, ...{ verified: false } }, req.body.phone_number))
 		.then((response) => {
 			res.json(response)
 		})
