@@ -6,7 +6,8 @@ import { Redis, Elasticsearch } from '../startup'
 import ServerError from '../errors/ServerError'
 import { User, Manager } from '../models'
 import ErrorMessages from '../errors/ErrorMessages'
-import { comparePasswords } from '../controllers/validator'
+import { comparePasswords, isUserNonExists, isUserExists } from '../controllers/validator'
+import ActivationCodes from '../enums/activation-code-enum'
 
 
 export const sendSms = (to: string, message: string) => {
@@ -133,15 +134,29 @@ export const search = (name: string) => (
 	})
 )
 
-export const createActivationCode = (phoneNumber: string) => (
+export const checkConvenientOfActivationCodeRequest = (phoneNumber: string, activationCodeType: ActivationCodes) => (
+	new Promise((resolve, reject) => {
+		if (activationCodeType === ActivationCodes.REGISTER) {
+			resolve(isUserNonExists(phoneNumber))
+		}
+		if (activationCodeType === ActivationCodes.RESET_PASSWORD) {
+			resolve(isUserExists(phoneNumber))
+		}
+		reject(new Error('Unknown type of activation code'))
+	})
+)
+
+export const createActivationCode = (phoneNumber: string, activationCodeType: ActivationCodes) => (
 	new Promise((resolve, reject) => {
 		const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()
 		console.log(activationCode)
 
-		Redis.getInstance.hset('activationCode', phoneNumber, activationCode, (redisError) => {
+		// @ts-ignore
+		Redis.getInstance.set(`${phoneNumber}:activationCode:${activationCodeType}`, activationCode, (redisError) => {
 			if (redisError) {
 				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true))
 			} else {
+				Redis.getInstance.expire(`${phoneNumber}:activationCode:${activationCodeType}`, 60 * 3)
 				resolve()
 			}
 		})
@@ -183,7 +198,7 @@ export const registerUser = (userContext: any, phoneNumber: string) => (
 				if (jwtErr) {
 					reject(new ServerError(null, HttpStatusCodes.INTERNAL_SERVER_ERROR, jwtErr.message, true))
 				} else {
-					Redis.getInstance.hdel('activationCode', phoneNumber)
+					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER}`)
 					resolve({ token, user })
 				}
 			})
@@ -201,7 +216,7 @@ export const registerManager = (managerContext: any, phoneNumber: string) => (
 				if (jwtErr) {
 					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register-manager', true))
 				} else {
-					Redis.getInstance.hdel('activationCode', phoneNumber)
+					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER}`)
 					resolve({ token, manager })
 				}
 			})

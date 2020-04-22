@@ -8,6 +8,8 @@ import { Redis } from '../startup'
 import { User, Manager } from '../models'
 import ServerError from '../errors/ServerError'
 import ErrorMessages from '../errors/ErrorMessages'
+// eslint-disable-next-line no-unused-vars
+import ActivationCodes from '../enums/activation-code-enum'
 
 const Joi = JoiBase.extend(JoiPhoneNumber)
 
@@ -74,7 +76,7 @@ export const isManagerExists = (phoneNumber: string) => (
 export const isUserNonExists = (phoneNumber: string) => (
 	User.findOne({ phone_number: phoneNumber }).then((foundUser) => {
 		if (foundUser) {
-			throw new ServerError(null, HttpStatusCodes.BAD_REQUEST, ErrorMessages.USER_ALREADY_EXISTS, false)
+			throw new ServerError(ErrorMessages.USER_ALREADY_EXISTS, HttpStatusCodes.BAD_REQUEST, null, false)
 		}
 	})
 )
@@ -83,7 +85,7 @@ export const isUserNonExists = (phoneNumber: string) => (
 export const isUserExists = (phoneNumber: string) => (
 	User.findOne({ phone_number: phoneNumber }).then((foundUser) => {
 		if (!foundUser) {
-			throw new ServerError(null, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.USER_IS_NOT_EXISTS, false)
+			throw new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.UNAUTHORIZED, null, false)
 		} else {
 			return foundUser
 		}
@@ -91,9 +93,10 @@ export const isUserExists = (phoneNumber: string) => (
 )
 
 /** Returns activation code of phoneNumber from Redis */
-export const getActivationCode = (phoneNumber: string) => (
+export const getActivationCode = (phoneNumber: string, activationCodeType: ActivationCodes) => (
 	new Promise((resolve, reject) => {
-		Redis.getInstance.hget('activationCode', phoneNumber, (redisError, reply) => {
+		// @ts-ignore
+		Redis.getInstance.get(`${phoneNumber}:activationCode:${activationCodeType}`, (redisError, reply) => {
 			if (!reply) {
 				reject(new ServerError(null, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'Aktivasyon kodu bulunamadı!', false))
 			} else if (redisError) {

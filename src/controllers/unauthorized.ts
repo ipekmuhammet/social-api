@@ -18,7 +18,8 @@ import {
 	getCategories,
 	addProductToCart,
 	isManagerVerified,
-	handleError
+	handleError,
+	checkConvenientOfActivationCodeRequest
 } from '../services/unauthorized'
 
 import {
@@ -31,6 +32,8 @@ import {
 } from './validator'
 
 import ErrorMessages from '../errors/ErrorMessages'
+import ActivationCodes from '../enums/activation-code-enum'
+import { Redis } from '../startup'
 
 const router = Router()
 
@@ -72,19 +75,20 @@ router.get('/search-product', (req, res) => {
 })
 
 router.post('/send-activation-code', (req, res, next) => {
-	createActivationCode(req.body.phone_number)
+	checkConvenientOfActivationCodeRequest(req.body.phone_number, req.body.activationCodeType)
+		.then(() => createActivationCode(req.body.phone_number, req.body.activationCodeType))
 		.then(() => {
 			res.status(HttpStatusCodes.ACCEPTED).json({ status: true })
 		})
-		.catch((reason) => {
-			next((handleError(reason, 'POST /send-activation-code')))
+		.catch((reason: any) => {
+			next(handleError(reason, 'POST /send-activation-code'))
 		})
 })
 
 router.post('/register', (req, res, next) => {
 	// isUserNonExists(req.body.user.phone_number)
 	isUserNonExists(req.body.phone_number)
-		.then(() => getActivationCode(req.body.phone_number))
+		.then(() => getActivationCode(req.body.phone_number, ActivationCodes.REGISTER))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => registerUser(req.body, req.body.phone_number))
 		.then((response) => {
@@ -130,7 +134,7 @@ router.post('/login', (req, res, next) => {
 })
 
 router.put('/reset-password', (req, res, next) => {
-	getActivationCode(req.body.phone_number)
+	getActivationCode(req.body.phone_number, ActivationCodes.RESET_PASSWORD)
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => isUserExists(req.body.phone_number))
 		.then((user) => {
@@ -138,6 +142,7 @@ router.put('/reset-password', (req, res, next) => {
 			// eslint-disable-next-line no-param-reassign
 			user.password = req.body.new_password
 			user.save().then(() => {
+				Redis.getInstance.del(`${req.body.phone_number}:activationCode:${ActivationCodes.RESET_PASSWORD}`)
 				res.json({ status: true })
 			})
 		})
