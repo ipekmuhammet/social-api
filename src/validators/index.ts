@@ -9,7 +9,7 @@ import ErrorMessages from '../errors/ErrorMessages'
 import ActivationCodes from '../enums/activation-code-enum'
 
 export const comparePasswords = (oldPassword: string, newPassword: string, errorMessage: string) => (
-	bcrypt.compare(oldPassword, newPassword).then((validPassword) => {
+	bcrypt.compare(newPassword, oldPassword).then((validPassword) => {
 		if (!validPassword) {
 			throw new Error(errorMessage)
 		}
