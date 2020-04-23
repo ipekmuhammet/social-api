@@ -25,6 +25,15 @@ export default (app: Application) => {
 			maxFiles: 5,
 			colorize: true
 		},
+		errorFile: {
+			level: 'info',
+			filename: './logs/error-logs.log',
+			handleExceptions: true,
+			json: true,
+			maxsize: 5242880, // 5MB
+			maxFiles: 5,
+			colorize: true
+		},
 		console: {
 			level: 'debug',
 			handleExceptions: true,
@@ -41,9 +50,17 @@ export default (app: Application) => {
 		exitOnError: false
 	}
 
+	const errorLoggerOptions = {
+		transports: [
+			new winston.transports.File(options.errorFile),
+		],
+		exitOnError: false
+	}
+
 	const logger = winston.createLogger(loggerOptions)
 
 	winston.loggers.add('logger', loggerOptions)
+	winston.loggers.add('error-logger', errorLoggerOptions)
 
 	app.use(
 		morgan('combined', {

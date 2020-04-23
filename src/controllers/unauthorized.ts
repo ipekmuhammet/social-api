@@ -5,7 +5,6 @@ import Authority from '../enums/authority-enum'
 
 // eslint-disable-next-line no-unused-vars
 import { validateAuthority, validatePhone } from '../middlewares/auth-middleware'
-import ServerError from '../errors/ServerError'
 
 import {
 	registerUser,
@@ -39,7 +38,6 @@ import {
 	validateResetPasswordRequest
 } from '../validators/unauthorized-validator'
 
-import ErrorMessages from '../errors/ErrorMessages'
 import ActivationCodes from '../enums/activation-code-enum'
 import { Redis } from '../startup'
 
@@ -52,12 +50,7 @@ router.get('/categories', (req, res, next) => {
 	getCategories().then((categories) => {
 		res.json(categories)
 	}).catch((reason) => {
-		next(
-			handleError(
-				new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, reason.isOperational ?? true),
-				'GET /categories'
-			)
-		)
+		next(handleError(reason, 'GET /categories'))
 	})
 })
 
@@ -65,12 +58,7 @@ router.get('/products', (req, res, next) => {
 	getAllProducts().then((products) => {
 		res.json(products)
 	}).catch((reason) => {
-		next(
-			handleError(
-				new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, reason.isOperational ?? true),
-				'GET /products'
-			)
-		)
+		next(handleError(reason, 'GET /products'))
 	})
 })
 
