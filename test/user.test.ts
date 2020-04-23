@@ -77,7 +77,7 @@ export default () => describe('user', () => {
 		request(app)
 			.post('/login')
 			.send({
-				phone_number: '905468133193',
+				phone_number: '905555555555',
 				password: '12345'
 			})
 			.expect(200)

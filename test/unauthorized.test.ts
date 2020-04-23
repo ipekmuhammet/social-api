@@ -12,11 +12,10 @@ let resetActivationCode
 export default () => describe('Unauthorized', () => {
 	describe('Authentication', () => {
 		describe('POST /send-activation-code', () => {
-
 			it('without activation code', () => (
 				request(app)
 					.post('/send-activation-code')
-					.send({ phone_number: '905468133193' })
+					.send({ phone_number: '905555555555' })
 					.expect(400)
 			))
 
@@ -24,7 +23,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/send-activation-code')
 					.send({
-						phone_number: '905468133193',
+						phone_number: '905555555555',
 						activationCodeType: 5
 					})
 					.expect(400)
@@ -33,7 +32,7 @@ export default () => describe('Unauthorized', () => {
 			it('inconvenient phone number', () => (
 				request(app)
 					.post('/send-activation-code')
-					.send({ phone_number: '915468133193' })
+					.send({ phone_number: '905555555000' })
 					.expect(400)
 			))
 
@@ -47,7 +46,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/send-activation-code')
 					.send({
-						phone_number: '905468133193',
+						phone_number: '905555555555',
 						activationCodeType: ActivationCodes.REGISTER_USER
 					})
 					.expect(202)
@@ -72,7 +71,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/register')
 					.send({
-						phone_number: '915468133193',
+						phone_number: '915555555000',
 						name_surname: 'Muhammet İpek',
 						password: '1234',
 						activation_code: '0000'
@@ -84,7 +83,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/register')
 					.send({
-						phone_number: '905468133193',
+						phone_number: '905555555555',
 						name_surname: 'Muhammet İpek',
 						password: '1234',
 						activation_code: '0000'
@@ -96,7 +95,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/register')
 					.send({
-						phone_number: '905468133193',
+						phone_number: '905555555555',
 						name_surname: 'Muhammet İpek',
 						activation_code: activationCode
 					})
@@ -107,7 +106,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/register')
 					.send({
-						phone_number: '905468133193',
+						phone_number: '905555555555',
 						name_surname: 'Muhammet İpek',
 						email: `${Math.random()}@hotmail.com`,
 						password: '1234',
@@ -128,7 +127,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/login')
 					.send({
-						phone_number: '905468133199',
+						phone_number: '905555555000',
 						password: '1234'
 					})
 					.expect(401)
@@ -138,7 +137,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/login')
 					.send({
-						phone_number: '905468133193',
+						phone_number: '905555555555',
 						password: '1234x'
 					})
 					.expect(401)
@@ -148,7 +147,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/login')
 					.send({
-						phone_number: '905468133193',
+						phone_number: '905555555555',
 						password: '1234'
 					})
 					.expect(200)
@@ -169,7 +168,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.post('/send-activation-code')
 					.send({
-						phone_number: '905468133193',
+						phone_number: '905555555555',
 						activationCodeType: ActivationCodes.RESET_PASSWORD
 					})
 					.expect(202)
@@ -194,7 +193,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.put('/reset-password')
 					.send({
-						phone_number: '905468133199',
+						phone_number: '905555555000',
 						password: '1234'
 					})
 					.expect(400)
@@ -204,7 +203,7 @@ export default () => describe('Unauthorized', () => {
 				request(app)
 					.put('/reset-password')
 					.send({
-						phone_number: '905468133193',
+						phone_number: '905555555555',
 						new_password: '12345',
 						activationCode: resetActivationCode
 					})

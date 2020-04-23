@@ -117,6 +117,7 @@ export const makeOrder = (user: any, context: any) => (
 					id,
 					// @ts-ignore
 					customer: user.name_surname,
+					phone_number: user.phone_number,
 					// @ts-ignore
 					address: selecetedAddress.open_address,
 					date: new Date().toLocaleString(),

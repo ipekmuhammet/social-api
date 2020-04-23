@@ -195,7 +195,7 @@ export const isManagerVerified = (manager: any, retrnVal: any) => (
 export const registerUser = (userContext: any, phoneNumber: string) => (
 	new Promise((resolve, reject) => {
 		new User(userContext).save().then((user) => {
-			// sendSms('905468133198', `${activationCode} is your activation code to activate your account.`)
+			// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
 			jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
 				if (jwtErr) {
 					reject(new ServerError(null, HttpStatusCodes.INTERNAL_SERVER_ERROR, jwtErr.message, true))
@@ -213,7 +213,7 @@ export const registerUser = (userContext: any, phoneNumber: string) => (
 export const registerManager = (managerContext: any, phoneNumber: string) => (
 	new Promise((resolve, reject) => {
 		new Manager(managerContext).save().then((manager) => {
-			// sendSms('905468133198', `${activationCode} is your activation code to activate your account.`)
+			// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
 			jwt.sign({ payload: manager }, 'secret', (jwtErr: Error, token: any) => {
 				if (jwtErr) {
 					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register-manager', true))

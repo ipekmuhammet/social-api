@@ -10,7 +10,7 @@ describe('sequentially run tests', () => {
 	user()
 
 	afterAll(() => {
-		User.deleteOne({ phone_number: '905468133193' }).then((deletedUser) => {
+		User.deleteOne({ phone_number: '905555555555' }).then((deletedUser) => {
 			console.log('User deleted', deletedUser)
 		})
 	})
