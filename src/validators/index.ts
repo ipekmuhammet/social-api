@@ -67,7 +67,7 @@ export const getActivationCode = (phoneNumber: string, activationCodeType: Activ
 				resolve(activationCode)
 			}
 		}).catch((reason) => {
-			reject(new ServerError(reason?.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, ErrorMessages.UNEXPECTED_ERROR, true))
+			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason?.message, true))
 		})
 	})
 )
