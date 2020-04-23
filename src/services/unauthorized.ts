@@ -232,5 +232,8 @@ export const handleError = (error: any, path: string) => {
 	if (error.httpCode) {
 		return error
 	}
+	if (error._original) { // JOI ERROR
+		return new ServerError(error.message, HttpStatusCodes.BAD_REQUEST, path, true)
+	}
 	return new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, path, true)
 }
