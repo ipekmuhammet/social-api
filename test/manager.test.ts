@@ -9,7 +9,7 @@ const token = ''
 let firstOrder
 
 
-describe('manager', () => {
+export default () => describe('manager', () => {
 	it('GET /manager/orders', (done) => (
 		request(app)
 			.get('/manager/oders')

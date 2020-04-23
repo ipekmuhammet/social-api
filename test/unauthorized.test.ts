@@ -9,7 +9,7 @@ import ActivationCodes from '../src/enums/activation-code-enum'
 let activationCode
 let resetActivationCode
 
-describe('Unauthorized', () => {
+export default () => describe('Unauthorized', () => {
 	describe('Authentication', () => {
 		describe('POST /send-activation-code', () => {
 
@@ -114,7 +114,7 @@ describe('Unauthorized', () => {
 						activationCode
 					})
 					.expect(200)
-					.end((error, response) => {
+					.end((error) => {
 						if (error) {
 							done(error)
 						}

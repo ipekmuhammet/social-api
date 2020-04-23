@@ -10,7 +10,7 @@ let savedProduct
 
 const token = ''
 
-describe('admin', () => {
+export default () => describe('admin', () => {
 	it('POST /category', (done) => {
 		const randomName = Math.random().toString()
 		return request(app)

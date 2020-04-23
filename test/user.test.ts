@@ -5,7 +5,6 @@ import readline from 'readline'
 
 import app from '../src/app'
 
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7Il9pZCI6IjVlYTE1MzYxYzdmMGYxMjBmNDFiMTI1MiIsInBob25lX251bWJlciI6IjkwNTQ2ODEzMzE5MyIsIm5hbWVfc3VybmFtZSI6Ik11aGFtbWV0IMSwcGVrIiwiZW1haWwiOiIwLjg0NjU1ODc5MzEzMjEzNzRAaG90bWFpbC5jb20iLCJwYXNzd29yZCI6IiQyYiQxMCRQdU90Q2s4NFgvLms2OEd3STJESERlRWdBYktYaHFxdS9LQjBtYXhqUFo1c1N2WkwxNzQxLiIsImFkZHJlc3NlcyI6W10sIl9fdiI6MH0sImlhdCI6MTU4NzYzMjc3NX0.eeeuhVhs6KxM_A-c6bz_RDL5LJi5ehhbQV-AR3qwJJ8'
 
 const cart = {
 	41705: {
@@ -71,8 +70,30 @@ const cart = {
 }
 
 let user
+let token
 
-describe('user', () => {
+export default () => describe('user', () => {
+	it('login', (done) => {
+		request(app)
+			.post('/login')
+			.send({
+				phone_number: '905468133193',
+				password: '12345'
+			})
+			.expect(200)
+			// eslint-disable-next-line consistent-return
+			.end((err, res) => {
+				if (err) {
+					return done(err)
+				}
+				expect(res.body.token).to.be.a('string')
+				expect(res.body.user).to.be.a('object')
+				user = res.body.user
+				token = res.body.token
+				done()
+			})
+	})
+
 	it('POST /order with empty cart', () => (// May this test not pass, should try with new created user.
 		request(app)
 			.post('/user/order')
@@ -120,6 +141,7 @@ describe('user', () => {
 					done(error)
 				}
 				expect(response.body).to.contains.all.keys('_id')
+				// eslint-disable-next-line prefer-destructuring
 				user = response.body
 				done()
 			})
