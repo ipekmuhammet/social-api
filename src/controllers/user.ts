@@ -6,6 +6,7 @@ import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
 import ServerError from '../errors/ServerError'
 import ErrorMessages from '../errors/ErrorMessages'
+import { handleError } from '../services/unauthorized'
 
 import {
 	listCards,
@@ -28,6 +29,7 @@ import {
 	validateChangePasswordRequest
 } from '../validators/user-validator'
 
+
 const router = Router()
 
 router.use(validateAuthority(Authority.USER))
@@ -37,7 +39,7 @@ router.get('/list-cards', (req, res, next) => {
 	listCards('ojBya0o8ecs7ynou3l94xmdB8f8=').then((cards) => {
 		res.json(cards)
 	}).catch((reason) => {
-		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+		next(handleError(reason, 'GET /user/list-cards'))
 	})
 })
 
@@ -45,7 +47,7 @@ router.post('/payment-card', (req, res, next) => {
 	addCardToUser('ojBya0o8ecs7ynou3l94xmdB8f8=', req.body.card).then((result) => {
 		res.json(result)
 	}).catch((reason) => {
-		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+		next(handleError(reason, 'POST /user/payment-card'))
 	})
 })
 
@@ -56,7 +58,7 @@ router.put('/profile', (req, res, next) => {
 		.then((user) => {
 			res.json(user)
 		}).catch((reason) => {
-			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+			next(handleError(reason, 'PUT /user/profile'))
 		})
 })
 
@@ -67,7 +69,7 @@ router.post('/cart', (req, res, next) => {
 		.then((result) => {
 			res.json(result)
 		}).catch((reason) => {
-			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+			next(handleError(reason, 'POST /user/cart'))
 		})
 })
 
@@ -76,7 +78,7 @@ router.get('/cart', (req, res, next) => {
 	getCart(req.user._id.toString()).then((result) => {
 		res.json(result)
 	}).catch((reason: any) => {
-		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+		next(handleError(reason, 'GET /user/cart'))
 	})
 })
 
@@ -91,10 +93,20 @@ router.post('/address', (req, res, next) => {
 					res.json(result)
 				})
 			} else {
-				next(new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.BAD_REQUEST, 'POST /user/address', true))
+				next(
+					handleError(
+						new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.BAD_REQUEST, 'POST /user/address', true),
+						'POST /user/address'
+					)
+				)
 			}
 		}).catch((reason) => {
-			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.BAD_REQUEST, reason.message, true))
+			next(
+				handleError(
+					new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.BAD_REQUEST, reason.message, true),
+					'POST /user/address'
+				)
+			)
 		})
 })
 
@@ -106,7 +118,7 @@ router.delete('/address/:id', (req, res, next) => {
 		if (reason.httpCode) {
 			next(reason)
 		} else {
-			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+			next(handleError(reason, 'DELETE /user/address/:id'))
 		}
 	})
 })
@@ -117,11 +129,7 @@ router.post('/order', (req, res, next) => {
 		.then((result) => {
 			res.json(result)
 		}).catch((reason) => {
-			if (reason.httpCode) {
-				next(reason)
-			} else {
-				next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
-			}
+			next(handleError(reason, 'POST /user/order'))
 		})
 })
 
@@ -137,8 +145,8 @@ router.put('/change-password', (req, res, next) => {
 			req.user.save().then(() => {
 				res.json({ status: true })
 			})
-		}).catch((reason: Error) => {
-			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, true))
+		}).catch((reason) => {
+			next(handleError(reason, 'PUT /user/change-password'))
 		})
 })
 

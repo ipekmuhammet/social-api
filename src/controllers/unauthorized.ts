@@ -52,7 +52,12 @@ router.get('/categories', (req, res, next) => {
 	getCategories().then((categories) => {
 		res.json(categories)
 	}).catch((reason) => {
-		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, reason.isOperational ?? true))
+		next(
+			handleError(
+				new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, reason.isOperational ?? true),
+				'GET /categories'
+			)
+		)
 	})
 })
 
@@ -60,7 +65,12 @@ router.get('/products', (req, res, next) => {
 	getAllProducts().then((products) => {
 		res.json(products)
 	}).catch((reason) => {
-		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, reason.isOperational ?? true))
+		next(
+			handleError(
+				new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, reason.isOperational ?? true),
+				'GET /products'
+			)
+		)
 	})
 })
 
