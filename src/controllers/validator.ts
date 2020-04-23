@@ -1,8 +1,6 @@
 import bcrypt from 'bcrypt'
 import HttpStatusCodes from 'http-status-codes'
-import JoiBase from '@hapi/joi'
-// @ts-ignore
-import JoiPhoneNumber from 'joi-phone-number'
+import Joi from '@hapi/joi'
 
 import { Redis } from '../startup'
 import { User, Manager } from '../models'
@@ -11,30 +9,35 @@ import ErrorMessages from '../errors/ErrorMessages'
 // eslint-disable-next-line no-unused-vars
 import ActivationCodes from '../enums/activation-code-enum'
 
-const Joi = JoiBase.extend(JoiPhoneNumber)
+import {
+	phoneSchema,
+	productSchema,
+	sendActivationCodeSchema,
+	registerSchema,
+	registerManagerSchema,
+	loginSchema,
+	resetPasswordSchema
+} from './joi-schemas'
 
-const phoneSchema = Joi.object({
-	phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true })
-})
+export const validateSendActivationCodeRequest = (context: any) => (
+	sendActivationCodeSchema.validateAsync(context)
+)
 
-const productSchema = Joi.object({
-	brand: Joi.string().required(),
-	id: [
-		Joi.string().required(),
-		Joi.number().required(),
-	],
-	kind_name: Joi.string().allow(null, ''),
-	product_name: Joi.string().required(),
-	old_price: Joi.number().allow(null, ''),
-	price: Joi.number().required(),
-	title: Joi.string().required(),
-	category_breadcrumb: Joi.string().allow(null, ''),
-	images: Joi.array().items(Joi.string()).required(),
-	// images: Joi.array().items(Joi.string().required()).required(),
-	image_types: Joi.object().required(),
-	units: Joi.string().allow(null, ''),
-	quantity: Joi.number().min(1).required()
-}).unknown()
+export const validateRegisterRequest = (context: any) => (
+	registerSchema.validateAsync(context)
+)
+
+export const validateRegisterManagerRequest = (context: any) => (
+	registerManagerSchema.validateAsync(context)
+)
+
+export const validateLoginRequest = (context: any) => (
+	loginSchema.validateAsync(context)
+)
+
+export const validateResetPasswordRequest = (context: any) => (
+	resetPasswordSchema.validateAsync(context)
+)
 
 export const validatePhoneNumber = (requestBody: any) => (
 	phoneSchema.validate(requestBody)

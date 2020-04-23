@@ -28,7 +28,12 @@ import {
 	getActivationCode,
 	compareActivationCode,
 	isManagerNonExists,
-	isManagerExists
+	isManagerExists,
+	validateSendActivationCodeRequest,
+	validateRegisterRequest,
+	validateRegisterManagerRequest,
+	validateLoginRequest,
+	validateResetPasswordRequest
 } from './validator'
 
 import ErrorMessages from '../errors/ErrorMessages'
@@ -75,7 +80,8 @@ router.get('/search-product', (req, res) => {
 })
 
 router.post('/send-activation-code', (req, res, next) => {
-	checkConvenientOfActivationCodeRequest(req.body.phone_number, req.body.activationCodeType)
+	validateSendActivationCodeRequest({ phone_number: req.body.phone_number, activationCodeType: req.body.activationCodeType })
+		.then(() => checkConvenientOfActivationCodeRequest(req.body.phone_number, req.body.activationCodeType))
 		.then(() => createActivationCode(req.body.phone_number, req.body.activationCodeType))
 		.then(() => {
 			res.status(HttpStatusCodes.ACCEPTED).json({ status: true })
@@ -87,7 +93,8 @@ router.post('/send-activation-code', (req, res, next) => {
 
 router.post('/register', (req, res, next) => {
 	// isUserNonExists(req.body.user.phone_number)
-	isUserNonExists(req.body.phone_number)
+	validateRegisterRequest(req.body)
+		.then(() => isUserNonExists(req.body.phone_number))
 		.then(() => getActivationCode(req.body.phone_number, ActivationCodes.REGISTER))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => registerUser(req.body, req.body.phone_number))
@@ -100,7 +107,8 @@ router.post('/register', (req, res, next) => {
 })
 
 router.post('/register-manager', (req, res, next) => {
-	isManagerNonExists(req.body.phoneNumber)
+	validateRegisterManagerRequest(req.body)
+		.then(() => isManagerNonExists(req.body.phoneNumber))
 		.then(() => registerManager({ ...req.body, ...{ verified: false } }, req.body.phone_number))
 		.then((response) => {
 			res.json(response)
@@ -111,7 +119,8 @@ router.post('/register-manager', (req, res, next) => {
 })
 
 router.post('/login-manager', (req, res, next) => {
-	isManagerExists(req.body.phone_number)
+	validateLoginRequest(req.body)
+		.then(() => isManagerExists(req.body.phone_number))
 		.then((manager) => login(manager, req.body.password))
 		.then(({ user, token }) => isManagerVerified(user, { user, token }))
 		.then((response) => {
@@ -123,18 +132,20 @@ router.post('/login-manager', (req, res, next) => {
 })
 
 router.post('/login', (req, res, next) => {
-	isUserExists(req.body.phone_number)
+	validateLoginRequest(req.body)
+		.then(() => isUserExists(req.body.phone_number))
 		.then((user) => login(user, req.body.password))
 		.then((response) => {
 			res.json(response)
 		})
 		.catch((reason) => {
-			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /login', reason.isOperational ?? true))
+			next(handleError(reason, 'POST /login'))
 		})
 })
 
 router.put('/reset-password', (req, res, next) => {
-	getActivationCode(req.body.phone_number, ActivationCodes.RESET_PASSWORD)
+	validateResetPasswordRequest(req.body)
+		.then(() => getActivationCode(req.body.phone_number, ActivationCodes.RESET_PASSWORD))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => isUserExists(req.body.phone_number))
 		.then((user) => {
@@ -147,7 +158,7 @@ router.put('/reset-password', (req, res, next) => {
 			})
 		})
 		.catch((reason) => {
-			next(new ServerError(reason.message, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /reset-password', reason.isOperational ?? true))
+			next(handleError(reason, 'PUT /reset-password'))
 		})
 })
 
