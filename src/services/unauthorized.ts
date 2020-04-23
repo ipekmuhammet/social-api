@@ -185,7 +185,7 @@ export const login = (user: any, password: string) => (
 export const isManagerVerified = (manager: any, retrnVal: any) => (
 	new Promise((resolve, reject) => {
 		if (!manager.verified) {
-			reject(new ServerError(null, HttpStatusCodes.UNAUTHORIZED, 'Manager is not verified', true))
+			reject(new ServerError('Manager is not verified', HttpStatusCodes.UNAUTHORIZED, 'Manager is not verified', true))
 		} else {
 			resolve(retrnVal)
 		}
@@ -198,14 +198,14 @@ export const registerUser = (userContext: any, phoneNumber: string) => (
 			// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
 			jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
 				if (jwtErr) {
-					reject(new ServerError(null, HttpStatusCodes.INTERNAL_SERVER_ERROR, jwtErr.message, true))
+					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, jwtErr.message, true))
 				} else {
 					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER_USER}`)
 					resolve({ token, user })
 				}
 			})
 		}).catch((reason) => {
-			reject(new ServerError(null, HttpStatusCodes.BAD_REQUEST, reason.message, true))
+			reject(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, reason.message, true))
 		})
 	})
 )

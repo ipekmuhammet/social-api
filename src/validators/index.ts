@@ -20,7 +20,7 @@ export const comparePasswords = (oldPassword: string, newPassword: string, error
 export const isManagerNonExists = (phoneNumber: string) => (
 	Manager.findOne({ phone_number: phoneNumber }).then((foundManager) => {
 		if (foundManager) {
-			throw new ServerError(null, HttpStatusCodes.BAD_REQUEST, ErrorMessages.MANAGER_ALREADY_EXISTS, false)
+			throw new ServerError(ErrorMessages.MANAGER_ALREADY_EXISTS, HttpStatusCodes.BAD_REQUEST, ErrorMessages.MANAGER_ALREADY_EXISTS, false)
 		}
 	})
 )
@@ -29,7 +29,7 @@ export const isManagerNonExists = (phoneNumber: string) => (
 export const isManagerExists = (phoneNumber: string) => (
 	Manager.findOne({ phone_number: phoneNumber }).then((foundManager) => {
 		if (!foundManager) {
-			throw new ServerError(null, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.MANAGER_IS_NOT_EXISTS, false)
+			throw new ServerError(ErrorMessages.MANAGER_IS_NOT_EXISTS, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.MANAGER_IS_NOT_EXISTS, false)
 		} else {
 			return foundManager
 		}
@@ -62,7 +62,7 @@ export const getActivationCode = (phoneNumber: string, activationCodeType: Activ
 		// @ts-ignore
 		Redis.getInstance.getAsync(`${phoneNumber}:activationCode:${activationCodeType}`).then((activationCode) => {
 			if (!activationCode) {
-				reject(new ServerError(null, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'Aktivasyon kodu bulunamadı!', false))
+				reject(new ServerError('Aktivasyon kodu bulunamadı!', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'Aktivasyon kodu bulunamadı!', false))
 			} else {
 				resolve(activationCode)
 			}
@@ -78,7 +78,7 @@ export const compareActivationCode = (activationCodeFromRequest: string, correct
 		if (activationCodeFromRequest === correctActivationCode) {
 			resolve()
 		} else {
-			reject(new ServerError(null, HttpStatusCodes.BAD_REQUEST, ErrorMessages.WRONG_ACTIVATION_CODE, false))
+			reject(new ServerError(ErrorMessages.WRONG_ACTIVATION_CODE, HttpStatusCodes.BAD_REQUEST, ErrorMessages.WRONG_ACTIVATION_CODE, false))
 		}
 	})
 )
