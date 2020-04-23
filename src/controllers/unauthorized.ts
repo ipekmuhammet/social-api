@@ -28,13 +28,16 @@ import {
 	getActivationCode,
 	compareActivationCode,
 	isManagerNonExists,
-	isManagerExists,
+	isManagerExists
+} from './validators'
+
+import {
 	validateSendActivationCodeRequest,
 	validateRegisterRequest,
 	validateRegisterManagerRequest,
 	validateLoginRequest,
 	validateResetPasswordRequest
-} from './validator'
+} from './validators/unauthorized-validator'
 
 import ErrorMessages from '../errors/ErrorMessages'
 import ActivationCodes from '../enums/activation-code-enum'

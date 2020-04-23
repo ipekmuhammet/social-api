@@ -5,7 +5,6 @@ import { User } from '../models'
 import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
 import ServerError from '../errors/ServerError'
-import { comparePasswords } from './validator'
 import ErrorMessages from '../errors/ErrorMessages'
 
 import {
@@ -17,6 +16,17 @@ import {
 	deleteAddress,
 	getCart
 } from '../services/user'
+
+import {
+	comparePasswords
+} from './validators'
+
+import {
+	validateUpdateProfileRequest,
+	validateSaveCartRequest,
+	validateSaveAddressRequest,
+	validateChangePasswordRequest
+} from './validators/user-validator'
 
 const router = Router()
 
@@ -40,21 +50,25 @@ router.post('/payment-card', (req, res, next) => {
 })
 
 router.put('/profile', (req, res, next) => {
-	// @ts-ignore
-	updateUser(req.user._id, req.body).then((user) => {
-		res.json(user)
-	}).catch((reason) => {
-		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
-	})
+	validateUpdateProfileRequest(req.body)
+		// @ts-ignore
+		.then(() => updateUser(req.user._id, req.body))
+		.then((user) => {
+			res.json(user)
+		}).catch((reason) => {
+			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+		})
 })
 
 router.post('/cart', (req, res, next) => {
-	// @ts-ignore
-	saveCart(req.user._id.toString(), req.body).then((result) => {
-		res.json(result)
-	}).catch((reason) => {
-		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
-	})
+	validateSaveCartRequest(req.body)
+		// @ts-ignore
+		.then(() => saveCart(req.user._id.toString(), req.body))
+		.then((result) => {
+			res.json(result)
+		}).catch((reason) => {
+			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, reason.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+		})
 })
 
 router.get('/cart', (req, res, next) => {
@@ -67,19 +81,21 @@ router.get('/cart', (req, res, next) => {
 })
 
 router.post('/address', (req, res, next) => {
-	// @ts-ignore
-	User.findById(req.user._id).then((user: any) => {
-		if (user) {
-			user.addresses.push(req.body)
-			user.save().then((result: any) => {
-				res.json(result)
-			})
-		} else {
-			next(new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.BAD_REQUEST, 'POST /user/address', true))
-		}
-	}).catch((reason) => {
-		next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.BAD_REQUEST, reason.message, true))
-	})
+	validateSaveAddressRequest(req.body)
+		// @ts-ignore
+		.then(() => User.findById(req.user._id))
+		.then((user: any) => {
+			if (user) {
+				user.addresses.push(req.body)
+				user.save().then((result: any) => {
+					res.json(result)
+				})
+			} else {
+				next(new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.BAD_REQUEST, 'POST /user/address', true))
+			}
+		}).catch((reason) => {
+			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.BAD_REQUEST, reason.message, true))
+		})
 })
 
 router.delete('/address/:id', (req, res, next) => {
@@ -97,30 +113,33 @@ router.delete('/address/:id', (req, res, next) => {
 
 router.post('/order', (req, res, next) => {
 	// @ts-ignore
-	makeOrder(req.user, req.body).then((result) => {
-		res.json(result)
-	}).catch((reason) => {
-		if (reason.httpCode) {
-			next(reason)
-		} else {
-			next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
-		}
-	})
+	makeOrder(req.user, req.body)
+		.then((result) => {
+			res.json(result)
+		}).catch((reason) => {
+			if (reason.httpCode) {
+				next(reason)
+			} else {
+				next(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+			}
+		})
 })
 
 router.put('/change-password', (req, res, next) => {
-	// @ts-ignore
-	comparePasswords(req.body.old_password, req.user.password, ErrorMessages.WRONG_PASSWORD).then(() => {
+	validateChangePasswordRequest(req.body)
 		// @ts-ignore
-		// eslint-disable-next-line no-param-reassign
-		req.user.password = req.body.new_password
-		// @ts-ignore
-		req.user.save().then(() => {
-			res.json({ status: true })
+		.then(() => comparePasswords(req.body.old_password, req.user.password, ErrorMessages.WRONG_PASSWORD))
+		.then(() => {
+			// @ts-ignore
+			// eslint-disable-next-line no-param-reassign
+			req.user.password = req.body.new_password
+			// @ts-ignore
+			req.user.save().then(() => {
+				res.json({ status: true })
+			})
+		}).catch((reason: Error) => {
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, true))
 		})
-	}).catch((reason: Error) => {
-		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, true))
-	})
 })
 
 export default router

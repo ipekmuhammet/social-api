@@ -1,51 +1,12 @@
 import bcrypt from 'bcrypt'
 import HttpStatusCodes from 'http-status-codes'
-import Joi from '@hapi/joi'
 
-import { Redis } from '../startup'
-import { User, Manager } from '../models'
-import ServerError from '../errors/ServerError'
-import ErrorMessages from '../errors/ErrorMessages'
+import { Redis } from '../../startup'
+import { User, Manager } from '../../models'
+import ServerError from '../../errors/ServerError'
+import ErrorMessages from '../../errors/ErrorMessages'
 // eslint-disable-next-line no-unused-vars
-import ActivationCodes from '../enums/activation-code-enum'
-
-import {
-	phoneSchema,
-	productSchema,
-	sendActivationCodeSchema,
-	registerSchema,
-	registerManagerSchema,
-	loginSchema,
-	resetPasswordSchema
-} from './joi-schemas'
-
-export const validateSendActivationCodeRequest = (context: any) => (
-	sendActivationCodeSchema.validateAsync(context)
-)
-
-export const validateRegisterRequest = (context: any) => (
-	registerSchema.validateAsync(context)
-)
-
-export const validateRegisterManagerRequest = (context: any) => (
-	registerManagerSchema.validateAsync(context)
-)
-
-export const validateLoginRequest = (context: any) => (
-	loginSchema.validateAsync(context)
-)
-
-export const validateResetPasswordRequest = (context: any) => (
-	resetPasswordSchema.validateAsync(context)
-)
-
-export const validatePhoneNumber = (requestBody: any) => (
-	phoneSchema.validate(requestBody)
-)
-
-export const validateProducts = (products: any[]) => (
-	Joi.array().items(productSchema).sparse(true).validate(products)
-)
+import ActivationCodes from '../../enums/activation-code-enum'
 
 export const comparePasswords = (oldPassword: string, newPassword: string, errorMessage: string) => (
 	bcrypt.compare(oldPassword, newPassword).then((validPassword) => {

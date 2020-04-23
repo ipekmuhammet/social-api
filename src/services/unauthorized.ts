@@ -6,7 +6,7 @@ import { Redis, Elasticsearch } from '../startup'
 import ServerError from '../errors/ServerError'
 import { User, Manager } from '../models'
 import ErrorMessages from '../errors/ErrorMessages'
-import { comparePasswords, isUserNonExists, isUserExists } from '../controllers/validator'
+import { comparePasswords, isUserNonExists, isUserExists } from '../controllers/validators'
 import ActivationCodes from '../enums/activation-code-enum'
 
 

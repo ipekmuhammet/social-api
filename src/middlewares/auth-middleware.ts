@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import HttpStatusCodes from 'http-status-codes'
 
-import { validatePhoneNumber } from '../controllers/validator'
 import Authority from '../enums/authority-enum'
 import { User, Manager, Admin } from '../models'
+import { validatePhoneNumber } from '../controllers/validators/user-validator'
 
 import ServerError from '../errors/ServerError'
 

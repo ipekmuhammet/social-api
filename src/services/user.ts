@@ -4,8 +4,8 @@ import Iyzipay from 'iyzipay'
 import ErrorMessages from '../errors/ErrorMessages'
 import ServerError from '../errors/ServerError'
 import { User } from '../models'
-import { validateProducts } from '../controllers/validator'
 import { Redis } from '../startup'
+import { validateProducts } from '../controllers/validators/user-validator'
 
 const iyzipay = new Iyzipay({
 	apiKey: 'sandbox-hbjzTU7CZDxarIUKVMhWLvHOIMIb3Z40',
