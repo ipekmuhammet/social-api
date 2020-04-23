@@ -27,12 +27,10 @@ export const getCategories = () => (
 
 export const getAllProducts = () => (
 	new Promise((resolve, reject) => {
-		Redis.getInstance.hgetall('products', (error: Error, obj: any) => {
-			if (error) {
-				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
-			} else {
-				resolve(Object.values(obj).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
-			}
+		Redis.getInstance.hgetallAsync('products').then((products) => {
+			resolve(Object.values(products).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
+		}).catch((reason) => {
+			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
 		})
 	})
 )
@@ -49,14 +47,14 @@ export const getProduct = (productId: string, user: any) => (
 			multi.hget('cart', user._id.toString())
 		}
 
-		multi.exec((error, results) => { // 37695 38532 37295
-			if (error) {
-				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
-			} else if (results[0]) {
+		multi.execAsync().then((results) => { // 37695 38532 37295
+			if (results[0]) {
 				resolve({ product: results[0], cart: results[1] })
 			} else {
 				reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, false))
 			}
+		}).catch((reason) => {
+			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
 		})
 
 		//	multi.getAsync(productId).then((obj: any) => {
@@ -158,13 +156,11 @@ export const createActivationCode = (phoneNumber: string, activationCodeType: Ac
 		console.log(activationCode)
 
 		// @ts-ignore
-		Redis.getInstance.set(`${phoneNumber}:activationCode:${activationCodeType}`, activationCode, (redisError) => {
-			if (redisError) {
-				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, redisError.message, true))
-			} else {
-				Redis.getInstance.expire(`${phoneNumber}:activationCode:${activationCodeType}`, 60 * 3)
-				resolve()
-			}
+		Redis.getInstance.setAsync(`${phoneNumber}:activationCode:${activationCodeType}`, activationCode).then(() => {
+			Redis.getInstance.expire(`${phoneNumber}:activationCode:${activationCodeType}`, 60 * 3)
+			resolve()
+		}).catch((reason) => {
+			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
 		})
 	})
 )

@@ -25,56 +25,44 @@ const sendSms = (to: string, message: string) => {
 
 router.get('/orders', (req, res, next) => {
 	// Redis.getInstance.del('orders', Object.keys(Redis.getInstance.hgetall('orders')))
-	Redis.getInstance.hgetall('orders', (error, reply) => {
-		if (!error) {
-			res.json(reply)
-		} else {
-			next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/orders', true))
-		}
+	Redis.getInstance.hgetallAsync('orders').then((orders) => {
+		res.json(orders)
+	}).catch((reason) => {
+		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/orders', true))
 	})
 })
 
 router.get('/order/:id', (req, res, next) => {
-	Redis.getInstance.hget('orders', req.params.id, (error, reply) => {
-		if (!error) {
-			res.json(JSON.parse(reply))
-		} else {
-			next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/order/:id', true))
-		}
+	Redis.getInstance.hgetAsync('orders', req.params.id).then((order) => {
+		res.json(JSON.parse(order))
+	}).catch((reason) => {
+		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/order/:id', true))
 	})
 })
 
 router.put('/orders/cancel/:id', (req, res, next) => {
-	Redis.getInstance.hget('orders', req.params.id, (err0, reply0) => {
-		if (!err0) {
-			next(new ServerError(err0.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/cancel/:id', true))
-		} else {
-			Redis.getInstance.hset('orders', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: false })), (error) => {
-				if (!error) {
-					res.json({ status: true })
-				} else {
-					// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, Y nedeniyle iptal edilmiştir. Ödemeniz en kısa sürece hesabına geri aktarılacaktır. Anlayışınız için teşekkürler.')
-					next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/order/:id', true))
-				}
-			})
-		}
+	Redis.getInstance.hgetAsync('orders', req.params.id).then((orders) => {
+		Redis.getInstance.hsetAsync('orders', req.params.id, JSON.stringify(Object.assign(JSON.parse(orders), { status: false }))).then(() => {
+			res.json({ status: true })
+		}).catch((reason) => {
+			// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, Y nedeniyle iptal edilmiştir. Ödemeniz en kısa sürece hesabına geri aktarılacaktır. Anlayışınız için teşekkürler.')
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/order/:id', true))
+		})
+	}).catch((reason) => {
+		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/cancel/:id', true))
 	})
 })
 
 router.put('/orders/confirm/:id', (req, res, next) => {
-	Redis.getInstance.hget('orders', req.params.id, (err0, reply0) => {
-		if (!err0) {
-			next(new ServerError(err0.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:id', true))
-		} else {
-			Redis.getInstance.hset('orders', req.params.id, JSON.stringify(Object.assign(JSON.parse(reply0), { status: true })), (error) => {
-				if (error) {
-					next(new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:id', true))
-				} else {
-					// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, X Kargoya verilmiştir, Kargo takip numarası : 0123456789')
-					res.json({ status: true })
-				}
-			})
-		}
+	Redis.getInstance.hgetAsync('orders', req.params.id).then((orders) => {
+		Redis.getInstance.hsetAsync('orders', req.params.id, JSON.stringify(Object.assign(JSON.parse(orders), { status: true }))).then(() => {
+			// sendSms('905468133198', '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, X Kargoya verilmiştir, Kargo takip numarası : 0123456789')
+			res.json({ status: true })
+		}).catch((reason) => {
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:id', true))
+		})
+	}).catch((reason) => {
+		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:id', true))
 	})
 })
 

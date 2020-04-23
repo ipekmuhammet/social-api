@@ -62,12 +62,10 @@ export const saveCart = (userId: string, cart: any) => (
 
 		if (!error) {
 			// @ts-ignore
-			Redis.getInstance.hset('cart', userId, JSON.stringify(cart), (redisError) => {
-				if (redisError) {
-					reject(new Error(redisError.message))
-				} else {
-					resolve({ status: true })
-				}
+			Redis.getInstance.hsetAsync('cart', userId, JSON.stringify(cart)).then(() => {
+				resolve({ status: true })
+			}).catch((reason) => {
+				reject(new Error(reason.message))
 			})
 		} else {
 			reject(new Error(JSON.stringify(error)))
@@ -78,12 +76,10 @@ export const saveCart = (userId: string, cart: any) => (
 export const getCart = (userId: string) => (
 	new Promise((resolve, reject) => {
 		// Redis.getInstance.hdel('cart', req.user._id.toString())
-		Redis.getInstance.hget('cart', userId, (error, reply) => {
-			if (error) {
-				reject(new Error(error.message))
-			} else {
-				resolve(JSON.parse(reply))
-			}
+		Redis.getInstance.hgetAsync('cart', userId).then((cart) => {
+			resolve(JSON.parse(cart))
+		}).catch((reason) => {
+			reject(new Error(reason.message))
 		})
 	})
 )
@@ -113,13 +109,13 @@ export const makeOrder = (user: any, context: any) => (
 		const selecetedAddress = user.addresses.find((address) => address._id.toString() === context.address)
 
 		// @ts-ignore
-		Redis.getInstance.hget('cart', user._id.toString(), (getErr, cart) => {
+		Redis.getInstance.hgetAsync('cart', user._id.toString()).then((cart) => {
 			if (!cart) {
 				reject(new ServerError(ErrorMessages.EMPTY_CART, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
 				// @ts-ignore
 			} else if (!selecetedAddress) {
 				reject(new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
-			} else if (!getErr) {
+			} else {
 				const id = Math.random().toString()
 
 				// @ts-ignore
@@ -149,9 +145,9 @@ export const makeOrder = (user: any, context: any) => (
 						resolve({ status: true })
 					}
 				})
-			} else {
-				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, getErr.message, true))
 			}
+		}).catch((reason) => {
+			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
 		})
 	})
 )
