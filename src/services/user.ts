@@ -58,18 +58,12 @@ export const updateUser = (userId: string, userContext: any) => (
 
 export const saveCart = (userId: string, cart: any) => (
 	new Promise((resolve, reject) => {
-		const { error } = validateProducts(Object.values(cart))
-
-		if (!error) {
-			// @ts-ignore
-			Redis.getInstance.hsetAsync('cart', userId, JSON.stringify(cart)).then(() => {
-				resolve({ status: true })
-			}).catch((reason) => {
-				reject(new Error(reason.message))
-			})
-		} else {
-			reject(new Error(JSON.stringify(error)))
-		}
+		// @ts-ignore
+		Redis.getInstance.hsetAsync('cart', userId, JSON.stringify(cart)).then(() => {
+			resolve({ status: true })
+		}).catch((reason) => {
+			reject(new Error(reason.message))
+		})
 	})
 )
 

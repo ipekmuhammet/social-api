@@ -67,10 +67,11 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 export const validatePhone = () => (req: Request, res: Response, next: NextFunction) => {
 	const { value, error } = validatePhoneNumber({ phone_number: req.body.phone_number })
 
-	// if (!error && value.phone_number) {
 	if (!error) {
 		// @ts-ignore
-		req.body.phone_number = value.phone_number
+		if (value.phone_number) {
+			req.body.phone_number = value.phone_number
+		}
 		next()
 	} else {
 		next(new ServerError('Phone number is invalid.', HttpStatusCodes.BAD_REQUEST, 'Phone number is invalid.', false))

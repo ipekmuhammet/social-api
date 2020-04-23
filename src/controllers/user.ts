@@ -101,12 +101,7 @@ router.post('/address', (req, res, next) => {
 				)
 			}
 		}).catch((reason) => {
-			next(
-				handleError(
-					new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.BAD_REQUEST, reason.message, true),
-					'POST /user/address'
-				)
-			)
+			next(handleError(reason, 'POST /user/address'))
 		})
 })
 

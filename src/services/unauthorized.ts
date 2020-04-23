@@ -177,7 +177,7 @@ export const login = (user: any, password: string) => (
 				}
 			})
 		}).catch((error) => {
-			reject(new ServerError(null, HttpStatusCodes.UNAUTHORIZED, error.message, true))
+			reject(new ServerError(error.message, HttpStatusCodes.UNAUTHORIZED, null, true))
 		})
 	})
 )

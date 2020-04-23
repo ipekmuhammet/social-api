@@ -2,7 +2,6 @@ import Joi from '@hapi/joi'
 
 import {
 	updateProfileSchema,
-	saveCartSchema,
 	productSchema,
 	saveAddressSchema,
 	changePasswordSchema,
@@ -14,15 +13,15 @@ export const validatePhoneNumber = (requestBody: any) => (
 )
 
 export const validateProducts = (products: any[]) => (
-	Joi.array().items(productSchema).sparse(true).validate(products)
+	Joi.array().items(productSchema).sparse(true).validateAsync(products)
 )
 
 export const validateUpdateProfileRequest = (context: any) => (
 	updateProfileSchema.validateAsync(context)
 )
 
-export const validateSaveCartRequest = (context: any) => (
-	saveCartSchema.validateAsync(context)
+export const validateSaveCartRequest = (cart: any) => (
+	validateProducts(Object.values(cart))
 )
 
 export const validateSaveAddressRequest = (context: any) => (

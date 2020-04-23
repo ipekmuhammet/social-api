@@ -5,7 +5,7 @@ import readline from 'readline'
 
 import app from '../src/app'
 
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7ImF1dGhvcml0eSI6MCwiX2lkIjoiNWU5N2I1NjliYzM2OWUzMGY0OTA1YzJhIiwibmFtZV9zdXJuYW1lIjoibWFtaSIsInBob25lX251bWJlciI6IjkwNTQ2ODEzMzE4MCIsInBhc3N3b3JkIjoiJDJiJDEwJGtsdGpQeXU0UXBlZDdGQ3IzcGJ5amVtSkVmdTNzQ0FOYkQ3ZzA1Y2MxSzFWZm1aZ2FzeU9HIiwiYWRkcmVzc2VzIjpbXSwiX192IjowfSwiaWF0IjoxNTg3MDAwNjgxfQ.v5cbDuT4AKl3rxnraTxzEZ1SN9FmEKRPDVRksZJBAH4'
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7Il9pZCI6IjVlYTE1MzYxYzdmMGYxMjBmNDFiMTI1MiIsInBob25lX251bWJlciI6IjkwNTQ2ODEzMzE5MyIsIm5hbWVfc3VybmFtZSI6Ik11aGFtbWV0IMSwcGVrIiwiZW1haWwiOiIwLjg0NjU1ODc5MzEzMjEzNzRAaG90bWFpbC5jb20iLCJwYXNzd29yZCI6IiQyYiQxMCRQdU90Q2s4NFgvLms2OEd3STJESERlRWdBYktYaHFxdS9LQjBtYXhqUFo1c1N2WkwxNzQxLiIsImFkZHJlc3NlcyI6W10sIl9fdiI6MH0sImlhdCI6MTU4NzYzMjc3NX0.eeeuhVhs6KxM_A-c6bz_RDL5LJi5ehhbQV-AR3qwJJ8'
 
 const cart = {
 	41705: {
@@ -116,6 +116,7 @@ describe('user', () => {
 			.expect(200)
 			.end((error, response) => {
 				if (error) {
+					console.log(error)
 					done(error)
 				}
 				expect(response.body).to.contains.all.keys('_id')
@@ -134,23 +135,17 @@ describe('user', () => {
 			.expect(200)
 	))
 
-	it('DELETE /address', () => (
+	it('DELETE /address with unknown address', () => (
 		request(app)
-			.delete('/user/address')
+			.delete(`/user/address/${12345}`)
 			.set({ Authorization: token })
-			.send({
-				_id: 12345
-			})
 			.expect(400)
 	))
 
 	it('DELETE /address', () => (
 		request(app)
-			.delete('/user/address')
+			.delete(`/user/address/${user.addresses[0]._id}`)
 			.set({ Authorization: token })
-			.send({
-				_id: user.addresses[0]._id
-			})
 			.expect(200)
 	))
 })

@@ -33,12 +33,6 @@ export const updateProfileSchema = Joi.object({
 	name_surname: Joi.string().required()
 })
 
-export const saveCartSchema = Joi.object({
-	phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true }),
-	email: Joi.string().email(),
-	name_surname: Joi.string().required()
-})
-
 export const saveAddressSchema = Joi.object({
 	open_address: Joi.string().required()
 })

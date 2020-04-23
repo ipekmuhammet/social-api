@@ -4,19 +4,30 @@ import { expect } from 'chai'
 import readline from 'readline'
 
 import app from '../src/app'
-
-// TODO Update test values
+import ActivationCodes from '../src/enums/activation-code-enum'
 
 let activationCode
+let resetActivationCode
 
 describe('Unauthorized', () => {
 	describe('Authentication', () => {
 		describe('POST /send-activation-code', () => {
-			it('convenient phone number', () => (
+
+			it('without activation code', () => (
 				request(app)
 					.post('/send-activation-code')
 					.send({ phone_number: '905468133193' })
-					.expect(202)
+					.expect(400)
+			))
+
+			it('unkown activation code type', () => (
+				request(app)
+					.post('/send-activation-code')
+					.send({
+						phone_number: '905468133193',
+						activationCodeType: 5
+					})
+					.expect(400)
 			))
 
 			it('inconvenient phone number', () => (
@@ -30,6 +41,16 @@ describe('Unauthorized', () => {
 				request(app)
 					.post('/send-activation-code')
 					.expect(400)
+			))
+
+			it('correct', () => (
+				request(app)
+					.post('/send-activation-code')
+					.send({
+						phone_number: '905468133193',
+						activationCodeType: ActivationCodes.REGISTER_USER
+					})
+					.expect(202)
 			))
 		})
 
@@ -82,22 +103,27 @@ describe('Unauthorized', () => {
 					.expect(400)
 			))
 
-			it('correct', () => (
+			it('correct', (done) => (
 				request(app)
 					.post('/register')
 					.send({
 						phone_number: '905468133193',
 						name_surname: 'Muhammet İpek',
+						email: `${Math.random()}@hotmail.com`,
 						password: '1234',
-						activation_code: activationCode
+						activationCode
 					})
-					.expect(400)
-				// .expect(200) // TODO Productiona geçmeden önce açılacak, kayıt ettiğimiz userlar var olduğu için 400 dönüyor.
+					.expect(200)
+					.end((error, response) => {
+						if (error) {
+							done(error)
+						}
+						done()
+					})
 			))
 		})
 
 		describe('POST /login', () => {
-
 			it('wrong phone_number', () => (
 				request(app)
 					.post('/login')
@@ -138,35 +164,49 @@ describe('Unauthorized', () => {
 			))
 		})
 
-		describe('PUT /change-password', () => {
+		describe('divider', () => {
+			it('Send code activation code for reset password', () => (
+				request(app)
+					.post('/send-activation-code')
+					.send({
+						phone_number: '905468133193',
+						activationCodeType: ActivationCodes.RESET_PASSWORD
+					})
+					.expect(202)
+			))
+		})
+
+		describe('PUT /reset-password', () => {
+			beforeAll((done) => {
+				const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+
+				rl.question('Enter reset activation code \n'.repeat(10), (answer) => {
+					if (answer.substring(0, 4).length > 3) {
+						resetActivationCode = answer.substring(0, 4)
+						console.log('Activation Code', resetActivationCode)
+						rl.close()
+						done()
+					}
+				})
+			})
+
 			it('wrong phone_number', () => (
 				request(app)
-					.put('/change-password')
+					.put('/reset-password')
 					.send({
 						phone_number: '905468133199',
 						password: '1234'
 					})
-					.expect(401)
-			))
-
-			it('wrong old password', () => (
-				request(app)
-					.put('/change-password')
-					.send({
-						phone_number: '905468133193',
-						old_password: '1234x',
-						new_password: '12345'
-					})
-					.expect(401)
+					.expect(400)
 			))
 
 			it('correct', () => (
 				request(app)
-					.put('/change-password')
+					.put('/reset-password')
 					.send({
 						phone_number: '905468133193',
-						old_password: '1234',
-						new_password: '12345'
+						new_password: '12345',
+						activationCode: resetActivationCode
 					})
 					.expect(200)
 			))
