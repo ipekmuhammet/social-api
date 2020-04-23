@@ -1,6 +1,7 @@
 import JoiBase from '@hapi/joi'
 // @ts-ignore
 import JoiPhoneNumber from 'joi-phone-number'
+import ActivationCodes from '../../enums/activation-code-enum'
 
 const Joi = JoiBase.extend(JoiPhoneNumber)
 
@@ -29,7 +30,7 @@ export const productSchema = Joi.object({
 
 export const sendActivationCodeSchema = Joi.object({
 	phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true }).required(),
-	activationCodeType: Joi.number().min(1).max(2).required()
+	activationCodeType: Joi.number().min(0).max(3).required()
 })
 
 export const registerSchema = Joi.object({
@@ -37,7 +38,7 @@ export const registerSchema = Joi.object({
 	name_surname: Joi.string().required(),
 	email: Joi.string().email().required(),
 	password: Joi.string().min(4).required(),
-	activationCodeType: Joi.number().equal(0).required()
+	activationCodeType: Joi.number().equal(ActivationCodes.REGISTER_USER).required()
 })
 
 export const registerManagerSchema = Joi.object({
@@ -45,7 +46,7 @@ export const registerManagerSchema = Joi.object({
 	name_surname: Joi.string().required(),
 	email: Joi.string().email().required(),
 	password: Joi.string().min(4).required(),
-	// activationCodeType: Joi.number().equal(2).required() // TODO
+	activationCodeType: Joi.number().equal(ActivationCodes.REGISTER_MANAGER).required()
 })
 
 export const loginSchema = Joi.object({
@@ -57,5 +58,5 @@ export const resetPasswordSchema = Joi.object({
 	phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true }).required(),
 	new_password: Joi.string().min(4).required(),
 	activationCode: Joi.number().min(1000).max(9999).required(),
-	activationCodeType: Joi.number().equal(1).required(),
+	activationCodeType: Joi.number().equal(ActivationCodes.RESET_PASSWORD).required(),
 })

@@ -6,7 +6,7 @@ import { Redis, Elasticsearch } from '../startup'
 import ServerError from '../errors/ServerError'
 import { User, Manager } from '../models'
 import ErrorMessages from '../errors/ErrorMessages'
-import { comparePasswords, isUserNonExists, isUserExists } from '../controllers/validators'
+import { comparePasswords, isUserNonExists, isUserExists, isManagerNonExists, isManagerExists } from '../controllers/validators'
 import ActivationCodes from '../enums/activation-code-enum'
 
 
@@ -136,11 +136,17 @@ export const search = (name: string) => (
 
 export const checkConvenientOfActivationCodeRequest = (phoneNumber: string, activationCodeType: ActivationCodes) => (
 	new Promise((resolve, reject) => {
-		if (activationCodeType === ActivationCodes.REGISTER) {
+		if (activationCodeType === ActivationCodes.REGISTER_USER) {
 			resolve(isUserNonExists(phoneNumber))
 		}
 		if (activationCodeType === ActivationCodes.RESET_PASSWORD) {
 			resolve(isUserExists(phoneNumber))
+		}
+		if (activationCodeType === ActivationCodes.REGISTER_MANAGER) {
+			resolve(isManagerNonExists(phoneNumber))
+		}
+		if (activationCodeType === ActivationCodes.RESET_MANAGER_PASSWORD) {
+			resolve(isManagerExists(phoneNumber))
 		}
 		reject(new Error('Unknown type of activation code'))
 	})
@@ -198,7 +204,7 @@ export const registerUser = (userContext: any, phoneNumber: string) => (
 				if (jwtErr) {
 					reject(new ServerError(null, HttpStatusCodes.INTERNAL_SERVER_ERROR, jwtErr.message, true))
 				} else {
-					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER}`)
+					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER_USER}`)
 					resolve({ token, user })
 				}
 			})
@@ -216,7 +222,7 @@ export const registerManager = (managerContext: any, phoneNumber: string) => (
 				if (jwtErr) {
 					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register-manager', true))
 				} else {
-					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER}`)
+					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER_MANAGER}`)
 					resolve({ token, manager })
 				}
 			})

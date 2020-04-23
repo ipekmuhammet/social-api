@@ -98,7 +98,7 @@ router.post('/register', (req, res, next) => {
 	// isUserNonExists(req.body.user.phone_number)
 	validateRegisterRequest(req.body)
 		.then(() => isUserNonExists(req.body.phone_number))
-		.then(() => getActivationCode(req.body.phone_number, ActivationCodes.REGISTER))
+		.then(() => getActivationCode(req.body.phone_number, ActivationCodes.REGISTER_USER))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => registerUser(req.body, req.body.phone_number))
 		.then((response) => {
@@ -112,6 +112,8 @@ router.post('/register', (req, res, next) => {
 router.post('/register-manager', (req, res, next) => {
 	validateRegisterManagerRequest(req.body)
 		.then(() => isManagerNonExists(req.body.phoneNumber))
+		.then(() => getActivationCode(req.body.phone_number, ActivationCodes.REGISTER_MANAGER))
+		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => registerManager({ ...req.body, ...{ verified: false } }, req.body.phone_number))
 		.then((response) => {
 			res.json(response)
