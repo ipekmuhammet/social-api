@@ -19,14 +19,14 @@ import {
 
 import {
 	comparePasswords
-} from './validators'
+} from '../validators'
 
 import {
 	validateUpdateProfileRequest,
 	validateSaveCartRequest,
 	validateSaveAddressRequest,
 	validateChangePasswordRequest
-} from './validators/user-validator'
+} from '../validators/user-validator'
 
 const router = Router()
 

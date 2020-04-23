@@ -1,12 +1,12 @@
 import bcrypt from 'bcrypt'
 import HttpStatusCodes from 'http-status-codes'
 
-import { Redis } from '../../startup'
-import { User, Manager } from '../../models'
-import ServerError from '../../errors/ServerError'
-import ErrorMessages from '../../errors/ErrorMessages'
+import { Redis } from '../startup'
+import { User, Manager } from '../models'
+import ServerError from '../errors/ServerError'
+import ErrorMessages from '../errors/ErrorMessages'
 // eslint-disable-next-line no-unused-vars
-import ActivationCodes from '../../enums/activation-code-enum'
+import ActivationCodes from '../enums/activation-code-enum'
 
 export const comparePasswords = (oldPassword: string, newPassword: string, errorMessage: string) => (
 	bcrypt.compare(oldPassword, newPassword).then((validPassword) => {

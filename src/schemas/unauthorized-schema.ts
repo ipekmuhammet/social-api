@@ -1,7 +1,7 @@
 import JoiBase from '@hapi/joi'
 // @ts-ignore
 import JoiPhoneNumber from 'joi-phone-number'
-import ActivationCodes from '../../enums/activation-code-enum'
+import ActivationCodes from '../enums/activation-code-enum'
 
 const Joi = JoiBase.extend(JoiPhoneNumber)
 

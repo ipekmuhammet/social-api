@@ -29,7 +29,7 @@ import {
 	compareActivationCode,
 	isManagerNonExists,
 	isManagerExists
-} from './validators'
+} from '../validators'
 
 import {
 	validateSendActivationCodeRequest,
@@ -37,7 +37,7 @@ import {
 	validateRegisterManagerRequest,
 	validateLoginRequest,
 	validateResetPasswordRequest
-} from './validators/unauthorized-validator'
+} from '../validators/unauthorized-validator'
 
 import ErrorMessages from '../errors/ErrorMessages'
 import ActivationCodes from '../enums/activation-code-enum'

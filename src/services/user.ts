@@ -5,7 +5,7 @@ import ErrorMessages from '../errors/ErrorMessages'
 import ServerError from '../errors/ServerError'
 import { User } from '../models'
 import { Redis } from '../startup'
-import { validateProducts } from '../controllers/validators/user-validator'
+import { validateProducts } from '../validators/user-validator'
 
 const iyzipay = new Iyzipay({
 	apiKey: 'sandbox-hbjzTU7CZDxarIUKVMhWLvHOIMIb3Z40',
