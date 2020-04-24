@@ -1,10 +1,34 @@
 import request from 'supertest'
-// eslint-disable-next-line no-unused-vars
 import { expect } from 'chai'
-import readline from 'readline'
 
-import app from '../src/app'
+import app from '../../src/app'
 
+const singleProduct = {
+	brand: 'ETİ',
+	id: 41705,
+	kind_name: '',
+	product_name: 'Eti Petito Ayıcık 8 Gr  (50 Adet) ',
+	old_price: 23.22,
+	price: 23.22,
+	title: 'ETİ Eti Petito Ayıcık 8 Gr  (50 Adet)  - Paket 50',
+	category_breadcrumb: 'Atıştırmalık/Bisküvi & Kek & Gofret/Bisküvi',
+	images: ['25c95_Eti_Petito_Ayicik_8_Gr__50_Adet_.jpg'],
+	image_types: {
+		mini: 'https://cdnd.bizimtoptan.com.tr/product/250x250/',
+		thumbnail: 'https://cdnd.bizimtoptan.com.tr/product/480x480/',
+		original: 'https://cdnd.bizimtoptan.com.tr/product/1000x1000/'
+	},
+	units: 'Adet',
+	quantity: 1
+}
+
+const brokenProducts = {
+	noBrand: { ...singleProduct, brand: null },
+	noName: { ...singleProduct, product_name: null },
+	noPrice: { ...singleProduct, price: null },
+	noTitle: { ...singleProduct, title: null },
+	noQuantity: { ...singleProduct, quantity: null }
+}
 
 const cart = {
 	41705: {
@@ -69,11 +93,10 @@ const cart = {
 	}
 }
 
-let user
 let token
 
-export default () => describe('user', () => {
-	it('login', (done) => {
+export default () => describe('POST /cart', () => {
+	it('login succesfully to get token', (done) => {
 		request(app)
 			.post('/login')
 			.send({
@@ -88,86 +111,56 @@ export default () => describe('user', () => {
 				}
 				expect(res.body.token).to.be.a('string')
 				expect(res.body.user).to.be.a('object')
-				user = res.body.user
 				token = res.body.token
 				done()
 			})
 	})
 
-	it('POST /order with empty cart', () => (// May this test not pass, should try with new created user.
+	it('with no brand product', () => (
 		request(app)
-			.post('/user/order')
+			.post('/user/cart')
 			.set({ Authorization: token })
-			.send({
-				address: 0
-			})
+			.send({ ...cart, ...{ 12345: brokenProducts.noBrand } })
 			.expect(400)
 	))
 
-	it('POST /cart', () => (
+	it('with no name product', () => (
+		request(app)
+			.post('/user/cart')
+			.set({ Authorization: token })
+			.send({ ...cart, ...{ 12345: brokenProducts.noName } })
+			.expect(400)
+	))
+
+	it('with no name price', () => (
+		request(app)
+			.post('/user/cart')
+			.set({ Authorization: token })
+			.send({ ...cart, ...{ 12345: brokenProducts.noPrice } })
+			.expect(400)
+	))
+
+	it('with no name title', () => (
+		request(app)
+			.post('/user/cart')
+			.set({ Authorization: token })
+			.send({ ...cart, ...{ 12345: brokenProducts.noTitle } })
+			.expect(400)
+	))
+
+	it('with no quantity price', () => (
+		request(app)
+			.post('/user/cart')
+			.set({ Authorization: token })
+			.send({ ...cart, ...{ 12345: brokenProducts.noQuantity } })
+			.expect(400)
+	))
+
+	it('correct', () => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: token })
 			.send(cart)
-			.expect(200)
-	))
-
-	it('GET /cart', (done) => (
-		request(app)
-			.get('/user/cart')
-			.set({ Authorization: token })
-			.expect(200)
-			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
-
-				expect(response.body).to.be.an('object')
-				done()
-			})
-	))
-
-	it('POST /address', (done) => (
-		request(app)
-			.post('/user/address')
-			.set({ Authorization: token })
-			.send({
-				open_address: 'Test Mah.'
-			})
-			.expect(200)
-			.end((error, response) => {
-				if (error) {
-					console.log(error)
-					done(error)
-				}
-				expect(response.body).to.contains.all.keys('_id')
-				// eslint-disable-next-line prefer-destructuring
-				user = response.body
-				done()
-			})
-	))
-
-	it('POST /order', () => (
-		request(app)
-			.post('/user/order')
-			.set({ Authorization: token })
-			.send({
-				address: user.addresses[0]._id
-			})
-			.expect(200)
-	))
-
-	it('DELETE /address with unknown address', () => (
-		request(app)
-			.delete(`/user/address/${12345}`)
-			.set({ Authorization: token })
-			.expect(400)
-	))
-
-	it('DELETE /address', () => (
-		request(app)
-			.delete(`/user/address/${user.addresses[0]._id}`)
-			.set({ Authorization: token })
 			.expect(200)
 	))
 })

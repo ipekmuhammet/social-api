@@ -6,8 +6,15 @@ import { Redis, Elasticsearch } from '../startup'
 import ServerError from '../errors/ServerError'
 import { User, Manager } from '../models'
 import ErrorMessages from '../errors/ErrorMessages'
-import { comparePasswords, isUserNonExists, isUserExists, isManagerNonExists, isManagerExists } from '../validators'
 import ActivationCodes from '../enums/activation-code-enum'
+
+import {
+	comparePasswords,
+	isUserNonExists,
+	isUserExists,
+	isManagerNonExists,
+	isManagerExists
+} from '../validators'
 
 
 export const sendSms = (to: string, message: string) => {

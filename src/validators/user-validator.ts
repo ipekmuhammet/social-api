@@ -5,7 +5,8 @@ import {
 	productSchema,
 	saveAddressSchema,
 	changePasswordSchema,
-	phoneSchema
+	phoneSchema,
+	makeOrderSchema
 } from '../schemas/user-schema'
 
 export const validatePhoneNumber = (requestBody: any) => (
@@ -30,4 +31,8 @@ export const validateSaveAddressRequest = (context: any) => (
 
 export const validateChangePasswordRequest = (context: any) => (
 	changePasswordSchema.validateAsync(context)
+)
+
+export const validateMakeOrderRequest = (context: any) => (
+	makeOrderSchema.validateAsync(context)
 )

@@ -26,7 +26,8 @@ import {
 	validateUpdateProfileRequest,
 	validateSaveCartRequest,
 	validateSaveAddressRequest,
-	validateChangePasswordRequest
+	validateChangePasswordRequest,
+	validateMakeOrderRequest
 } from '../validators/user-validator'
 
 
@@ -119,8 +120,9 @@ router.delete('/address/:id', (req, res, next) => {
 })
 
 router.post('/order', (req, res, next) => {
-	// @ts-ignore
-	makeOrder(req.user, req.body)
+	validateMakeOrderRequest(req.body)
+		// @ts-ignore
+		.then(() => makeOrder(req.user, req.body))
 		.then((result) => {
 			res.json(result)
 		}).catch((reason) => {

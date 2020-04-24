@@ -1,7 +1,7 @@
-import unauhorized from './unauthorized.test'
-import user from './user.test'
-import manager from './manager.test'
-import admin from './admin.test'
+import unauhorized from './unauthorized/index.test'
+import user from './user/index.test'
+// import manager from './manager.test'
+// import admin from './admin.test'
 
 import { User } from '../src/models'
 

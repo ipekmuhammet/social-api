@@ -41,3 +41,7 @@ export const changePasswordSchema = Joi.object({
 	old_password: Joi.string().min(4).required(),
 	new_password: Joi.string().min(4).required()
 })
+
+export const makeOrderSchema = Joi.object({
+	address: Joi.string().required()
+})
