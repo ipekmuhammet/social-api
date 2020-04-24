@@ -849,7 +849,10 @@ export interface Commands<R> {
     /**
      * Set the string value of a key.
      */
-	setAsync(key: string, value: string, cb?: Callback<'OK'>): Promise<R>;
+	set(key: string, value: string, cb?: Callback<'OK'>): R;
+	set(key: string, value: string, flag: string, cb?: Callback<'OK'>): R;
+	set(key: string, value: string, mode: string, duration: number, cb?: Callback<'OK' | undefined>): R;
+	set(key: string, value: string, mode: string, duration: number, flag: string, cb?: Callback<'OK' | undefined>): R;	setAsync(key: string, value: string, cb?: Callback<'OK'>): Promise<R>;
 	setAsync(key: string, value: string, flag: string, cb?: Callback<'OK'>): Promise<R>;
 	setAsync(key: string, value: string, mode: string, duration: number, cb?: Callback<'OK' | undefined>): Promise<R>;
 	setAsync(key: string, value: string, mode: string, duration: number, flag: string, cb?: Callback<'OK' | undefined>): Promise<R>;

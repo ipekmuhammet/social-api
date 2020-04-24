@@ -389,7 +389,8 @@ declare namespace Joi {
 
     interface PhoneOptions {
         defaultCountry?: 'TR' | 'EN',
-        strict?: boolean
+        strict?: boolean,
+        format?: 'national'
     }
 
     interface SwitchCases {

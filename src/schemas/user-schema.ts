@@ -5,7 +5,7 @@ import JoiPhoneNumber from 'joi-phone-number'
 const Joi = JoiBase.extend(JoiPhoneNumber)
 
 export const phoneSchema = Joi.object({
-	phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true })
+	phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'national', strict: true })
 })
 
 export const productSchema = Joi.object({
@@ -28,7 +28,7 @@ export const productSchema = Joi.object({
 }).unknown()
 
 export const updateProfileSchema = Joi.object({
-	phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true }),
+	phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'national', strict: true }),
 	email: Joi.string().email(),
 	nameSurname: Joi.string().required()
 })
