@@ -56,6 +56,10 @@ export default () => describe('POST /address', () => {
 					done(error)
 				}
 				expect(response.body).to.contains.all.keys('_id')
+				// eslint-disable-next-line camelcase
+				expect(response.body.addresses.some((address: { open_address: string }) => (
+					address.open_address === 'Test Mah.'
+				))).to.equal(true)
 				done()
 			})
 	))
