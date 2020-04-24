@@ -2,12 +2,15 @@
 import mongoose, { Document, Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
+// eslint-disable-next-line no-unused-vars
+import Address, { AddressDocument } from './Address'
+
 export type UserDocument = Document & {
 	phoneNumber: string,
 	nameSurname: string,
 	email: string,
 	password: string,
-	addresses: { openAddress: string }[]
+	addresses: AddressDocument[]
 }
 
 const userSchema = new Schema({
@@ -28,18 +31,7 @@ const userSchema = new Schema({
 		type: String,
 		required: true
 	},
-	addresses: [{
-		openAddress: {
-			type: String,
-			required: true
-		}
-		//	,
-		//	type: {
-		//		type: Number,
-		//		required: true,
-		//		default: 0
-		//	}
-	}]
+	addresses: [Address.schema]
 	// cart: {}
 }, {
 	timestamps: true

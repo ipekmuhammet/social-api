@@ -34,7 +34,12 @@ export const updateProfileSchema = Joi.object({
 })
 
 export const saveAddressSchema = Joi.object({
-	openAddress: Joi.string().required()
+	openAddress: Joi.string().required(),
+	addressTitle: Joi.string().required(),
+	buildingNo: Joi.string().allow(null, ''),
+	floor: Joi.string().allow(null, ''),
+	aptNo: Joi.string().allow(null, ''),
+	directions: Joi.string().allow(null, ''),
 })
 
 export const changePasswordSchema = Joi.object({
@@ -43,5 +48,6 @@ export const changePasswordSchema = Joi.object({
 })
 
 export const makeOrderSchema = Joi.object({
-	address: Joi.string().required()
+	address: Joi.string().required(),
+	card: Joi.string().required()
 })

@@ -43,12 +43,33 @@ export default () => describe('POST /address', () => {
 			.expect(400)
 	))
 
-	it('correct', (done) => (
+	it('without openAddress', () => (
+		request(app)
+			.post('/user/address')
+			.set({ Authorization: token })
+			.send({
+				addressTitle: 'Ev'
+			})
+			.expect(400)
+	))
+
+	it('without addressTitle', () => (
 		request(app)
 			.post('/user/address')
 			.set({ Authorization: token })
 			.send({
 				openAddress: 'Test Mah.'
+			})
+			.expect(400)
+	))
+
+	it('correct', (done) => (
+		request(app)
+			.post('/user/address')
+			.set({ Authorization: token })
+			.send({
+				openAddress: 'Test Mah.',
+				addressTitle: 'Ev'
 			})
 			.expect(200)
 			.end((error, response) => {
