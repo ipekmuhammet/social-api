@@ -10,7 +10,7 @@ describe('sequentially run tests', () => {
 	user()
 
 	afterAll(() => {
-		User.deleteOne({ phoneNumber: '905555555555' }).then((deletedUser) => {
+		User.deleteOne({ phoneNumber: '0555 555 55 55' }).then((deletedUser) => { // Phone number converted to regional
 			console.log('User deleted', deletedUser)
 		})
 	})

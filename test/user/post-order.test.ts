@@ -124,7 +124,8 @@ export default () => describe('POST /order', () => {
 			.post('/user/order')
 			.set({ Authorization: token })
 			.send({
-				address: user.addresses[0]._id
+				address: user.addresses[0]._id,
+				card: 'token' // TODO
 			})
 			.expect(200)
 	))
