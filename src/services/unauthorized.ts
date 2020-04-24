@@ -38,7 +38,7 @@ export const getCategories = () => (
 
 export const getAllProducts = () => (
 	new Promise((resolve, reject) => {
-		Redis.getInstance.hgetallAsync('products').then((products) => {
+		Redis.getInstance.hgetallAsync('productsx').then((products) => {
 			resolve(Object.values(products).reduce((previousValue, currentValue) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
 		}).catch((reason) => {
 			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))

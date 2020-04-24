@@ -136,7 +136,7 @@ router.post('/order', (req, res, next) => {
 router.put('/change-password', (req, res, next) => {
 	validateChangePasswordRequest(req.body)
 		// @ts-ignore
-		.then(() => comparePasswords(req.body.oldPassword, req.user.password, ErrorMessages.WRONG_PASSWORD))
+		.then(() => comparePasswords(req.user.password, req.body.oldPassword, ErrorMessages.WRONG_PASSWORD))
 		.then(() => {
 			// @ts-ignore
 			// eslint-disable-next-line no-param-reassign
