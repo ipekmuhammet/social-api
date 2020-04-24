@@ -65,12 +65,12 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 }
 
 export const validatePhone = () => (req: Request, res: Response, next: NextFunction) => {
-	const { value, error } = validatePhoneNumber({ phone_number: req.body.phone_number })
+	const { value, error } = validatePhoneNumber({ phoneNumber: req.body.phoneNumber })
 
 	if (!error) {
 		// @ts-ignore
-		if (value.phone_number) {
-			req.body.phone_number = value.phone_number
+		if (value.phoneNumber) {
+			req.body.phoneNumber = value.phoneNumber
 		}
 		next()
 	} else {

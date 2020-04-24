@@ -18,7 +18,7 @@ export const comparePasswords = (oldPassword: string, newPassword: string, error
 
 /** If User exists, throws Error. */
 export const isManagerNonExists = (phoneNumber: string) => (
-	Manager.findOne({ phone_number: phoneNumber }).then((foundManager) => {
+	Manager.findOne({ phoneNumber }).then((foundManager) => {
 		if (foundManager) {
 			throw new ServerError(ErrorMessages.MANAGER_ALREADY_EXISTS, HttpStatusCodes.BAD_REQUEST, ErrorMessages.MANAGER_ALREADY_EXISTS, false)
 		}
@@ -27,7 +27,7 @@ export const isManagerNonExists = (phoneNumber: string) => (
 
 /** If User not exists, throws Error. */
 export const isManagerExists = (phoneNumber: string) => (
-	Manager.findOne({ phone_number: phoneNumber }).then((foundManager) => {
+	Manager.findOne({ phoneNumber }).then((foundManager) => {
 		if (!foundManager) {
 			throw new ServerError(ErrorMessages.MANAGER_IS_NOT_EXISTS, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.MANAGER_IS_NOT_EXISTS, false)
 		} else {
@@ -38,7 +38,7 @@ export const isManagerExists = (phoneNumber: string) => (
 
 /** If User exists, throws Error. */
 export const isUserNonExists = (phoneNumber: string) => (
-	User.findOne({ phone_number: phoneNumber }).then((foundUser) => {
+	User.findOne({ phoneNumber }).then((foundUser) => {
 		if (foundUser) {
 			throw new ServerError(ErrorMessages.USER_ALREADY_EXISTS, HttpStatusCodes.BAD_REQUEST, null, false)
 		}
@@ -47,7 +47,7 @@ export const isUserNonExists = (phoneNumber: string) => (
 
 /** If User exists, returns It else throws Error. */
 export const isUserExists = (phoneNumber: string) => (
-	User.findOne({ phone_number: phoneNumber }).then((foundUser) => {
+	User.findOne({ phoneNumber }).then((foundUser) => {
 		if (!foundUser) {
 			throw new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.UNAUTHORIZED, null, false)
 		} else {

@@ -21,7 +21,7 @@ export default () => describe('Unauthorized', () => {
 			request(app)
 				.post('/send-activation-code')
 				.send({
-					phone_number: '905555555555',
+					phoneNumber: '905555555555',
 					activationCodeType: ActivationCodes.RESET_PASSWORD
 				})
 				.expect(202)

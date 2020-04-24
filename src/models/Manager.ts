@@ -1,15 +1,26 @@
-import mongoose, { Schema } from 'mongoose'
+// eslint-disable-next-line no-unused-vars
+import mongoose, { Document, Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
-import { Order } from './index'
+// eslint-disable-next-line no-unused-vars
+import Order, { OrderDocument } from './Order'
+
+export type ManagerDocument = Document & {
+	phoneNumber: string,
+	nameSurname: string,
+	email: string,
+	password: string,
+	orders: OrderDocument[],
+	verified: boolean
+}
 
 const managerSchema = new Schema({
-	phone_number: {
+	phoneNumber: {
 		type: String,
 		required: true,
 		unique: true
 	},
-	name_surname: {
+	nameSurname: {
 		type: String,
 		required: true
 	},
@@ -23,7 +34,7 @@ const managerSchema = new Schema({
 		required: true
 	},
 	orders: {
-		type: [Order],
+		type: [Order.schema],
 		required: true
 	},
 	verified: {
@@ -47,4 +58,4 @@ managerSchema.pre('save', function (next) { // do not update.
 })
 
 
-export default mongoose.model('Manager', managerSchema)
+export default mongoose.model<ManagerDocument>('Manager', managerSchema)

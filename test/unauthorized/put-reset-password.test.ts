@@ -18,7 +18,7 @@ export default () => describe('PUT /reset-password', () => {
 		})
 	})
 
-	it('without phone_number', () => (
+	it('without phoneNumber', () => (
 		request(app)
 			.put('/reset-password')
 			.send({
@@ -31,16 +31,16 @@ export default () => describe('PUT /reset-password', () => {
 		request(app)
 			.put('/reset-password')
 			.send({
-				phone_number: '905555555555'
+				phoneNumber: '905555555555'
 			})
 			.expect(400)
 	))
 
-	it('wrong phone_number', () => (
+	it('wrong phoneNumber', () => (
 		request(app)
 			.put('/reset-password')
 			.send({
-				phone_number: '905555555000',
+				phoneNumber: '905555555000',
 				password: '1234'
 			})
 			.expect(400)
@@ -50,8 +50,8 @@ export default () => describe('PUT /reset-password', () => {
 		request(app)
 			.put('/reset-password')
 			.send({
-				phone_number: '905555555555',
-				new_password: '12345',
+				phoneNumber: '905555555555',
+				newPassword: '12345',
 				activationCode: resetActivationCode
 			})
 			.expect(200)

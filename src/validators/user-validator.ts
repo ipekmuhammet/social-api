@@ -9,11 +9,14 @@ import {
 	makeOrderSchema
 } from '../schemas/user-schema'
 
+// eslint-disable-next-line no-unused-vars
+import { ProductDocument } from '../models/Product'
+
 export const validatePhoneNumber = (requestBody: any) => (
 	phoneSchema.validate(requestBody)
 )
 
-export const validateProducts = (products: any[]) => (
+export const validateProducts = (products: ProductDocument[]) => (
 	Joi.array().items(productSchema).sparse(true).validateAsync(products)
 )
 

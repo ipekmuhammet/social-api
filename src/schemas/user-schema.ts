@@ -5,7 +5,7 @@ import JoiPhoneNumber from 'joi-phone-number'
 const Joi = JoiBase.extend(JoiPhoneNumber)
 
 export const phoneSchema = Joi.object({
-	phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true })
+	phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true })
 })
 
 export const productSchema = Joi.object({
@@ -28,18 +28,18 @@ export const productSchema = Joi.object({
 }).unknown()
 
 export const updateProfileSchema = Joi.object({
-	phone_number: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true }),
+	phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', strict: true }),
 	email: Joi.string().email(),
-	name_surname: Joi.string().required()
+	nameSurname: Joi.string().required()
 })
 
 export const saveAddressSchema = Joi.object({
-	open_address: Joi.string().required()
+	openAddress: Joi.string().required()
 })
 
 export const changePasswordSchema = Joi.object({
-	old_password: Joi.string().min(4).required(),
-	new_password: Joi.string().min(4).required()
+	oldPassword: Joi.string().min(4).required(),
+	newPassword: Joi.string().min(4).required()
 })
 
 export const makeOrderSchema = Joi.object({

@@ -1,6 +1,16 @@
-import mongoose, { Schema } from 'mongoose'
+// eslint-disable-next-line no-unused-vars
+import mongoose, { Document, Schema } from 'mongoose'
 
-import { Product } from './index'
+// eslint-disable-next-line no-unused-vars
+import Product, { ProductDocument } from './Product'
+
+export type OrderDocument = Document & {
+	id: string,
+	customer: string,
+	address: string,
+	date: Date,
+	products: ProductDocument[]
+}
 
 const orderSchema = new Schema({
 	id: {
@@ -25,4 +35,4 @@ const orderSchema = new Schema({
 	}
 })
 
-export default mongoose.model('Order', orderSchema)
+export default mongoose.model<OrderDocument>('Order', orderSchema)

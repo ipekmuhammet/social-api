@@ -16,6 +16,10 @@ import {
 	isManagerExists
 } from '../validators'
 
+// eslint-disable-next-line no-unused-vars
+import { UserDocument } from '../models/User'
+// eslint-disable-next-line no-unused-vars
+import { ManagerDocument } from '../models/Manager'
 
 export const sendSms = (to: string, message: string) => {
 	const smsManager: any = new Nexmo({
@@ -29,20 +33,20 @@ export const sendSms = (to: string, message: string) => {
 }
 
 export const getCategories = () => (
-	Redis.getInstance.getAsync('categories').then((val: any) => JSON.parse(val))
+	Redis.getInstance.getAsync('categories').then((categories) => JSON.parse(categories))
 )
 
 export const getAllProducts = () => (
 	new Promise((resolve, reject) => {
 		Redis.getInstance.hgetallAsync('products').then((products) => {
-			resolve(Object.values(products).reduce((previousValue, currentValue: any) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
+			resolve(Object.values(products).reduce((previousValue, currentValue) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
 		}).catch((reason) => {
 			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
 		})
 	})
 )
 
-export const getProduct = (productId: string, user: any) => (
+export const getProduct = (productId: string, user: UserDocument) => (
 	new Promise((resolve, reject) => {
 		const multi = Redis.getInstance.multi()
 
@@ -70,7 +74,7 @@ export const getProduct = (productId: string, user: any) => (
 	})
 )
 
-export const addProductToCart = (productId: string, product: any, cart: any, user: any) => (
+export const addProductToCart = (productId: string, product: any, cart: any, user: UserDocument) => (
 	new Promise((resolve) => {
 		// @ts-ignore
 		if (user?._id.toString()) {
@@ -172,7 +176,7 @@ export const createActivationCode = (phoneNumber: string, activationCodeType: Ac
 	})
 )
 
-export const login = (user: any, password: string) => (
+export const login = (user: UserDocument | ManagerDocument, password: string) => (
 	new Promise((resolve, reject) => {
 		// @ts-ignore
 		comparePasswords(user.password, password, 'Wrong Phone number or Password!').then(() => {

@@ -10,7 +10,7 @@ export default () => describe('POST /address', () => {
 		request(app)
 			.post('/login')
 			.send({
-				phone_number: '905555555555',
+				phoneNumber: '905555555555',
 				password: '12345'
 			})
 			.expect(200)
@@ -38,7 +38,7 @@ export default () => describe('POST /address', () => {
 			.post('/user/address')
 			.set({ Authorization: token })
 			.send({
-				open_address: null
+				openAddress: null
 			})
 			.expect(400)
 	))
@@ -48,7 +48,7 @@ export default () => describe('POST /address', () => {
 			.post('/user/address')
 			.set({ Authorization: token })
 			.send({
-				open_address: 'Test Mah.'
+				openAddress: 'Test Mah.'
 			})
 			.expect(200)
 			.end((error, response) => {
@@ -57,8 +57,8 @@ export default () => describe('POST /address', () => {
 				}
 				expect(response.body).to.contains.all.keys('_id')
 				// eslint-disable-next-line camelcase
-				expect(response.body.addresses.some((address: { open_address: string }) => (
-					address.open_address === 'Test Mah.'
+				expect(response.body.addresses.some((address: { openAddress: string }) => (
+					address.openAddress === 'Test Mah.'
 				))).to.equal(true)
 				done()
 			})

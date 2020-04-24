@@ -30,6 +30,9 @@ import {
 	validateMakeOrderRequest
 } from '../validators/user-validator'
 
+// eslint-disable-next-line no-unused-vars
+import { UserDocument } from '../models/User'
+
 
 const router = Router()
 
@@ -78,7 +81,7 @@ router.get('/cart', (req, res, next) => {
 	//  @ts-ignore
 	getCart(req.user._id.toString()).then((result) => {
 		res.json(result)
-	}).catch((reason: any) => {
+	}).catch((reason) => {
 		next(handleError(reason, 'GET /user/cart'))
 	})
 })
@@ -87,7 +90,7 @@ router.post('/address', (req, res, next) => {
 	validateSaveAddressRequest(req.body)
 		// @ts-ignore
 		.then(() => User.findById(req.user._id))
-		.then((user: any) => {
+		.then((user: UserDocument) => {
 			if (user) {
 				user.addresses.push(req.body)
 				user.save().then((result: any) => {
@@ -133,11 +136,11 @@ router.post('/order', (req, res, next) => {
 router.put('/change-password', (req, res, next) => {
 	validateChangePasswordRequest(req.body)
 		// @ts-ignore
-		.then(() => comparePasswords(req.body.old_password, req.user.password, ErrorMessages.WRONG_PASSWORD))
+		.then(() => comparePasswords(req.body.oldPassword, req.user.password, ErrorMessages.WRONG_PASSWORD))
 		.then(() => {
 			// @ts-ignore
 			// eslint-disable-next-line no-param-reassign
-			req.user.password = req.body.new_password
+			req.user.password = req.body.newPassword
 			// @ts-ignore
 			req.user.save().then(() => {
 				res.json({ status: true })

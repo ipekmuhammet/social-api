@@ -8,7 +8,7 @@ export default () => describe('POST /send-activation-code', () => {
 		it('without activation code', () => (
 			request(app)
 				.post('/send-activation-code')
-				.send({ phone_number: '905555555555' })
+				.send({ phoneNumber: '905555555555' })
 				.expect(400)
 		))
 
@@ -16,7 +16,7 @@ export default () => describe('POST /send-activation-code', () => {
 			request(app)
 				.post('/send-activation-code')
 				.send({
-					phone_number: '905555555555',
+					phoneNumber: '905555555555',
 					activationCodeType: 5
 				})
 				.expect(400)
@@ -25,7 +25,7 @@ export default () => describe('POST /send-activation-code', () => {
 		it('inconvenient phone number', () => (
 			request(app)
 				.post('/send-activation-code')
-				.send({ phone_number: '905555555000' })
+				.send({ phoneNumber: '905555555000' })
 				.expect(400)
 		))
 
@@ -39,7 +39,7 @@ export default () => describe('POST /send-activation-code', () => {
 			request(app)
 				.post('/send-activation-code')
 				.send({
-					phone_number: '905555555555',
+					phoneNumber: '905555555555',
 					activationCodeType: ActivationCodes.REGISTER_USER
 				})
 				.expect(202)

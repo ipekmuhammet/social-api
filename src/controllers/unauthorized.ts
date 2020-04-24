@@ -81,24 +81,24 @@ router.get('/search-product', (req, res) => {
 })
 
 router.post('/send-activation-code', (req, res, next) => {
-	validateSendActivationCodeRequest({ phone_number: req.body.phone_number, activationCodeType: req.body.activationCodeType })
-		.then(() => checkConvenientOfActivationCodeRequest(req.body.phone_number, req.body.activationCodeType))
-		.then(() => createActivationCode(req.body.phone_number, req.body.activationCodeType))
+	validateSendActivationCodeRequest({ phoneNumber: req.body.phoneNumber, activationCodeType: req.body.activationCodeType })
+		.then(() => checkConvenientOfActivationCodeRequest(req.body.phoneNumber, req.body.activationCodeType))
+		.then(() => createActivationCode(req.body.phoneNumber, req.body.activationCodeType))
 		.then(() => {
 			res.status(HttpStatusCodes.ACCEPTED).json({ status: true })
 		})
-		.catch((reason: any) => {
+		.catch((reason) => {
 			next(handleError(reason, 'POST /send-activation-code'))
 		})
 })
 
 router.post('/register', (req, res, next) => {
-	// isUserNonExists(req.body.user.phone_number)
+	// isUserNonExists(req.body.user.phoneNumber)
 	validateRegisterRequest(req.body)
-		.then(() => isUserNonExists(req.body.phone_number))
-		.then(() => getActivationCode(req.body.phone_number, ActivationCodes.REGISTER_USER))
+		.then(() => isUserNonExists(req.body.phoneNumber))
+		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.REGISTER_USER))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
-		.then(() => registerUser(req.body, req.body.phone_number))
+		.then(() => registerUser(req.body, req.body.phoneNumber))
 		.then((response) => {
 			res.json(response)
 		})
@@ -110,9 +110,9 @@ router.post('/register', (req, res, next) => {
 router.post('/register-manager', (req, res, next) => {
 	validateRegisterManagerRequest(req.body)
 		.then(() => isManagerNonExists(req.body.phoneNumber))
-		.then(() => getActivationCode(req.body.phone_number, ActivationCodes.REGISTER_MANAGER))
+		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.REGISTER_MANAGER))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
-		.then(() => registerManager({ ...req.body, ...{ verified: false } }, req.body.phone_number))
+		.then(() => registerManager({ ...req.body, ...{ verified: false } }, req.body.phoneNumber))
 		.then((response) => {
 			res.json(response)
 		})
@@ -123,7 +123,7 @@ router.post('/register-manager', (req, res, next) => {
 
 router.post('/login-manager', (req, res, next) => {
 	validateLoginRequest(req.body)
-		.then(() => isManagerExists(req.body.phone_number))
+		.then(() => isManagerExists(req.body.phoneNumber))
 		.then((manager) => login(manager, req.body.password))
 		.then(({ user, token }) => isManagerVerified(user, { user, token }))
 		.then((response) => {
@@ -136,7 +136,7 @@ router.post('/login-manager', (req, res, next) => {
 
 router.post('/login', (req, res, next) => {
 	validateLoginRequest(req.body)
-		.then(() => isUserExists(req.body.phone_number))
+		.then(() => isUserExists(req.body.phoneNumber))
 		.then((user) => login(user, req.body.password))
 		.then((response) => {
 			res.json(response)
@@ -148,15 +148,15 @@ router.post('/login', (req, res, next) => {
 
 router.put('/reset-password', (req, res, next) => {
 	validateResetPasswordRequest(req.body)
-		.then(() => getActivationCode(req.body.phone_number, ActivationCodes.RESET_PASSWORD))
+		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.RESET_PASSWORD))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
-		.then(() => isUserExists(req.body.phone_number))
+		.then(() => isUserExists(req.body.phoneNumber))
 		.then((user) => {
 			// @ts-ignore
 			// eslint-disable-next-line no-param-reassign
-			user.password = req.body.new_password
+			user.password = req.body.newPassword
 			user.save().then(() => {
-				Redis.getInstance.del(`${req.body.phone_number}:activationCode:${ActivationCodes.RESET_PASSWORD}`)
+				Redis.getInstance.del(`${req.body.phoneNumber}:activationCode:${ActivationCodes.RESET_PASSWORD}`)
 				res.json({ status: true })
 			})
 		})

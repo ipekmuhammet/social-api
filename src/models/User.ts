@@ -1,13 +1,22 @@
-import mongoose, { Schema } from 'mongoose'
+// eslint-disable-next-line no-unused-vars
+import mongoose, { Document, Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
+export type UserDocument = Document & {
+	phoneNumber: string,
+	nameSurname: string,
+	email: string,
+	password: string,
+	addresses: { openAddress: string }[]
+}
+
 const userSchema = new Schema({
-	phone_number: {
+	phoneNumber: {
 		type: String,
 		required: true,
 		unique: true
 	},
-	name_surname: {
+	nameSurname: {
 		type: String,
 		required: true
 	},
@@ -20,7 +29,7 @@ const userSchema = new Schema({
 		required: true
 	},
 	addresses: [{
-		open_address: {
+		openAddress: {
 			type: String,
 			required: true
 		}
@@ -32,6 +41,8 @@ const userSchema = new Schema({
 		//	}
 	}]
 	// cart: {}
+}, {
+	timestamps: true
 })
 
 // eslint-disable-next-line func-names, consistent-return
@@ -48,4 +59,4 @@ userSchema.pre('save', function (next) { // do not update.
 })
 
 
-export default mongoose.model('User', userSchema)
+export default mongoose.model<UserDocument>('User', userSchema)

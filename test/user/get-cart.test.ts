@@ -73,7 +73,7 @@ export default () => describe('GET /cart', () => {
 		request(app)
 			.post('/login')
 			.send({
-				phone_number: '905555555555',
+				phoneNumber: '905555555555',
 				password: '12345'
 			})
 			.expect(200)

@@ -2,12 +2,12 @@ import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
 const adminSchema = new Schema({
-	phone_number: {
+	phoneNumber: {
 		type: String,
 		required: true,
 		unique: true
 	},
-	name_surname: {
+	nameSurname: {
 		type: String,
 		required: true
 	},

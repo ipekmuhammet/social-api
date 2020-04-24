@@ -446,7 +446,7 @@ export interface Commands<R> {
     /**
      * Get the value of a key.
      */
-	getAsync(key: string, cb?: Callback<string | null>): Promise<R>;
+	getAsync(key: string, cb?: Callback<string | null>): Promise<any>;
 	GET(key: string, cb?: Callback<string | null>): R;
 
     /**

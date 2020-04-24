@@ -22,10 +22,10 @@ export default () => describe('POST /register', () => {
 		request(app)
 			.post('/register')
 			.send({
-				phone_number: '915555555000',
-				name_surname: 'Muhammet İpek',
+				phoneNumber: '915555555000',
+				nameSurname: 'Muhammet İpek',
 				password: '1234',
-				activation_code: '0000'
+				activationCode: '0000'
 			})
 			.expect(400)
 	))
@@ -34,10 +34,10 @@ export default () => describe('POST /register', () => {
 		request(app)
 			.post('/register')
 			.send({
-				phone_number: '905555555555',
-				name_surname: 'Muhammet İpek',
+				phoneNumber: '905555555555',
+				nameSurname: 'Muhammet İpek',
 				password: '1234',
-				activation_code: '0000'
+				activationCode: '0000'
 			})
 			.expect(400)
 	))
@@ -46,19 +46,19 @@ export default () => describe('POST /register', () => {
 		request(app)
 			.post('/register')
 			.send({
-				phone_number: '905555555555',
-				name_surname: 'Muhammet İpek',
-				activation_code: activationCode
+				phoneNumber: '905555555555',
+				nameSurname: 'Muhammet İpek',
+				activationCode
 			})
 			.expect(400)
 	))
 
-	it('without name_surname', () => (
+	it('without nameSurname', () => (
 		request(app)
 			.post('/register')
 			.send({
-				phone_number: '905555555555',
-				activation_code: activationCode,
+				phoneNumber: '905555555555',
+				activationCode,
 				password: '1234'
 			})
 			.expect(400)
@@ -68,8 +68,8 @@ export default () => describe('POST /register', () => {
 		request(app)
 			.post('/register')
 			.send({
-				phone_number: '905555555555',
-				name_surname: 'Muhammet İpek',
+				phoneNumber: '905555555555',
+				nameSurname: 'Muhammet İpek',
 				email: `${Math.random()}@hotmail.com`,
 				password: '1234',
 				activationCode

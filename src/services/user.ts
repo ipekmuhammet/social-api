@@ -5,7 +5,8 @@ import ErrorMessages from '../errors/ErrorMessages'
 import ServerError from '../errors/ServerError'
 import { User } from '../models'
 import { Redis } from '../startup'
-import { validateProducts } from '../validators/user-validator'
+// eslint-disable-next-line no-unused-vars
+import { UserDocument } from '../models/User'
 
 const iyzipay = new Iyzipay({
 	apiKey: 'sandbox-hbjzTU7CZDxarIUKVMhWLvHOIMIb3Z40',
@@ -80,7 +81,7 @@ export const getCart = (userId: string) => (
 
 export const deleteAddress = (userId: string, deletedAddressId: string) => (
 	// @ts-ignore
-	User.findById(userId).then((user: any) => {
+	User.findById(userId).then((user: UserDocument) => {
 		if (!user) {
 			throw new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.BAD_REQUEST, 'DELETE /user/address', true)
 		} else {
@@ -97,7 +98,7 @@ export const deleteAddress = (userId: string, deletedAddressId: string) => (
 	})
 )
 
-export const makeOrder = (user: any, context: any) => (
+export const makeOrder = (user: UserDocument, context: any) => (
 	new Promise((resolve, reject) => {
 		// @ts-ignore
 		const selecetedAddress = user.addresses.find((address) => address._id.toString() === context.address)
@@ -116,10 +117,10 @@ export const makeOrder = (user: any, context: any) => (
 				const val = {
 					id,
 					// @ts-ignore
-					customer: user.name_surname,
-					phone_number: user.phone_number,
+					customer: user.nameSurname,
+					phoneNumber: user.phoneNumber,
 					// @ts-ignore
-					address: selecetedAddress.open_address,
+					address: selecetedAddress.openAddress,
 					date: new Date().toLocaleString(),
 					// starts : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)
 					// price: (23.43 * 5) + (76.36 * 2), // Online ödemelerde manager'ın ücret ile işi yok.
