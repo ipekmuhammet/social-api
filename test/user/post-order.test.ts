@@ -171,7 +171,26 @@ export default () => describe('POST /order', () => {
 			})
 	))
 
-	it('correct', () => (
+	it('make order 1', () => (
+		request(app)
+			.post('/user/order')
+			.set({ Authorization: token })
+			.send({
+				address: user.addresses[0]._id,
+				card: 'cardToken' // TODO
+			})
+			.expect(200)
+	))
+
+	it('POST /cart to make succesfully order 2', () => (
+		request(app)
+			.post('/user/cart')
+			.set({ Authorization: token })
+			.send(cart)
+			.expect(200)
+	))
+
+	it('make order 2', () => (
 		request(app)
 			.post('/user/order')
 			.set({ Authorization: token })

@@ -2,9 +2,11 @@ import request from 'supertest'
 import { expect } from 'chai'
 
 import app from '../../src/app'
+// eslint-disable-next-line no-unused-vars
+import { OrderDocument } from '../../src/models/Order'
 
 let token
-let firstOrder
+let testOrder
 
 export default () => describe('GET /manager/order/:id', () => {
 	it('login to get token', (done) => (
@@ -24,7 +26,7 @@ export default () => describe('GET /manager/order/:id', () => {
 			})
 	))
 
-	it('get first order id to test', (done) => (
+	it('get test order id to test', (done) => (
 		request(app)
 			.get('/manager/orders')
 			.set({ Authorization: token })
@@ -35,14 +37,14 @@ export default () => describe('GET /manager/order/:id', () => {
 				}
 				expect(Object.values(response.body)).to.be.an('array')
 				// eslint-disable-next-line prefer-destructuring
-				firstOrder = Object.values(response.body)[0]
+				testOrder = Object.values(response.body).find((order: any) => JSON.parse(order).customer === 'testUser')
 				done()
 			})
 	))
 
 	it('correct', (done) => (
 		request(app)
-			.get(`/manager/order/${JSON.parse(firstOrder).id}`)
+			.get(`/manager/order/${JSON.parse(testOrder).id}`)
 			.set({ Authorization: token })
 			.expect(200)
 			.end((error, response) => {

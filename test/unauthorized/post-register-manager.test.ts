@@ -25,11 +25,11 @@ export default () => describe('POST /register-manager', () => {
 		request(app)
 			.post('/register-manager')
 			.send({
-				phoneNumber: '915555555000', // 91
-				email: `${Math.random()}@hotmail.com`,
-				nameSurname: 'Muhammet İpek',
+				phoneNumber: '915555555555', // 91
+				email: 'testUser@hotmail.com',
+				nameSurname: 'testUser',
 				password: '1234',
-				activationCode: '0000'
+				activationCode
 			})
 			.expect(400)
 			.end((error, response) => {
@@ -46,8 +46,8 @@ export default () => describe('POST /register-manager', () => {
 			.post('/register-manager')
 			.send({
 				phoneNumber: '905555555555',
-				email: `${Math.random()}@hotmail.com`,
-				nameSurname: 'Muhammet İpek',
+				email: 'testUser@hotmail.com',
+				nameSurname: 'testUser',
 				password: '1234',
 				activationCode: activationCode - 1
 			})
@@ -66,8 +66,8 @@ export default () => describe('POST /register-manager', () => {
 			.post('/register-manager')
 			.send({
 				phoneNumber: '905555555555',
-				email: `${Math.random()}@hotmail.com`,
-				nameSurname: 'Muhammet İpek',
+				email: 'testUser@hotmail.com',
+				nameSurname: 'testUser',
 				activationCode
 			})
 			.expect(400)
@@ -104,8 +104,8 @@ export default () => describe('POST /register-manager', () => {
 			.post('/register-manager')
 			.send({
 				phoneNumber: '5555555555',
-				nameSurname: 'Muhammet İpek',
-				email: `${Math.random()}@hotmail.com`,
+				nameSurname: 'testUser',
+				email: 'testUser@hotmail.com',
 				password: '1234',
 				activationCode
 			})
