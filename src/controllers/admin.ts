@@ -42,8 +42,8 @@ router.get('/managers', (req, res) => {
 })
 
 router.put('/verify-manager/:_id', (req, res) => {
-	Manager.findByIdAndUpdate(req.params._id, { verified: true }).then((managers) => {
-		res.json(managers)
+	Manager.findByIdAndUpdate(req.params._id, { verified: true }).then((manager) => {
+		res.json(manager)
 	})
 })
 
@@ -55,8 +55,8 @@ router.post('/category', (req, res, next) => {
 	})
 })
 
-router.put('/category/:id', (req, res, next) => {
-	Category.findByIdAndUpdate(req.params.id, req.body).then((doc) => {
+router.put('/category/:_id', (req, res, next) => {
+	Category.findByIdAndUpdate(req.params._id, req.body).then((doc) => {
 		res.json(doc)
 	}).catch((reason) => {
 		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /admin/category/:id', true))

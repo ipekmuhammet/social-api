@@ -43,7 +43,7 @@ router.get('/order/:id', (req, res, next) => {
 router.put('/orders/cancel/:id', (req, res, next) => {
 	Redis.getInstance.hgetAsync('orders', req.params.id).then((order) => {
 		Redis.getInstance.hsetAsync('orders', req.params.id, JSON.stringify(Object.assign(JSON.parse(order), { status: false }))).then(() => {
-			res.json({ status: true })
+			res.json(Object.assign(JSON.parse(order), { status: false }))
 		}).catch((reason) => {
 			// sendSms(JSON.parse(order).phoneNumber, '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, Y nedeniyle iptal edilmiştir. Ödemeniz en kısa sürece hesabına geri aktarılacaktır. Anlayışınız için teşekkürler.')
 			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'GET /manager/order/:id', true))
@@ -57,7 +57,7 @@ router.put('/orders/confirm/:id', (req, res, next) => {
 	Redis.getInstance.hgetAsync('orders', req.params.id).then((order) => {
 		Redis.getInstance.hsetAsync('orders', req.params.id, JSON.stringify(Object.assign(JSON.parse(order), { status: true }))).then(() => {
 			// sendSms(JSON.parse(order).phoneNumber, '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, X Kargoya verilmiştir, Kargo takip numarası : 0123456789')
-			res.json({ status: true })
+			res.json(Object.assign(JSON.parse(order), { status: true }))
 		}).catch((reason) => {
 			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:id', true))
 		})
