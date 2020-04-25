@@ -6,6 +6,6 @@ import putOrdersConfirmByIdTests from './put-orders-confirm-by-id.test'
 export default () => describe('manager', () => {
 	getOrdersTests()
 	getOrderByIdTests()
-	putOrdersCancelByIdTests()
-	putOrdersConfirmByIdTests()
+	// putOrdersCancelByIdTests()
+	// putOrdersConfirmByIdTests()
 })

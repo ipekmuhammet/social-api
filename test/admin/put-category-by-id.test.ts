@@ -31,19 +31,26 @@ export default () => describe('PUT /admin/category/:id', () => {
 			})
 	})
 
-	it('correct', (done) => (
+	it('correct', () => (
 		request(app)
 			.put(`/admin/category/${testCategory._id}`)
 			.set({ Authorization: token })
 			.send({
-				name: 'randomName'
+				name: 'testCategoryUpdated'
 			})
+			.expect(200)
+	))
+
+	it('should categories contain testCategory', (done) => (
+		request(app)
+			.get('/categories')
+			.set({ Authorization: token })
 			.expect(200)
 			.end((error, response) => {
 				if (error) {
 					done(error)
 				}
-				expect(response.body.name).to.equal('randomName')
+				expect(Object.values(response.body).some(((category: CategoryDocument) => category.name === 'testCategoryUpdated'))).to.equal(true)
 				done()
 			})
 	))

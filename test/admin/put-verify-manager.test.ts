@@ -29,8 +29,7 @@ export default () => describe('PUT /verify-manager/:_id', () => {
 				if (error) {
 					done(error)
 				}
-				expect(response.body._id).to.equal(testManager._id)
-				expect(response.body.verified).to.equal(true)
+				expect(response.body._id).to.equal(testManager._id.toString())
 				done()
 			})
 	))

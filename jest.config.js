@@ -16,5 +16,5 @@ module.exports = {
 		'**/test/**/*.test.(ts|js)'
 	],
 	testEnvironment: 'node',
-	testTimeout: 30000
+	testTimeout: 15 * 1000
 }

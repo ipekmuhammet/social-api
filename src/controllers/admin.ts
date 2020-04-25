@@ -11,13 +11,13 @@ import {
 import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
 import ServerError from '../errors/ServerError'
+import { Redis } from '../startup'
 
 const router = Router()
 
 router.use(validateAuthority(Authority.ADMIN))
 
 router.post('/save', (req, res, next) => {
-	// Admin.find().then(x => res.json(x))
 	new Admin(req.body).save().then((admin) => {
 		jwt.sign({ payload: admin }, 'secret', (jwtErr: Error, token: any) => {
 			if (jwtErr) {
@@ -48,32 +48,44 @@ router.put('/verify-manager/:_id', (req, res) => {
 })
 
 router.post('/category', (req, res, next) => {
-	new Category(req.body).save().then((doc) => {
-		res.json(doc)
+	new Category(req.body).save().then((category) => {
+		Category.find().then((categories) => {
+			Redis.getInstance.setAsync('categories', JSON.stringify(categories)).then(() => {
+				res.json(category)
+			})
+		})
 	}).catch((reason) => {
 		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /admin/category', true))
 	})
 })
 
 router.put('/category/:_id', (req, res, next) => {
-	Category.findByIdAndUpdate(req.params._id, req.body).then((doc) => {
-		res.json(doc)
+	Category.findByIdAndUpdate(req.params._id, req.body).then((category) => {
+		Category.find().then((categories) => {
+			Redis.getInstance.setAsync('categories', JSON.stringify(categories)).then(() => {
+				res.json(category)
+			})
+		})
 	}).catch((reason) => {
 		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /admin/category/:id', true))
 	})
 })
 
 router.post('/product', (req, res, next) => {
-	new Product(req.body).save().then((doc) => {
-		res.json(doc)
+	new Product(req.body).save().then((product) => {
+		Redis.getInstance.setAsync(product.id, JSON.stringify(product)).then(() => { // TODO product._id
+			res.json(product)
+		})
 	}).catch((reason) => {
 		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /admin/product', true))
 	})
 })
 
 router.put('/product/:id', (req, res, next) => {
-	Product.findByIdAndUpdate(req.params.id, req.body).then((doc) => {
-		res.json(doc)
+	Product.findByIdAndUpdate(req.params.id, req.body).then((product) => {
+		Redis.getInstance.setAsync(product.id, JSON.stringify(product)).then(() => { // TODO product._id
+			res.json(product)
+		})
 	}).catch((reason) => {
 		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /admin/product/id', true))
 	})

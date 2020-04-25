@@ -29,7 +29,7 @@ export default () => describe('PUT /product/:id', () => {
 			})
 	))
 
-	it('correct', (done) => (
+	it('correct', () => (
 		request(app)
 			.put(`/admin/product/${testProduct._id}`)
 			.set({ Authorization: token })
@@ -37,12 +37,5 @@ export default () => describe('PUT /product/:id', () => {
 				brand: 'Test Marka 2'
 			})
 			.expect(200)
-			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
-				expect(response.body.brand).to.be.equal('Test Marka 2')
-				done()
-			})
 	))
 })

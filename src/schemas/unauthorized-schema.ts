@@ -23,6 +23,7 @@ export const registerManagerSchema = Joi.object({
 	nameSurname: Joi.string().required(),
 	email: Joi.string().email().required(),
 	password: Joi.string().min(4).required(),
+	activationCode: Joi.number().min(1000).max(9999).required()
 	// activationCodeType: Joi.number().equal(ActivationCodes.REGISTER_MANAGER).required()
 })
 

@@ -25,7 +25,7 @@ describe('sequentially run tests', () => {
 	unauhorized()
 	user()
 	admin()
-	// manager()
+	manager()
 
 	afterAll(() => {
 		User.deleteOne({ phoneNumber: '0555 555 55 55' }).then((deletedUser) => { // Phone number converted to regional
@@ -40,7 +40,7 @@ describe('sequentially run tests', () => {
 			console.log('Admin deleted', deletedAdmin)
 		})
 
-		Category.deleteOne({ name: 'testCategory' }).then((deletedCategory) => {
+		Category.deleteOne({ name: 'testCategoryUpdated' }).then((deletedCategory) => {
 			console.log('category deleted', deletedCategory)
 		})
 	})
