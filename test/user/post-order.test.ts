@@ -2,6 +2,8 @@ import request from 'supertest'
 import { expect } from 'chai'
 
 import app from '../../src/app'
+import ErrorMessages from '../../src/errors/ErrorMessages'
+import { isTextContainsAllKeys } from '../tools'
 
 const cart = {
 	41705: {
@@ -91,17 +93,24 @@ export default () => describe('POST /order', () => {
 			})
 	})
 
-	it('with unknown address', () => (
+	it('without address', (done) => (
 		request(app)
 			.post('/user/order')
 			.set({ Authorization: token })
 			.send({
-				address: '12345'
+				card: 'cardToken' // TODO
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['address', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('with empty cart', () => (
+	it('without card', (done) => (
 		request(app)
 			.post('/user/order')
 			.set({ Authorization: token })
@@ -109,6 +118,31 @@ export default () => describe('POST /order', () => {
 				address: user.addresses[0]._id
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['card', 'required'])).to.equal(true)
+				done()
+			})
+	))
+
+	it('with empty cart', (done) => (
+		request(app)
+			.post('/user/order')
+			.set({ Authorization: token })
+			.send({
+				address: user.addresses[0]._id,
+				card: 'cardToken' // TODO
+			})
+			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(response.body.error).to.equal(ErrorMessages.EMPTY_CART)
+				done()
+			})
 	))
 
 	it('POST /cart to make succesfully order', () => (
@@ -119,13 +153,31 @@ export default () => describe('POST /order', () => {
 			.expect(200)
 	))
 
+	it('with unknown address', (done) => (
+		request(app)
+			.post('/user/order')
+			.set({ Authorization: token })
+			.send({
+				address: '12345',
+				card: 'cardToken' // TODO
+			})
+			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(response.body.error).to.equal(ErrorMessages.NO_ADDRESS)
+				done()
+			})
+	))
+
 	it('correct', () => (
 		request(app)
 			.post('/user/order')
 			.set({ Authorization: token })
 			.send({
 				address: user.addresses[0]._id,
-				card: 'token' // TODO
+				card: 'cardToken' // TODO
 			})
 			.expect(200)
 	))

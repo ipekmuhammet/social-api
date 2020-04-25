@@ -148,6 +148,7 @@ router.post('/login', (req, res, next) => {
 
 router.put('/reset-password', (req, res, next) => {
 	validateResetPasswordRequest(req.body)
+		.then(() => isUserExists(req.body.phoneNumber))
 		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.RESET_PASSWORD))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => isUserExists(req.body.phoneNumber))

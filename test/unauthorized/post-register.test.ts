@@ -1,7 +1,10 @@
 import request from 'supertest'
+import { expect } from 'chai'
 import readline from 'readline'
 
 import app from '../../src/app'
+import { isTextContainsAllKeys } from '../tools/index'
+import ErrorMessages from '../../src/errors/ErrorMessages'
 
 let activationCode
 
@@ -18,50 +21,82 @@ export default () => describe('POST /register', () => {
 		})
 	})
 
-	it('inconvient phone number', () => (
+	it('inconvient phone number', (done) => (
 		request(app)
 			.post('/register')
 			.send({
 				phoneNumber: '915555555000',
+				email: `${Math.random()}@hotmail.com`,
 				nameSurname: 'Muhammet İpek',
 				password: '1234',
 				activationCode: '0000'
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['Phone', 'invalid'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('wrong activation code', () => (
+	it('wrong activation code', (done) => (
 		request(app)
 			.post('/register')
 			.send({
 				phoneNumber: '905555555555',
+				email: `${Math.random()}@hotmail.com`,
 				nameSurname: 'Muhammet İpek',
 				password: '1234',
-				activationCode: '0000'
+				activationCode: '1010'
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(response.body.error).to.equal(ErrorMessages.WRONG_ACTIVATION_CODE)
+				done()
+			})
 	))
 
-	it('without password', () => (
+	it('without password', (done) => (
 		request(app)
 			.post('/register')
 			.send({
 				phoneNumber: '905555555555',
+				email: `${Math.random()}@hotmail.com`,
 				nameSurname: 'Muhammet İpek',
 				activationCode
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['password', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('without nameSurname', () => (
+	it('without nameSurname', (done) => (
 		request(app)
 			.post('/register')
 			.send({
 				phoneNumber: '905555555555',
+				email: `${Math.random()}@hotmail.com`,
 				activationCode,
 				password: '1234'
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['nameSurname', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
 	it('correct', (done) => (
@@ -75,11 +110,14 @@ export default () => describe('POST /register', () => {
 				activationCode
 			})
 			.expect(200)
-			.end((error) => {
+			.end((error, response) => {
 				if (error) {
 					done(error)
 				}
 				done()
+				expect(response.body.user.phoneNumber).to.equal('0555 555 55 55') // regional
+				expect(response.body.token).to.be.a('string')
+				expect(response.body.user).to.be.a('object')
 			})
 	))
 })

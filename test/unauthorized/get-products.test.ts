@@ -8,7 +8,10 @@ export default () => describe('GET /products', () => {
 		request(app)
 			.get('/products')
 			.expect(200)
-			.end((err, res) => {
+			.end((error, res) => {
+				if (error) {
+					done(error)
+				}
 				expect(Object.values(res.body)).to.be.an('array')
 				done()
 			})

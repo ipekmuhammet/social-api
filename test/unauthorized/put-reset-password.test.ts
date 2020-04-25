@@ -1,7 +1,10 @@
 import request from 'supertest'
+import { expect } from 'chai'
 import readline from 'readline'
 
 import app from '../../src/app'
+import { isTextContainsAllKeys } from '../tools'
+import ErrorMessages from '../../src/errors/ErrorMessages'
 
 let resetActivationCode
 
@@ -18,32 +21,54 @@ export default () => describe('PUT /reset-password', () => {
 		})
 	})
 
-	it('without phoneNumber', () => (
+	it('without phoneNumber', (done) => (
 		request(app)
 			.put('/reset-password')
 			.send({
 				password: '1234'
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['phoneNumber', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('without password', () => (
+	it('without password', (done) => (
 		request(app)
 			.put('/reset-password')
 			.send({
 				phoneNumber: '905555555555'
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['newPassword', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('wrong phoneNumber', () => (
+	it('wrong phoneNumber', (done) => (
 		request(app)
 			.put('/reset-password')
 			.send({
 				phoneNumber: '905555555000',
-				password: '1234'
+				newPassword: '1234',
+				activationCode: resetActivationCode
 			})
-			.expect(400)
+			.expect(401)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(response.body.error).to.equal(ErrorMessages.USER_IS_NOT_EXISTS)
+				done()
+			})
 	))
 
 	it('correct', () => (

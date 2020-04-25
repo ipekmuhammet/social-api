@@ -15,6 +15,8 @@ class ErrorMessages {
 
     static NO_ADDRESS = 'Lütfen adres seçiniz'
 
+    static WRONG_PHONE_OR_PASSWORD = 'Wrong Phone number or Password!'
+
 
     static MANAGER_ALREADY_EXISTS = 'Telefon numarasına ait yönetici var'
 

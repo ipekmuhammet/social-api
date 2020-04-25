@@ -62,7 +62,7 @@ export const getProduct = (productId: string, user: UserDocument) => (
 			if (results[0]) {
 				resolve({ product: results[0], cart: results[1] })
 			} else {
-				reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, false))
+				reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, null, false))
 			}
 		}).catch((reason) => {
 			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
@@ -179,7 +179,7 @@ export const createActivationCode = (phoneNumber: string, activationCodeType: Ac
 export const login = (user: UserDocument | ManagerDocument, password: string) => (
 	new Promise((resolve, reject) => {
 		// @ts-ignore
-		comparePasswords(user.password, password, 'Wrong Phone number or Password!').then(() => {
+		comparePasswords(user.password, password, ErrorMessages.WRONG_PHONE_OR_PASSWORD).then(() => {
 			jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
 				if (jwtErr) {
 					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, ErrorMessages.UNEXPECTED_ERROR, true))

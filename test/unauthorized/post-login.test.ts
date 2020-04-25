@@ -1,28 +1,44 @@
 import request from 'supertest'
 import { expect } from 'chai'
 
+import { isTextContainsAllKeys } from '../tools/index'
 import app from '../../src/app'
+import ErrorMessages from '../../src/errors/ErrorMessages'
 
 export default () => describe('POST /login', () => {
-	it('without phoneNumber', () => (
+	it('without phoneNumber', (done) => (
 		request(app)
 			.post('/login')
 			.send({
 				password: '1234'
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['phoneNumber', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('without password', () => (
+	it('without password', (done) => (
 		request(app)
 			.post('/login')
 			.send({
 				phoneNumber: '905555555000'
 			})
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['password', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('wrong phoneNumber', () => (
+	it('wrong phoneNumber', (done) => (
 		request(app)
 			.post('/login')
 			.send({
@@ -30,9 +46,16 @@ export default () => describe('POST /login', () => {
 				password: '1234'
 			})
 			.expect(401)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(response.body.error).to.equal(ErrorMessages.USER_IS_NOT_EXISTS)
+				done()
+			})
 	))
 
-	it('wrong password', () => (
+	it('wrong password', (done) => (
 		request(app)
 			.post('/login')
 			.send({
@@ -40,6 +63,13 @@ export default () => describe('POST /login', () => {
 				password: '1234x'
 			})
 			.expect(401)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(response.body.error).to.equal(ErrorMessages.WRONG_PHONE_OR_PASSWORD)
+				done()
+			})
 	))
 
 	it('correct', (done) => (
@@ -51,12 +81,13 @@ export default () => describe('POST /login', () => {
 			})
 			.expect(200)
 			// eslint-disable-next-line consistent-return
-			.end((err, res) => {
-				if (err) {
-					return done(err)
+			.end((error, response) => {
+				if (error) {
+					return done(error)
 				}
-				expect(res.body.token).to.be.a('string')
-				expect(res.body.user).to.be.a('object')
+				expect(response.body.user.phoneNumber).to.equal('0555 555 55 55') // regional
+				expect(response.body.token).to.be.a('string')
+				expect(response.body.user).to.be.a('object')
 				done()
 			})
 	))

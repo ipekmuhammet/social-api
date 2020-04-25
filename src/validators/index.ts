@@ -62,7 +62,7 @@ export const getActivationCode = (phoneNumber: string, activationCodeType: Activ
 		// @ts-ignore
 		Redis.getInstance.getAsync(`${phoneNumber}:activationCode:${activationCodeType}`).then((activationCode) => {
 			if (!activationCode) {
-				reject(new ServerError('Aktivasyon kodu bulunamadı!', HttpStatusCodes.INTERNAL_SERVER_ERROR, 'Aktivasyon kodu bulunamadı!', false))
+				reject(new ServerError('Aktivasyon kodu bulunamadı!', HttpStatusCodes.BAD_REQUEST, 'Aktivasyon kodu bulunamadı!', false))
 			} else {
 				resolve(activationCode)
 			}

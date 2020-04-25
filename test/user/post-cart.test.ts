@@ -2,6 +2,7 @@ import request from 'supertest'
 import { expect } from 'chai'
 
 import app from '../../src/app'
+import { isTextContainsAllKeys } from '../tools'
 
 const singleProduct = {
 	brand: 'ETİ',
@@ -23,11 +24,11 @@ const singleProduct = {
 }
 
 const brokenProducts = {
-	noBrand: { ...singleProduct, brand: null },
-	noName: { ...singleProduct, product_name: null },
-	noPrice: { ...singleProduct, price: null },
-	noTitle: { ...singleProduct, title: null },
-	noQuantity: { ...singleProduct, quantity: null }
+	noBrand: { ...singleProduct, brand: undefined },
+	noName: { ...singleProduct, product_name: undefined },
+	noPrice: { ...singleProduct, price: undefined },
+	noTitle: { ...singleProduct, title: undefined },
+	noQuantity: { ...singleProduct, quantity: undefined }
 }
 
 const cart = {
@@ -116,44 +117,79 @@ export default () => describe('POST /cart', () => {
 			})
 	})
 
-	it('with no brand product', () => (
+	it('with no brand product', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noBrand } })
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['brand', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('with no name product', () => (
+	it('with no name product', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noName } })
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['name', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('with no name price', () => (
+	it('with no name price', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noPrice } })
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['price', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('with no name title', () => (
+	it('with no name title', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noTitle } })
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['title', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
-	it('with no quantity price', () => (
+	it('with no quantity price', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noQuantity } })
 			.expect(400)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(isTextContainsAllKeys(response.body.error, ['quantity', 'required'])).to.equal(true)
+				done()
+			})
 	))
 
 	it('correct', () => (
