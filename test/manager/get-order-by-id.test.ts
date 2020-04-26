@@ -3,12 +3,12 @@ import { expect } from 'chai'
 
 import app from '../../src/app'
 
-export default () => describe('GET /manager/order/:id', () => {
+export default () => describe('GET /manager/order/:_id', () => {
 	it('correct', (done) => {
-		const testOrder: any = JSON.parse(process.env.orders).find((order: any) => JSON.parse(order).customer === 'testUser')
+		const testOrder: any = JSON.parse(JSON.parse(process.env.orders).find((order: any) => JSON.parse(order).customer === 'testUser'))
 
-		return request(app)
-			.get(`/manager/order/${testOrder.id}`)
+		request(app)
+			.get(`/manager/order/${testOrder._id}`)
 			.set({ Authorization: process.env.managerToken })
 			.expect(200)
 			.end((error, response) => {

@@ -7,17 +7,18 @@ import Product, { ProductDocument } from './Product'
 export type OrderDocument = Document & {
 	id: string,
 	customer: string,
+	phoneNumber: string,
 	address: string,
 	date: Date,
 	products: ProductDocument[]
 }
 
 const orderSchema = new Schema({
-	id: {
+	customer: {
 		type: String,
 		required: true
 	},
-	customer: {
+	phoneNumber: {
 		type: String,
 		required: true
 	},
@@ -27,12 +28,55 @@ const orderSchema = new Schema({
 	},
 	date: {
 		type: Date,
-		required: true
+		required: true,
+		default: Date.now()
 	},
 	products: {
-		type: [Product.schema],
+		type: [
+			{
+				id: {
+					type: Number
+				},
+				category: {
+					type: Number
+				},
+				brand: {
+					type: String
+				},
+				kind_name: {
+					type: String
+				},
+				product_name: {
+					type: String
+				},
+				old_price: {
+					type: Number
+				},
+				price: {
+					type: Number
+				},
+				title: {
+					type: String
+				},
+				image: {
+					type: String
+				},
+				units: {
+					type: String
+				},
+				quantity: {
+					type: Number
+				}
+			}
+		],
 		required: true
+	},
+	status: {
+		type: Boolean,
+		default: null
 	}
+}, {
+	timestamps: true
 })
 
 export default mongoose.model<OrderDocument>('Order', orderSchema)

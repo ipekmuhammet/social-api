@@ -3,10 +3,11 @@ import Iyzipay from 'iyzipay'
 
 import ErrorMessages from '../errors/ErrorMessages'
 import ServerError from '../errors/ServerError'
-import { User } from '../models'
+import { User, Order } from '../models'
 import { Redis } from '../startup'
 // eslint-disable-next-line no-unused-vars
 import { UserDocument } from '../models/User'
+import { OrderDocument } from 'src/models/Order'
 
 const iyzipay = new Iyzipay({
 	apiKey: 'sandbox-hbjzTU7CZDxarIUKVMhWLvHOIMIb3Z40',
@@ -98,52 +99,54 @@ export const deleteAddress = (userId: string, deletedAddressId: string) => (
 	})
 )
 
-export const makeOrder = (user: UserDocument, context: any) => (
+export const checkMakeOrderValues = (user: UserDocument, context: any) => (
 	new Promise((resolve, reject) => {
 		// @ts-ignore
-		const selecetedAddress = user.addresses.find((address) => address._id.toString() === context.address)
+		const selectedAddress = user.addresses.find((address) => address._id.toString() === context.address)
 
 		// @ts-ignore
 		Redis.getInstance.hgetAsync('cart', user._id.toString()).then((cart) => {
 			if (!cart) {
 				reject(new ServerError(ErrorMessages.EMPTY_CART, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
 				// @ts-ignore
-			} else if (!selecetedAddress) {
+			} else if (!selectedAddress) {
 				reject(new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
 			} else {
-				const id = Math.random().toString()
-
-				// @ts-ignore
-				const val = {
-					id,
-					// @ts-ignore
-					customer: user.nameSurname,
-					phoneNumber: user.phoneNumber,
-					// @ts-ignore
-					address: selecetedAddress.openAddress,
-					date: new Date().toLocaleString(),
-					// starts : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)
-					// price: (23.43 * 5) + (76.36 * 2), // Online ödemelerde manager'ın ücret ile işi yok.
-					products: Object.values(JSON.parse(cart))
-				}
-
-				const multi = Redis.getInstance.multi()
-
-				multi.hset('orders', id, JSON.stringify(val))
-
-				// @ts-ignore
-				multi.hdel('cart', user._id.toString())
-
-				multi.exec((error) => {
-					if (error) {
-						reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
-					} else {
-						resolve({ status: true })
-					}
-				})
+				resolve({ cart, selectedAddress })
 			}
 		}).catch((reason) => {
 			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+		})
+	})
+)
+
+export const saveOrderToDatabase = (user: UserDocument, cart: any, address: any) => (
+	new Order({
+		customer: user.nameSurname,
+		phoneNumber: user.phoneNumber,
+		address: address.openAddress,
+		products: Object.values(JSON.parse(cart))
+	}).save()
+)
+
+export const saveOrderToCache = (user: UserDocument, order: OrderDocument) => (
+	new Promise((resolve, reject) => {
+		// starts : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)
+		// price: (23.43 * 5) + (76.36 * 2), // Online ödemelerde manager'ın ücret ile işi yok.
+
+		const multi = Redis.getInstance.multi()
+
+		multi.hset('orders', order._id.toString(), JSON.stringify(order))
+
+		// @ts-ignore
+		multi.hdel('cart', user._id.toString())
+
+		multi.exec((error) => {
+			if (error) {
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message, true))
+			} else {
+				resolve(order)
+			}
 		})
 	})
 )

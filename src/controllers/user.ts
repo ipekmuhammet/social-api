@@ -13,9 +13,11 @@ import {
 	addCardToUser,
 	updateUser,
 	saveCart,
-	makeOrder,
+	saveOrderToCache,
 	deleteAddress,
-	getCart
+	getCart,
+	saveOrderToDatabase,
+	checkMakeOrderValues
 } from '../services/user'
 
 import {
@@ -125,10 +127,15 @@ router.delete('/address/:id', (req, res, next) => {
 router.post('/order', (req, res, next) => {
 	validateMakeOrderRequest(req.body)
 		// @ts-ignore
-		.then(() => makeOrder(req.user, req.body))
+		.then(() => checkMakeOrderValues(req.user, req.body))
+		// @ts-ignore
+		.then(({ cart, selectedAddress }) => saveOrderToDatabase(req.user, cart, selectedAddress))
+		// @ts-ignore
+		.then((order) => saveOrderToCache(req.user, order))
 		.then((result) => {
 			res.json(result)
-		}).catch((reason) => {
+		})
+		.catch((reason) => {
 			next(handleError(reason, 'POST /user/order'))
 		})
 })

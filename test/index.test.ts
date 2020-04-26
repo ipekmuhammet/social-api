@@ -9,7 +9,8 @@ import {
 	User,
 	Manager,
 	Admin,
-	Category
+	Category,
+	Order
 } from '../src/models'
 
 describe('sequentially run tests', () => {
@@ -50,6 +51,10 @@ describe('sequentially run tests', () => {
 
 		Category.deleteOne({ name: 'testCategoryUpdated' }).then((deletedCategory) => {
 			console.log('category deleted', deletedCategory)
+		})
+
+		Order.deleteMany({ customer: 'testUser' }).then((deletedOrders) => {
+			console.log('orders deleted', deletedOrders)
 		})
 	})
 })

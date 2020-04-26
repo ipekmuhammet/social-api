@@ -33,10 +33,6 @@ const managerSchema = new Schema({
 		type: String,
 		required: true
 	},
-	orders: {
-		type: [Order.schema],
-		required: true
-	},
 	verified: {
 		type: Boolean,
 		required: true,
