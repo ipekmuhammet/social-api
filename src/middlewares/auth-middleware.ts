@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import HttpStatusCodes from 'http-status-codes'
 
 import Authority from '../enums/authority-enum'
-import { User, Manager, Admin } from '../models'
+import { Manager, Admin } from '../models'
 import { validatePhoneNumber } from '../validators/user-validator'
 
 import ServerError from '../errors/ServerError'
