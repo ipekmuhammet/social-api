@@ -16,9 +16,9 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 			const decoded: any = jwt.verify(req.headers.authorization, 'secret')
 
 			if (decoded) {
-				User.findById(decoded.payload._id).then((user) => {
+				getUserFromCache(decoded.payload.phoneNumber).then((user) => {
 					// @ts-ignore
-					req.user = user
+					req.user = JSON.parse(user)
 					next()
 				})
 			} else {
