@@ -81,22 +81,13 @@ export const getCart = (userId: string) => (
 )
 
 export const deleteAddress = (userId: string, deletedAddressId: string) => (
-	// @ts-ignore
-	User.findById(userId).then((user: UserDocument) => {
-		if (!user) {
-			throw new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.BAD_REQUEST, 'DELETE /user/address', true)
-		} else {
-			const deletedAddress = user.addresses.indexOf(user.addresses.find((address: any) => address._id.toString() === deletedAddressId))
-			if (deletedAddress === -1) {
-				throw new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, 'DELETE /user/address', false)
-			} else {
-				user.addresses.splice(deletedAddress, 1)
-				return user.save()
+	User.findByIdAndUpdate(userId, {
+		$pull: {
+			addresses: {
+				_id: deletedAddressId
 			}
 		}
-	}).catch((reason) => {
-		throw new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.BAD_REQUEST, reason.message, true)
-	})
+	}, { new: true })
 )
 
 export const checkMakeOrderValues = (user: UserDocument, context: any) => (
@@ -149,4 +140,14 @@ export const saveOrderToCache = (user: UserDocument, order: OrderDocument) => (
 			}
 		})
 	})
+)
+
+export const cacheUser = (user: UserDocument) => (Redis.getInstance.setAsync(user.phoneNumber.toString(), JSON.stringify(user)))
+
+export const saveAddressToDatabase = (userId: string, address: any) => (
+	User.findByIdAndUpdate(userId, {
+		$push: {
+			addresses: address
+		}
+	}, { new: true })
 )

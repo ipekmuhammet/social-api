@@ -17,7 +17,9 @@ import {
 	deleteAddress,
 	getCart,
 	saveOrderToDatabase,
-	checkMakeOrderValues
+	checkMakeOrderValues,
+	saveAddressToDatabase,
+	cacheUser
 } from '../services/user'
 
 import {
@@ -32,8 +34,7 @@ import {
 	validateMakeOrderRequest
 } from '../validators/user-validator'
 
-// eslint-disable-next-line no-unused-vars
-import { UserDocument } from '../models/User'
+import { Redis } from '../startup'
 
 
 const router = Router()
@@ -91,37 +92,29 @@ router.get('/cart', (req, res, next) => {
 router.post('/address', (req, res, next) => {
 	validateSaveAddressRequest(req.body)
 		// @ts-ignore
-		.then(() => User.findById(req.user._id))
-		.then((user: UserDocument) => {
-			if (user) {
-				user.addresses.push(req.body)
-				user.save().then((result: any) => {
-					res.json(result)
-				})
-			} else {
-				next(
-					handleError(
-						new ServerError(ErrorMessages.USER_IS_NOT_EXISTS, HttpStatusCodes.BAD_REQUEST, 'POST /user/address', true),
-						'POST /user/address'
-					)
-				)
-			}
-		}).catch((reason) => {
+		.then(() => saveAddressToDatabase(req.user._id, req.body))
+		.then((user) => cacheUser(user).then(() => user))
+		.then((user) => {
+			res.json(user)
+		})
+		.catch((reason) => {
 			next(handleError(reason, 'POST /user/address'))
 		})
 })
 
-router.delete('/address/:id', (req, res, next) => {
+router.delete('/address/:_id', (req, res, next) => {
 	// @ts-ignore
-	deleteAddress(req.user._id, req.params.id).then((result) => {
-		res.json(result)
-	}).catch((reason) => {
-		if (reason.httpCode) {
-			next(reason)
-		} else {
-			next(handleError(reason, 'DELETE /user/address/:id'))
-		}
-	})
+	deleteAddress(req.user._id, req.params._id)
+		.then((user) => cacheUser(user).then(() => user))
+		.then((user) => {
+			res.json(user)
+		}).catch((reason) => {
+			if (reason.httpCode) {
+				next(reason)
+			} else {
+				next(handleError(reason, 'DELETE /user/address/:id'))
+			}
+		})
 })
 
 router.post('/order', (req, res, next) => {
