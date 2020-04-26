@@ -12,6 +12,8 @@ import kisisel from './jsons/src/kisisel-products.json'
 import temizlik from './jsons/src/temizlik-products.json'
 import Categories from '../enums/category-enum'
 
+import { Mongo } from '../startup'
+
 const saveProducts = (products: any, category: any) => {
 	products.forEach((el: any) => {
 		el.image = `${category}/${el.id}`
@@ -37,6 +39,7 @@ const saveCategories = () => {
 }
 
 export const load = () => {
+	Mongo.connect('mongodb://127.0.0.1:27017')
 	saveCategories()
 	saveProducts(atistirmalik, Categories.SNACK)
 	saveProducts(bebek, Categories.BABY)
@@ -57,3 +60,5 @@ export const test = () => {
 		console.log('2', res)
 	})
 }
+
+// load()
