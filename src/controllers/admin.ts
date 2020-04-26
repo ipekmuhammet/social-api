@@ -3,15 +3,23 @@ import HttpStatusCodes from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 
 import {
-	Category,
-	Product,
 	Manager,
 	Admin
 } from '../models'
+
 import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
 import ServerError from '../errors/ServerError'
-import { Redis } from '../startup'
+import { validatePostProduct, validateUpdateProduct } from '../validators/admin-validator'
+import {
+	saveProductToDatabase,
+	saveProductToCache,
+	updateProduct,
+	updateCategory,
+	saveCategoryToCache,
+	saveCategoryToDatabase,
+	verifyManager
+} from '../services/admin'
 
 const router = Router()
 
@@ -42,53 +50,55 @@ router.get('/managers', (req, res) => {
 })
 
 router.put('/verify-manager/:_id', (req, res) => {
-	Manager.findByIdAndUpdate(req.params._id, { verified: true }).then((manager) => {
+	verifyManager(req.params._id).then((manager) => {
 		res.json(manager)
 	})
 })
 
 router.post('/category', (req, res, next) => {
-	new Category(req.body).save().then((category) => {
-		Category.find().then((categories) => {
-			Redis.getInstance.setAsync('categories', JSON.stringify(categories)).then(() => {
-				res.json(category)
-			})
+	saveCategoryToDatabase(req.body)
+		.then((category) => saveCategoryToCache(category))
+		.then((category) => {
+			res.json(category)
 		})
-	}).catch((reason) => {
-		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /admin/category', true))
-	})
+		.catch((reason) => {
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /admin/category', true))
+		})
 })
 
 router.put('/category/:_id', (req, res, next) => {
-	Category.findByIdAndUpdate(req.params._id, req.body).then((category) => {
-		Category.find().then((categories) => {
-			Redis.getInstance.setAsync('categories', JSON.stringify(categories)).then(() => {
-				res.json(category)
-			})
+	updateCategory(req.params._id, req.body)
+		.then((category) => saveCategoryToCache(category))
+		.then((category) => {
+			res.json(category)
 		})
-	}).catch((reason) => {
-		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /admin/category/:id', true))
-	})
+		.catch((reason) => {
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /admin/category/:id', true))
+		})
 })
 
 router.post('/product', (req, res, next) => {
-	new Product(req.body).save().then((product) => {
-		Redis.getInstance.setAsync(product.id, JSON.stringify(product)).then(() => { // TODO product._id
+	validatePostProduct(req.body)
+		.then(() => saveProductToDatabase(req.body))
+		.then((product) => saveProductToCache(product))
+		.then((product) => {
 			res.json(product)
 		})
-	}).catch((reason) => {
-		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /admin/product', true))
-	})
+		.catch((reason) => {
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /admin/product', true))
+		})
 })
 
-router.put('/product/:id', (req, res, next) => {
-	Product.findByIdAndUpdate(req.params.id, req.body).then((product) => {
-		Redis.getInstance.setAsync(product.id, JSON.stringify(product)).then(() => { // TODO product._id
+router.put('/product/:_id', (req, res, next) => {
+	validateUpdateProduct(req.body)
+		.then(() => updateProduct(req.params._id, req.body))
+		.then((product) => saveProductToCache(product))
+		.then((product) => {
 			res.json(product)
 		})
-	}).catch((reason) => {
-		next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /admin/product/id', true))
-	})
+		.catch((reason) => {
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /admin/product/:_id', true))
+		})
 })
 
 export default router
