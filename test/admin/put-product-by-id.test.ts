@@ -2,19 +2,10 @@ import request from 'supertest'
 import { expect } from 'chai'
 
 import app from '../../src/app'
-import { getTestAdminToken } from '../tools'
 
-let token
 let testProduct
 
 export default () => describe('PUT /product/:id', () => {
-	beforeAll((done) => {
-		getTestAdminToken().then((adminToken) => {
-			token = adminToken
-			done()
-		})
-	})
-
 	it('get product to update', (done) => (
 		request(app)
 			.get('/product/9999')
@@ -32,7 +23,7 @@ export default () => describe('PUT /product/:id', () => {
 	it('correct', () => (
 		request(app)
 			.put(`/admin/product/${testProduct._id}`)
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.adminToken })
 			.send({
 				brand: 'Test Marka 2'
 			})

@@ -7,40 +7,18 @@ import { AddressDocument } from '../../src/models/Address'
 import app from '../../src/app'
 import { isTextContainsAllKeys } from '../tools'
 
-let token
-
 export default () => describe('POST /address', () => {
-	it('login succesfully to get token', (done) => {
-		request(app)
-			.post('/login')
-			.send({
-				phoneNumber: '905555555555',
-				password: '12345'
-			})
-			.expect(200)
-			// eslint-disable-next-line consistent-return
-			.end((err, res) => {
-				if (err) {
-					return done(err)
-				}
-				expect(res.body.token).to.be.a('string')
-				expect(res.body.user).to.be.a('object')
-				token = res.body.token
-				done()
-			})
-	})
-
 	it('with no body', () => (
 		request(app)
 			.post('/user/address')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.expect(400)
 	))
 
 	it('with null address', (done) => (
 		request(app)
 			.post('/user/address')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
 				openAddress: null
 			})
@@ -57,7 +35,7 @@ export default () => describe('POST /address', () => {
 	it('without openAddress', (done) => (
 		request(app)
 			.post('/user/address')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
 				addressTitle: 'Ev'
 			})
@@ -74,7 +52,7 @@ export default () => describe('POST /address', () => {
 	it('without addressTitle', (done) => (
 		request(app)
 			.post('/user/address')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
 				openAddress: 'Test Mah.'
 			})
@@ -91,7 +69,7 @@ export default () => describe('POST /address', () => {
 	it('correct', (done) => (
 		request(app)
 			.post('/user/address')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
 				openAddress: 'Test Mah.',
 				addressTitle: 'Ev'
@@ -101,12 +79,16 @@ export default () => describe('POST /address', () => {
 				if (error) {
 					done(error)
 				}
+
 				expect(response.body).to.contains.all.keys('_id')
 				// eslint-disable-next-line camelcase
 				expect(response.body.addresses.some((address: AddressDocument) => (
 					address.openAddress === 'Test Mah.'
 				))).to.equal(true)
+
+				process.env.user = JSON.stringify(response.body)
+
 				done()
 			})
 	))
-})
+}

@@ -66,33 +66,11 @@ const cart = {
 	}
 }
 
-let token
-
 export default () => describe('GET /cart', () => {
-	it('login succesfully to get token', (done) => {
-		request(app)
-			.post('/login')
-			.send({
-				phoneNumber: '905555555555',
-				password: '12345'
-			})
-			.expect(200)
-			// eslint-disable-next-line consistent-return
-			.end((err, res) => {
-				if (err) {
-					return done(err)
-				}
-				expect(res.body.token).to.be.a('string')
-				expect(res.body.user).to.be.a('object')
-				token = res.body.token
-				done()
-			})
-	})
-
 	it('correct', (done) => (
 		request(app)
 			.get('/user/cart')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.expect(200)
 			.end((error, response) => {
 				if (error) {
@@ -107,4 +85,4 @@ export default () => describe('GET /cart', () => {
 				done()
 			})
 	))
-})
+}

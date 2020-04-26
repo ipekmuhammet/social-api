@@ -94,33 +94,11 @@ const cart = {
 	}
 }
 
-let token
-
 export default () => describe('POST /cart', () => {
-	it('login succesfully to get token', (done) => {
-		request(app)
-			.post('/login')
-			.send({
-				phoneNumber: '905555555555',
-				password: '12345'
-			})
-			.expect(200)
-			// eslint-disable-next-line consistent-return
-			.end((err, res) => {
-				if (err) {
-					return done(err)
-				}
-				expect(res.body.token).to.be.a('string')
-				expect(res.body.user).to.be.a('object')
-				token = res.body.token
-				done()
-			})
-	})
-
 	it('with no brand product', (done) => (
 		request(app)
 			.post('/user/cart')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noBrand } })
 			.expect(400)
 			.end((error, response) => {
@@ -135,7 +113,7 @@ export default () => describe('POST /cart', () => {
 	it('with no name product', (done) => (
 		request(app)
 			.post('/user/cart')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noName } })
 			.expect(400)
 			.end((error, response) => {
@@ -150,7 +128,7 @@ export default () => describe('POST /cart', () => {
 	it('with no name price', (done) => (
 		request(app)
 			.post('/user/cart')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noPrice } })
 			.expect(400)
 			.end((error, response) => {
@@ -165,7 +143,7 @@ export default () => describe('POST /cart', () => {
 	it('with no name title', (done) => (
 		request(app)
 			.post('/user/cart')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noTitle } })
 			.expect(400)
 			.end((error, response) => {
@@ -180,7 +158,7 @@ export default () => describe('POST /cart', () => {
 	it('with no quantity price', (done) => (
 		request(app)
 			.post('/user/cart')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({ ...cart, ...{ 12345: brokenProducts.noQuantity } })
 			.expect(400)
 			.end((error, response) => {
@@ -195,8 +173,8 @@ export default () => describe('POST /cart', () => {
 	it('correct', () => (
 		request(app)
 			.post('/user/cart')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send(cart)
 			.expect(200)
 	))
-})
+}

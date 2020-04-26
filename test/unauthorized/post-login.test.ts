@@ -88,6 +88,10 @@ export default () => describe('POST /login', () => {
 				expect(response.body.user.phoneNumber).to.equal('0555 555 55 55') // regional
 				expect(response.body.token).to.be.a('string')
 				expect(response.body.user).to.be.a('object')
+
+				process.env.token = response.body.token
+				process.env.user = JSON.stringify(response.body.user)
+
 				done()
 			})
 	))

@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken'
+
 import unauhorized from './unauthorized/index.test'
 import user from './user/index.test'
 import manager from './manager/index.test'
@@ -17,8 +19,14 @@ describe('sequentially run tests', () => {
 			nameSurname: 'test admin',
 			email: 'test@test.com',
 			password: '1234'
-		}).save().then(() => {
-			done()
+		}).save().then((adminObj) => {
+			jwt.sign({ payload: adminObj }, 'secret', (jwtErr: Error, createdToken: any) => {
+				if (jwtErr) {
+					done(jwtErr.message)
+				}
+				process.env.adminToken = createdToken
+				done()
+			})
 		})
 	})
 

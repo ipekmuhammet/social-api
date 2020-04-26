@@ -68,35 +68,11 @@ const cart = {
 	}
 }
 
-let user
-let token
-
 export default () => describe('POST /order', () => {
-	it('login succesfully to get token', (done) => {
-		request(app)
-			.post('/login')
-			.send({
-				phoneNumber: '905555555555',
-				password: '12345'
-			})
-			.expect(200)
-			// eslint-disable-next-line consistent-return
-			.end((err, res) => {
-				if (err) {
-					return done(err)
-				}
-				expect(res.body.token).to.be.a('string')
-				expect(res.body.user).to.be.a('object')
-				token = res.body.token
-				user = res.body.user
-				done()
-			})
-	})
-
 	it('without address', (done) => (
 		request(app)
 			.post('/user/order')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
 				card: 'cardToken' // TODO
 			})
@@ -113,9 +89,9 @@ export default () => describe('POST /order', () => {
 	it('without card', (done) => (
 		request(app)
 			.post('/user/order')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
-				address: user.addresses[0]._id
+				address: JSON.parse(process.env.user).addresses[0]._id
 			})
 			.expect(400)
 			.end((error, response) => {
@@ -130,9 +106,9 @@ export default () => describe('POST /order', () => {
 	it('with empty cart', (done) => (
 		request(app)
 			.post('/user/order')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
-				address: user.addresses[0]._id,
+				address: JSON.parse(process.env.user).addresses[0]._id,
 				card: 'cardToken' // TODO
 			})
 			.expect(400)
@@ -148,7 +124,7 @@ export default () => describe('POST /order', () => {
 	it('POST /cart to make succesfully order', () => (
 		request(app)
 			.post('/user/cart')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send(cart)
 			.expect(200)
 	))
@@ -156,7 +132,7 @@ export default () => describe('POST /order', () => {
 	it('with unknown address', (done) => (
 		request(app)
 			.post('/user/order')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
 				address: '12345',
 				card: 'cardToken' // TODO
@@ -174,9 +150,9 @@ export default () => describe('POST /order', () => {
 	it('make order 1', () => (
 		request(app)
 			.post('/user/order')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
-				address: user.addresses[0]._id,
+				address: JSON.parse(process.env.user).addresses[0]._id,
 				card: 'cardToken' // TODO
 			})
 			.expect(200)
@@ -185,7 +161,7 @@ export default () => describe('POST /order', () => {
 	it('POST /cart to make succesfully order 2', () => (
 		request(app)
 			.post('/user/cart')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send(cart)
 			.expect(200)
 	))
@@ -193,11 +169,11 @@ export default () => describe('POST /order', () => {
 	it('make order 2', () => (
 		request(app)
 			.post('/user/order')
-			.set({ Authorization: token })
+			.set({ Authorization: process.env.token })
 			.send({
-				address: user.addresses[0]._id,
+				address: JSON.parse(process.env.user).addresses[0]._id,
 				card: 'cardToken' // TODO
 			})
 			.expect(200)
 	))
-})
+}
