@@ -8,6 +8,7 @@ import postRegisterTests from './post-register.test'
 import postLoginTests from './post-login.test'
 import putResetPasswordTests from './put-reset-password.test'
 import postRegisterManagerTests from './post-register-manager.test'
+import postLoginManagerTests from './post-login-manager.test'
 
 import getProductsTests from './get-products.test'
 import getCategoriesTests from './get-categories.test'
@@ -33,7 +34,7 @@ export default () => describe('Unauthorized', () => {
 	putResetPasswordTests()
 
 	describe('divider', () => {
-		it('Send code activation code for register user', () => (
+		it('Send code activation code for register manager', () => (
 			request(app)
 				.post('/send-activation-code')
 				.send({
@@ -49,4 +50,5 @@ export default () => describe('Unauthorized', () => {
 	getProductsTests()
 	getCategoriesTests()
 	getProductByIdTests()
+	postLoginManagerTests()
 })

@@ -196,7 +196,7 @@ export const login = (user: UserDocument | ManagerDocument, password: string) =>
 export const isManagerVerified = (manager: any, retrnVal: any) => (
 	new Promise((resolve, reject) => {
 		if (!manager.verified) {
-			reject(new ServerError('Manager is not verified', HttpStatusCodes.UNAUTHORIZED, 'Manager is not verified', true))
+			reject(new ServerError(ErrorMessages.MANAGER_IS_NOT_VERIFIED, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.MANAGER_IS_NOT_VERIFIED, true))
 		} else {
 			resolve(retrnVal)
 		}
