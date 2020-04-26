@@ -40,6 +40,7 @@ import {
 
 import ActivationCodes from '../enums/activation-code-enum'
 import { Redis } from '../startup'
+import { cacheUser } from '../services/user'
 
 const router = Router()
 
@@ -99,6 +100,7 @@ router.post('/register', (req, res, next) => {
 		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.REGISTER_USER))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => registerUser(req.body, req.body.phoneNumber))
+		.then(({ user, token }) => cacheUser(user).then(() => ({ user, token })))
 		.then((response) => {
 			res.json(response)
 		})
@@ -138,6 +140,7 @@ router.post('/login', (req, res, next) => {
 	validateLoginRequest(req.body)
 		.then(() => isUserExists(req.body.phoneNumber))
 		.then((user) => login(user, req.body.password))
+		.then(({ user, token }) => cacheUser(user).then(() => ({ user, token })))
 		.then((response) => {
 			res.json(response)
 		})

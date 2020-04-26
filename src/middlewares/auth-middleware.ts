@@ -8,6 +8,7 @@ import { User, Manager, Admin } from '../models'
 import { validatePhoneNumber } from '../validators/user-validator'
 
 import ServerError from '../errors/ServerError'
+import { getUserFromCache } from '../services/user'
 
 export const validateAuthority = (authority: Authority) => (req: Request, res: Response, next: NextFunction) => {
 	if (authority === Authority.ANONIM) {
@@ -33,10 +34,9 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 			const decoded: any = jwt.verify(req.headers.authorization, 'secret')
 			if (decoded) {
 				if (authority === Authority.USER) {
-					// @ts-ignore
-					User.findById(decoded.payload._id).then((user) => {
+					getUserFromCache(decoded.payload.phoneNumber).then((user) => {
 						// @ts-ignore
-						req.user = user
+						req.user = JSON.parse(user)
 						next()
 					})
 				} else if (authority === Authority.MANAGER) {

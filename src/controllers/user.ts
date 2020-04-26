@@ -1,10 +1,7 @@
 import { Router } from 'express'
-import HttpStatusCodes from 'http-status-codes'
 
-import { User } from '../models'
 import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
-import ServerError from '../errors/ServerError'
 import ErrorMessages from '../errors/ErrorMessages'
 import { handleError } from '../services/unauthorized'
 
@@ -34,9 +31,6 @@ import {
 	validateMakeOrderRequest
 } from '../validators/user-validator'
 
-import { Redis } from '../startup'
-
-
 const router = Router()
 
 router.use(validateAuthority(Authority.USER))
@@ -62,9 +56,11 @@ router.put('/profile', (req, res, next) => {
 	validateUpdateProfileRequest(req.body)
 		// @ts-ignore
 		.then(() => updateUser(req.user._id, req.body))
+		.then((user) => cacheUser(user).then(() => user))
 		.then((user) => {
 			res.json(user)
-		}).catch((reason) => {
+		})
+		.catch((reason) => {
 			next(handleError(reason, 'PUT /user/profile'))
 		})
 })
@@ -109,11 +105,7 @@ router.delete('/address/:_id', (req, res, next) => {
 		.then((user) => {
 			res.json(user)
 		}).catch((reason) => {
-			if (reason.httpCode) {
-				next(reason)
-			} else {
-				next(handleError(reason, 'DELETE /user/address/:id'))
-			}
+			next(handleError(reason, 'DELETE /user/address/:id'))
 		})
 })
 

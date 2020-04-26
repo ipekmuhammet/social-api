@@ -6,13 +6,6 @@ import { AddressDocument } from '../../src/models/Address'
 import app from '../../src/app'
 
 export default () => describe('DELETE /address', () => {
-	it('with unknown address', () => (
-		request(app)
-			.delete(`/user/address/${12345}`)
-			.set({ Authorization: process.env.token })
-			.expect(400)
-	))
-
 	it('correct', (done) => (
 		request(app)
 			.delete(`/user/address/${JSON.parse(process.env.user).addresses[0]._id}`)
