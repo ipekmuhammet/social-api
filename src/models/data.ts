@@ -24,16 +24,17 @@ const saveProducts = async (products: any, category: any) => {
 		el.category = category
 
 		// eslint-disable-next-line no-await-in-loop
-		await new Product(el).save().then((x) => {
-			// eslint-disable-next-line security/detect-non-literal-fs-filename
-			try {
-				fs.renameSync(
-					path.join(__dirname, `../../public/assets/products/${category}/${el.id}.png`),
-					// @ts-ignore
-					path.join(__dirname, `../../public/assets/products/${category}/${x.image}.png`)
-				)
-			} catch (error) { }
-		})
+		await new Product(el).save()
+		//	.then((x) => {
+		//		// eslint-disable-next-line security/detect-non-literal-fs-filename
+		//		try {
+		//			fs.renameSync(
+		//				path.join(__dirname, `../../public/assets/products/${category}/${el.id}.png`),
+		//				// @ts-ignore
+		//				path.join(__dirname, `../../public/assets/products/${category}/${x.image}.png`)
+		//			)
+		//		} catch (error) { }
+		//	})
 	}
 }
 
