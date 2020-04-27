@@ -160,7 +160,7 @@ export default () => describe('POST /order', () => {
 				if (error) {
 					done(error)
 				}
-				process.env.cancelOrder = response.body._id
+				process.env.cancelOrder = JSON.stringify(response.body)
 				done()
 			})
 	))
@@ -186,8 +186,11 @@ export default () => describe('POST /order', () => {
 				if (error) {
 					done(error)
 				}
-				process.env.confirmOrder = response.body._id
+				expect(response.body.customer).to.equal('testUser')
+				expect(response.body.address).to.equal(JSON.parse(process.env.user).addresses[0].openAddress)
+				expect(response.body.status).to.equal(null)
+				process.env.confirmOrder = JSON.stringify(response.body)
 				done()
 			})
 	))
-}
+})

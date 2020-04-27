@@ -85,4 +85,4 @@ export default () => describe('GET /cart', () => {
 				done()
 			})
 	))
-}
+})

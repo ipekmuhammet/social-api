@@ -91,4 +91,4 @@ export default () => describe('POST /address', () => {
 				done()
 			})
 	))
-}
+})

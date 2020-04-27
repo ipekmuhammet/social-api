@@ -125,7 +125,7 @@ export default () => describe('POST /cart', () => {
 			})
 	))
 
-	it('with no name price', (done) => (
+	it('with no name product', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: process.env.token })
@@ -140,7 +140,7 @@ export default () => describe('POST /cart', () => {
 			})
 	))
 
-	it('with no name title', (done) => (
+	it('with no title product', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: process.env.token })
@@ -155,7 +155,7 @@ export default () => describe('POST /cart', () => {
 			})
 	))
 
-	it('with no quantity price', (done) => (
+	it('with no quantity product', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: process.env.token })
@@ -177,4 +177,4 @@ export default () => describe('POST /cart', () => {
 			.send(cart)
 			.expect(200)
 	))
-}
+})

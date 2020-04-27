@@ -23,4 +23,4 @@ export default () => describe('DELETE /address', () => {
 				done()
 			})
 	))
-}
+})
