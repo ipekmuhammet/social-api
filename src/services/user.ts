@@ -7,7 +7,8 @@ import { User, Order } from '../models'
 import { Redis } from '../startup'
 // eslint-disable-next-line no-unused-vars
 import { UserDocument } from '../models/User'
-import { OrderDocument } from 'src/models/Order'
+// eslint-disable-next-line no-unused-vars
+import { OrderDocument } from '../models/Order'
 
 const iyzipay = new Iyzipay({
 	apiKey: 'sandbox-hbjzTU7CZDxarIUKVMhWLvHOIMIb3Z40',
@@ -103,11 +104,6 @@ export const checkMakeOrderValues = (user: UserDocument, context: any) => (
 			} else if (!selectedAddress) {
 				reject(new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
 			} else {
-				try {
-					console.log(JSON.parse(cart))
-				} catch (error) {
-					console.log(error)
-				}
 				resolve({ cart, selectedAddress })
 			}
 		}).catch((reason) => {

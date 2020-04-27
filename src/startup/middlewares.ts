@@ -45,7 +45,7 @@ export default (app: Application) => {
 	const loggerOptions = {
 		transports: [
 			new winston.transports.File(options.file),
-			new winston.transports.Console(options.console)
+			// new winston.transports.Console(options.console)
 		],
 		exitOnError: false
 	}

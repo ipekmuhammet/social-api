@@ -140,7 +140,7 @@ export const search = (name: string) => (
 						// },
 						{
 							match_phrase_prefix: {
-								name: name
+								name
 							}
 						}
 					]
