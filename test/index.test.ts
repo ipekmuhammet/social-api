@@ -32,8 +32,8 @@ describe('sequentially run tests', () => {
 	})
 
 	unauhorized()
-	user()
 	admin()
+	user()
 	manager()
 
 	afterAll(() => {

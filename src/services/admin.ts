@@ -33,5 +33,5 @@ export const saveProductToCache = (product: ProductDocument | any) => (
 )
 
 export const updateProduct = (productId: string, productContext: ProductDocument) => (
-	Product.findByIdAndUpdate(productId, productContext)
+	Product.findByIdAndUpdate(productId, productContext, { new: true })
 )

@@ -15,8 +15,18 @@ export default () => describe('GET /admin/manager-requests', () => {
 				if (error) {
 					done(error)
 				}
-				// eslint-disable-next-line prefer-destructuring
-				process.env.manager = JSON.stringify(Object.values(response.body).find((manager: ManagerDocument) => manager.nameSurname === 'testUser'))
+				expect(Object.values(response.body)).to.be.an('array')
+				const testManager = Object.values(response.body).find((manager: ManagerDocument) => manager.nameSurname === 'testUser')
+				expect(testManager).to.contains.all.keys(
+					'__v',
+					'_id',
+					'phoneNumber',
+					'nameSurname',
+					'email',
+					'password',
+					'verified'
+				)
+				process.env.manager = JSON.stringify(testManager)
 				done()
 			})
 	})

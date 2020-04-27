@@ -2,15 +2,11 @@
 import mongoose, { Document, Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
-// eslint-disable-next-line no-unused-vars
-import Order, { OrderDocument } from './Order'
-
 export type ManagerDocument = Document & {
 	phoneNumber: string,
 	nameSurname: string,
 	email: string,
 	password: string,
-	orders: OrderDocument[],
 	verified: boolean
 }
 

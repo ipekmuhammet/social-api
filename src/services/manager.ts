@@ -8,9 +8,9 @@ export const getOrderById = (orderId: string) => (
 )
 
 export const updateOrderStatus = (orderId: string, status: boolean) => (
-	Order.findByIdAndUpdate(orderId, { status })
+	Order.findByIdAndUpdate(orderId, { status }, { new: true })
 )
 
 export const saveOrderToCache = (order: OrderDocument) => (
-	Redis.getInstance.hsetAsync('orders', order._id, JSON.stringify(order))
+	Redis.getInstance.hsetAsync('orders', order._id.toString(), JSON.stringify(order))
 )

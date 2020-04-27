@@ -5,10 +5,8 @@ import app from '../../src/app'
 
 export default () => describe('GET /manager/order/:_id', () => {
 	it('correct', (done) => {
-		const testOrder: any = JSON.parse(JSON.parse(process.env.orders).find((order: any) => JSON.parse(order).customer === 'testUser'))
-
 		request(app)
-			.get(`/manager/order/${testOrder._id}`)
+			.get(`/manager/order/${process.env.confirmOrder}`)
 			.set({ Authorization: process.env.managerToken })
 			.expect(200)
 			.end((error, response) => {
@@ -16,6 +14,7 @@ export default () => describe('GET /manager/order/:_id', () => {
 					done(error)
 				}
 				expect(response.body).to.be.an('object')
+				expect(response.body.customer).to.equal('testUser')
 				done()
 			})
 	})

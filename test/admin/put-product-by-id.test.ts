@@ -1,9 +1,10 @@
 import request from 'supertest'
+import { expect } from 'chai'
 
 import app from '../../src/app'
 
 export default () => describe('PUT /admin/product/:_id', () => {
-	it('correct', () => (
+	it('correct', (done) => (
 		request(app)
 			.put(`/admin/product/${JSON.parse(process.env.testProduct)._id}`)
 			.set({ Authorization: process.env.adminToken })
@@ -11,5 +12,12 @@ export default () => describe('PUT /admin/product/:_id', () => {
 				brand: 'Test Marka 2'
 			})
 			.expect(200)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				expect(response.body.brand).to.equal('Test Marka 2')
+				done()
+			})
 	))
 })

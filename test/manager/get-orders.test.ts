@@ -14,7 +14,6 @@ export default () => describe('GET /manager/orders', () => {
 					done(error)
 				}
 				expect(Object.values(response.body)).to.be.an('array')
-				process.env.orders = JSON.stringify(Object.values(response.body))
 				done()
 			})
 	))

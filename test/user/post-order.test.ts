@@ -147,7 +147,7 @@ export default () => describe('POST /order', () => {
 			})
 	))
 
-	it('make order 1', () => (
+	it('make order 1', (done) => (
 		request(app)
 			.post('/user/order')
 			.set({ Authorization: process.env.token })
@@ -156,6 +156,13 @@ export default () => describe('POST /order', () => {
 				card: 'cardToken' // TODO
 			})
 			.expect(200)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				process.env.cancelOrder = response.body._id
+				done()
+			})
 	))
 
 	it('POST /cart to make succesfully order 2', () => (
@@ -166,7 +173,7 @@ export default () => describe('POST /order', () => {
 			.expect(200)
 	))
 
-	it('make order 2', () => (
+	it('make order 2', (done) => (
 		request(app)
 			.post('/user/order')
 			.set({ Authorization: process.env.token })
@@ -175,5 +182,12 @@ export default () => describe('POST /order', () => {
 				card: 'cardToken' // TODO
 			})
 			.expect(200)
+			.end((error, response) => {
+				if (error) {
+					done(error)
+				}
+				process.env.confirmOrder = response.body._id
+				done()
+			})
 	))
 }

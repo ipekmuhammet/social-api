@@ -10,7 +10,8 @@ export type OrderDocument = Document & {
 	phoneNumber: string,
 	address: string,
 	date: Date,
-	products: ProductDocument[]
+	products: ProductDocument[],
+	status: boolean
 }
 
 const orderSchema = new Schema({
