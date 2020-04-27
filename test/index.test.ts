@@ -21,7 +21,7 @@ describe('sequentially run tests', () => {
 			email: 'test@test.com',
 			password: '1234'
 		}).save().then((adminObj) => {
-			jwt.sign({ payload: adminObj }, 'secret', (jwtErr: Error, createdToken: any) => {
+			jwt.sign({ payload: adminObj }, process.env.SECRET, (jwtErr: Error, createdToken: any) => {
 				if (jwtErr) {
 					done(jwtErr.message)
 				}

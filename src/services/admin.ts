@@ -7,7 +7,7 @@ import Category, { CategoryDocument } from '../models/Category'
 import { Manager } from '../models'
 
 export const verifyManager = (managerId: string) => (
-	Manager.findByIdAndUpdate(managerId, { verified: true })
+	Manager.findByIdAndUpdate(managerId, { verified: true }, { new: true })
 )
 
 export const saveCategoryToDatabase = (categoryContext: CategoryDocument) => (

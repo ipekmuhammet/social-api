@@ -143,7 +143,7 @@ export const saveOrderToCache = (user: UserDocument, order: OrderDocument) => (
 	})
 )
 
-export const cacheUser = (user: UserDocument) => (Redis.getInstance.setAsync(user.phoneNumber.toString(), JSON.stringify(user)))
+export const cacheUser = (user: any) => (Redis.getInstance.setAsync(user.phoneNumber.toString(), JSON.stringify(user)))
 
 export const getUserFromCache = (phoneNumber: string) => (Redis.getInstance.getAsync(phoneNumber))
 

@@ -187,61 +187,47 @@ export const login = (user: UserDocument | ManagerDocument, password: string) =>
 	new Promise((resolve, reject) => {
 		// @ts-ignore
 		comparePasswords(user.password, password, ErrorMessages.WRONG_PHONE_OR_PASSWORD).then(() => {
-			jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
-				if (jwtErr) {
-					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, ErrorMessages.UNEXPECTED_ERROR, true))
-				} else {
-					resolve({ token, user })
-				}
-			})
+			resolve(user)
 		}).catch((error) => {
 			reject(new ServerError(error.message, HttpStatusCodes.UNAUTHORIZED, null, true))
 		})
 	})
 )
 
-export const isManagerVerified = (manager: any, retrnVal: any) => (
+export const isManagerVerified = (manager: any) => (
 	new Promise((resolve, reject) => {
 		if (!manager.verified) {
 			reject(new ServerError(ErrorMessages.MANAGER_IS_NOT_VERIFIED, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.MANAGER_IS_NOT_VERIFIED, true))
 		} else {
-			resolve(retrnVal)
+			resolve()
 		}
 	})
 )
 
-export const registerUser = (userContext: any, phoneNumber: string) => (
-	new Promise((resolve, reject) => {
-		new User(userContext).save().then((user) => {
-			// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
-			jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
-				if (jwtErr) {
-					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, jwtErr.message, true))
-				} else {
-					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER_USER}`)
-					resolve({ token, user })
-				}
-			})
-		}).catch((reason) => {
-			reject(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, reason.message, true))
-		})
+export const registerUser = (userContext: any) => (
+	new User(userContext).save().then((user) => {
+		// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
+		Redis.getInstance.del(`${user.phoneNumber}:activationCode:${ActivationCodes.REGISTER_USER}`)
+		return user
 	})
 )
 
-export const registerManager = (managerContext: any, phoneNumber: string) => (
+export const registerManager = (managerContext: any) => (
+	new Manager(managerContext).save().then((manager) => {
+		// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
+		Redis.getInstance.del(`${managerContext.phoneNumber}:activationCode:${ActivationCodes.REGISTER_MANAGER}`)
+		return manager
+	})
+)
+
+export const createToken = (context: any) => (
 	new Promise((resolve, reject) => {
-		new Manager(managerContext).save().then((manager) => {
-			// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
-			jwt.sign({ payload: manager }, 'secret', (jwtErr: Error, token: any) => {
-				if (jwtErr) {
-					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register-manager', true))
-				} else {
-					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER_MANAGER}`)
-					resolve({ token, manager })
-				}
-			})
-		}).catch((reason) => {
-			reject(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, 'POST /register-manager', true))
+		jwt.sign({ payload: context }, process.env.SECRET, (jwtErr: Error, token: string) => {
+			if (jwtErr) {
+				reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, true))
+			} else {
+				resolve(token)
+			}
 		})
 	})
 )

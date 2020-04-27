@@ -11,6 +11,8 @@ import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
 import ServerError from '../errors/ServerError'
 import { validatePostProduct, validateUpdateProduct } from '../validators/admin-validator'
+import { createToken } from '../services/unauthorized'
+
 import {
 	saveProductToDatabase,
 	saveProductToCache,
@@ -25,16 +27,12 @@ const router = Router()
 
 router.use(validateAuthority(Authority.ADMIN))
 
-router.post('/save', (req, res, next) => {
-	new Admin(req.body).save().then((admin) => {
-		jwt.sign({ payload: admin }, 'secret', (jwtErr: Error, token: any) => {
-			if (jwtErr) {
-				next(jwtErr.message)
-			} else {
-				res.end(token)
-			}
+router.post('/save', (req, res) => {
+	new Admin(req.body).save()
+		.then((admin) => createToken(admin))
+		.then((token) => {
+			res.end(token)
 		})
-	})
 })
 
 router.get('/manager-requests', (req, res) => {

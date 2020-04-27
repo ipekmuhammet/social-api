@@ -13,7 +13,7 @@ import { getUserFromCache } from '../services/user'
 export const validateAuthority = (authority: Authority) => (req: Request, res: Response, next: NextFunction) => {
 	if (authority === Authority.ANONIM) {
 		if (req.headers.authorization) {
-			const decoded: any = jwt.verify(req.headers.authorization, 'secret')
+			const decoded: any = jwt.verify(req.headers.authorization, process.env.SECRET)
 
 			if (decoded) {
 				getUserFromCache(decoded.payload.phoneNumber).then((user) => {
@@ -31,7 +31,7 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 		}
 	} else if (req.headers.authorization) {
 		try {
-			const decoded: any = jwt.verify(req.headers.authorization, 'secret')
+			const decoded: any = jwt.verify(req.headers.authorization, process.env.SECRET)
 			if (decoded) {
 				if (authority === Authority.USER) {
 					getUserFromCache(decoded.payload.phoneNumber).then((user) => {
