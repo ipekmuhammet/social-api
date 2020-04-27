@@ -43,13 +43,13 @@ const orderSchema = new Schema({
 				brand: {
 					type: String
 				},
-				kind_name: {
+				kindName: {
 					type: String
 				},
-				product_name: {
+				name: {
 					type: String
 				},
-				old_price: {
+				oldPrice: {
 					type: Number
 				},
 				price: {

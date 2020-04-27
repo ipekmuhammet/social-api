@@ -1,3 +1,6 @@
+import fs from 'fs'
+import path from 'path'
+
 /* eslint-disable no-param-reassign */
 import Product from './Product'
 import Category from './Category'
@@ -14,41 +17,49 @@ import Categories from '../enums/category-enum'
 
 import { Mongo } from '../startup'
 
-const saveProducts = (products: any, category: any) => {
-	products.forEach((el: any) => {
-		el.image = `${category}/${el.id}`
+const saveProducts = async (products: any, category: any) => {
+	// eslint-disable-next-line guard-for-in, no-restricted-syntax
+	for (const el of products) {
+		// el.image = `${category}/${el.id}`
 		el.category = category
 
-		delete el.image_types
-		delete el.images
-		delete el.category_breadcrumb
-
-		new Product(el).save()
-	})
+		// eslint-disable-next-line no-await-in-loop
+		await new Product(el).save().then((x) => {
+			// eslint-disable-next-line security/detect-non-literal-fs-filename
+			try {
+				fs.renameSync(
+					path.join(__dirname, `../../public/assets/products/${category}/${el.id}.png`),
+					// @ts-ignore
+					path.join(__dirname, `../../public/assets/products/${category}/${x.image}.png`)
+				)
+			} catch (error) { }
+		})
+	}
 }
 
-const saveCategories = () => {
-	new Category({ name: 'Gıda', id: 0 }).save()
-	new Category({ name: 'Gıda Dışı', id: 1 }).save()
-	new Category({ name: 'Atıştırmalık', id: 2 }).save()
-	new Category({ name: 'Bebek Ürünleri', id: 3 }).save()
-	new Category({ name: 'İçecek', id: 4 }).save()
-	new Category({ name: 'Kahvaltılık', id: 5 }).save()
-	new Category({ name: 'Kişisel Bakım', id: 6 }).save()
-	new Category({ name: 'Temizlik', id: 7 }).save()
+const saveCategories = async () => {
+	await new Category({ name: 'Gıda' }).save()
+	await new Category({ name: 'Gıda Dışı' }).save()
+	await new Category({ name: 'Atıştırmalık' }).save()
+	await new Category({ name: 'Bebek Ürünleri' }).save()
+	await new Category({ name: 'İçecek' }).save()
+	await new Category({ name: 'Kahvaltılık' }).save()
+	await new Category({ name: 'Kişisel Bakım' }).save()
+	await new Category({ name: 'Temizlik' }).save()
 }
 
-export const load = () => {
+export const load = async () => {
 	Mongo.connect('mongodb://127.0.0.1:27017')
-	saveCategories()
-	saveProducts(atistirmalik, Categories.SNACK)
-	saveProducts(bebek, Categories.BABY)
-	saveProducts(gidadisi, Categories.NON_FOOD)
-	saveProducts(gida, Categories.FOOD)
-	saveProducts(icecek, Categories.DRINK)
-	saveProducts(kahvaltilik, Categories.BREAKFAST)
-	saveProducts(kisisel, Categories.PERSONAL_CARE)
-	saveProducts(temizlik, Categories.CLEANING)
+	await saveCategories()
+	await saveProducts(atistirmalik, Categories.SNACK)
+	await saveProducts(bebek, Categories.BABY)
+	await saveProducts(gidadisi, Categories.NON_FOOD)
+	await saveProducts(gida, Categories.FOOD)
+	await saveProducts(icecek, Categories.DRINK)
+	await saveProducts(kahvaltilik, Categories.BREAKFAST)
+	await saveProducts(kisisel, Categories.PERSONAL_CARE)
+	await saveProducts(temizlik, Categories.CLEANING)
+	console.log('done')
 }
 
 export const test = () => {
@@ -61,4 +72,4 @@ export const test = () => {
 	})
 }
 
-// load()
+load()

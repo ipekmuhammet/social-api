@@ -13,6 +13,7 @@ export default () => describe('GET /products', () => {
 					done(error)
 				}
 				expect(Object.values(res.body)).to.be.an('array')
+				process.env.product = JSON.stringify(Object.values(res.body)[0][0])
 				done()
 			})
 	})

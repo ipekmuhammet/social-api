@@ -63,15 +63,15 @@ router.get('/products', (req, res, next) => {
 	})
 })
 
-router.get('/product/:id', (req, res, next) => {
+router.get('/product/:_id', (req, res, next) => {
 	// @ts-ignore
-	getProduct(req.params.id, req.user)
+	getProduct(req.params._id, req.user)
 		// @ts-ignore
-		.then(({ product, cart }) => addProductToCart(req.params.id, product, cart, req.user))
+		.then(({ product, cart }) => addProductToCart(req.params._id, product, cart, req.user))
 		.then((response) => {
 			res.json(response)
 		}).catch((reason) => {
-			next((handleError(reason, 'POST /product/:id')))
+			next((handleError(reason, 'POST /product/:_id')))
 		})
 })
 

@@ -14,9 +14,9 @@ export const saveProductSchema = Joi.object({
 		Joi.string().required(),
 		Joi.number().required()
 	],
-	kind_name: Joi.string().allow(null, ''),
-	product_name: Joi.string().required(),
-	old_price: Joi.number().allow(null, ''),
+	kindName: Joi.string().allow(null, ''),
+	name: Joi.string().required(),
+	oldPrice: Joi.number().allow(null, ''),
 	price: Joi.number().required(),
 	title: Joi.string().required(),
 	category_breadcrumb: Joi.string().allow(null, ''),
@@ -29,9 +29,9 @@ export const saveProductSchema = Joi.object({
 // eslint-disable-next-line import/prefer-default-export
 export const updateProductSchema = Joi.object({
 	brand: Joi.string().optional(),
-	kind_name: Joi.string().optional().allow(null, ''),
-	product_name: Joi.string().optional(),
-	old_price: Joi.string().optional().allow(null, ''),
+	kindName: Joi.string().optional().allow(null, ''),
+	name: Joi.string().optional(),
+	oldPrice: Joi.string().optional().allow(null, ''),
 	price: Joi.string().optional(),
 	title: Joi.string().optional(),
 	category_breadcrumb: Joi.string().optional().allow(null, ''),

@@ -6,9 +6,9 @@ import app from '../../src/app'
 const product = {
 	brand: 'Test Marka',
 	id: 9999,
-	kind_name: '',
-	product_name: 'Test Product',
-	old_price: 9,
+	kindName: '',
+	name: 'Test Product',
+	oldPrice: 9,
 	price: 9,
 	title: 'Test Product - Adet 1',
 	category_breadcrumb: 'Test Category',
@@ -32,7 +32,8 @@ export default () => describe('POST /admin/product', () => {
 				if (error) {
 					done(error)
 				}
-				expect(response.body.product_name).to.be.equal('Test Product')
+				expect(response.body.name).to.be.equal('Test Product')
+				process.env.testProduct = JSON.stringify(response.body)
 				done()
 			})
 	))

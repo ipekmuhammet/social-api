@@ -20,6 +20,7 @@ export default () => describe('POST /admin/category', () => {
 					done(error)
 				}
 				expect(response.body.name).to.equal('testCategory')
+				process.env.testCategory = JSON.stringify(response.body)
 				done()
 			})
 	))

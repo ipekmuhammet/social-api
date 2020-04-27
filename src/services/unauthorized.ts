@@ -87,9 +87,12 @@ export const addProductToCart = (productId: string, product: any, cart: any, use
 						JSON.stringify(Object.assign(
 							JSON.parse(cart),
 							{
-								[productId]: Object.assign(JSON.parse(product), {
-									quantity: (JSON.parse(cart)[productId].quantity ?? 1) + 1
-								})
+								[productId]: Object.assign(
+									JSON.parse(product),
+									{
+										quantity: (JSON.parse(cart)[productId].quantity ?? 1) + 1
+									}
+								)
 							}
 						))
 					)
@@ -100,7 +103,9 @@ export const addProductToCart = (productId: string, product: any, cart: any, use
 						user._id.toString(),
 						JSON.stringify(Object.assign(
 							JSON.parse(cart),
-							{ [productId]: product }
+							{
+								[productId]: JSON.parse(product)
+							}
 						))
 					)
 				}
@@ -109,7 +114,9 @@ export const addProductToCart = (productId: string, product: any, cart: any, use
 					'cart',
 					// @ts-ignore
 					user._id.toString(),
-					JSON.stringify({ [productId]: Object.assign(JSON.parse(product), { quantity: 1 }) })
+					JSON.stringify({
+						[productId]: Object.assign(JSON.parse(product), { quantity: 1 })
+					})
 				)
 			}
 		}
@@ -133,7 +140,7 @@ export const search = (name: string) => (
 						// },
 						{
 							match_phrase_prefix: {
-								product_name: name
+								name: name
 							}
 						}
 					]

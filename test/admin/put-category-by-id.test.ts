@@ -5,26 +5,10 @@ import app from '../../src/app'
 // eslint-disable-next-line no-unused-vars
 import { CategoryDocument } from '../../src/models/Category'
 
-let testCategory
-
-export default () => describe('PUT /admin/category/:id', () => {
-	it('get test category to update', (done) => {
-		request(app)
-			.get('/categories')
-			.expect(200)
-			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
-				// eslint-disable-next-line prefer-destructuring
-				testCategory = Object.values(response.body).find((category: CategoryDocument) => category.name === 'testCategory')
-				done()
-			})
-	})
-
+export default () => describe('PUT /admin/category/:_id', () => {
 	it('correct', () => (
 		request(app)
-			.put(`/admin/category/${testCategory._id}`)
+			.put(`/admin/category/${JSON.parse(process.env.testCategory)._id}`)
 			.set({ Authorization: process.env.adminToken })
 			.send({
 				name: 'testCategoryUpdated'

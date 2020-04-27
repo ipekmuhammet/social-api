@@ -71,7 +71,7 @@ export const saveCart = (userId: string, cart: any) => (
 
 export const getCart = (userId: string) => (
 	new Promise((resolve, reject) => {
-		// Redis.getInstance.hdel('cart', req.user._id.toString())
+		// Redis.getInstance.hdel('cart', userId)
 		Redis.getInstance.hgetAsync('cart', userId).then((cart) => {
 			resolve(JSON.parse(cart))
 		}).catch((reason) => {
@@ -103,6 +103,11 @@ export const checkMakeOrderValues = (user: UserDocument, context: any) => (
 			} else if (!selectedAddress) {
 				reject(new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
 			} else {
+				try {
+					console.log(JSON.parse(cart))
+				} catch (error) {
+					console.log(error)
+				}
 				resolve({ cart, selectedAddress })
 			}
 		}).catch((reason) => {

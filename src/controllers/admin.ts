@@ -73,7 +73,7 @@ router.put('/category/:_id', (req, res, next) => {
 			res.json(category)
 		})
 		.catch((reason) => {
-			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /admin/category/:id', true))
+			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /admin/category/:_id', true))
 		})
 })
 

@@ -7,9 +7,9 @@ import { isTextContainsAllKeys } from '../tools'
 const singleProduct = {
 	brand: 'ETİ',
 	id: 41705,
-	kind_name: '',
-	product_name: 'Eti Petito Ayıcık 8 Gr  (50 Adet) ',
-	old_price: 23.22,
+	kindName: '',
+	name: 'Eti Petito Ayıcık 8 Gr  (50 Adet) ',
+	oldPrice: 23.22,
 	price: 23.22,
 	title: 'ETİ Eti Petito Ayıcık 8 Gr  (50 Adet)  - Paket 50',
 	category_breadcrumb: 'Atıştırmalık/Bisküvi & Kek & Gofret/Bisküvi',
@@ -25,7 +25,7 @@ const singleProduct = {
 
 const brokenProducts = {
 	noBrand: { ...singleProduct, brand: undefined },
-	noName: { ...singleProduct, product_name: undefined },
+	noName: { ...singleProduct, name: undefined },
 	noPrice: { ...singleProduct, price: undefined },
 	noTitle: { ...singleProduct, title: undefined },
 	noQuantity: { ...singleProduct, quantity: undefined }
@@ -35,9 +35,9 @@ const cart = {
 	41705: {
 		brand: 'ETİ',
 		id: 41705,
-		kind_name: '',
-		product_name: 'Eti Petito Ayıcık 8 Gr  (50 Adet) ',
-		old_price: 23.22,
+		kindName: '',
+		name: 'Eti Petito Ayıcık 8 Gr  (50 Adet) ',
+		oldPrice: 23.22,
 		price: 23.22,
 		title: 'ETİ Eti Petito Ayıcık 8 Gr  (50 Adet)  - Paket 50',
 		category_breadcrumb: 'Atıştırmalık/Bisküvi & Kek & Gofret/Bisküvi',
@@ -53,9 +53,9 @@ const cart = {
 	37999: {
 		brand: 'NAZAR',
 		id: 37999,
-		kind_name: 'Çilek',
-		product_name: 'Nazar Sakız Stick Çilek Aromalı 5 li (20 Adet)',
-		old_price: 9.94,
+		kindName: 'Çilek',
+		name: 'Nazar Sakız Stick Çilek Aromalı 5 li (20 Adet)',
+		oldPrice: 9.94,
 		price: 9.94,
 		title: 'NAZAR Nazar Sakız Stick Çilek Aromalı 5 li (20 Adet) - Paket 20',
 		category_breadcrumb: 'Atıştırmalık/Sakız & Şekerleme/Sakız',
@@ -74,9 +74,9 @@ const cart = {
 	41238: {
 		brand: 'ÜLKER ',
 		id: 41238,
-		kind_name: '',
-		product_name: 'Ülker Dido Sütlü Frambuazlı 37 Gr (24 Adet)',
-		old_price: 32.4,
+		kindName: '',
+		name: 'Ülker Dido Sütlü Frambuazlı 37 Gr (24 Adet)',
+		oldPrice: 32.4,
 		price: 32.4,
 		title: 'ÜLKER  Ülker Dido Sütlü Frambuazlı 37 Gr (24 Adet) - Paket 24',
 		category_breadcrumb: 'Atıştırmalık/Çikolata & Çikolata Kaplamalı/Çikolata',

@@ -29,7 +29,7 @@ export const saveProductToDatabase = (productContext: ProductDocument) => (
 )
 
 export const saveProductToCache = (product: ProductDocument | any) => (
-	Redis.getInstance.setAsync(product.id, JSON.stringify(product)).then(() => product)// TODO product._id
+	Redis.getInstance.setAsync(product._id.toString(), JSON.stringify(product)).then(() => product)
 )
 
 export const updateProduct = (productId: string, productContext: ProductDocument) => (

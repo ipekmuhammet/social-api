@@ -14,9 +14,9 @@ export const productSchema = Joi.object({
 		Joi.string().required(),
 		Joi.number().required()
 	],
-	kind_name: Joi.string().allow(null, ''),
-	product_name: Joi.string().required(),
-	old_price: Joi.number().allow(null, ''),
+	kindName: Joi.string().allow(null, ''),
+	name: Joi.string().required(),
+	oldPrice: Joi.number().allow(null, ''),
 	price: Joi.number().required(),
 	title: Joi.string().required(),
 	category_breadcrumb: Joi.string().allow(null, ''),
