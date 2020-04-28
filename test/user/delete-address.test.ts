@@ -16,7 +16,6 @@ export default () => describe('DELETE /address', () => {
 					done(error)
 				}
 				expect(response.body).to.contains.all.keys('_id')
-				// eslint-disable-next-line camelcase
 				expect(response.body.addresses.some((address: AddressDocument) => (
 					address._id === JSON.parse(process.env.user).addresses[0]._id
 				))).to.equal(false)

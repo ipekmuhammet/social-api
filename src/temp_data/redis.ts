@@ -37,7 +37,7 @@ const main = () => {
 			if (err) {
 				console.log('err', err)
 			} else {
-				console.log('done')
+				console.log('redis done')
 			}
 		})
 	}, 1000 * 10)

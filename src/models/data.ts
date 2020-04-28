@@ -25,16 +25,16 @@ const saveProducts = async (products: any, category: any) => {
 
 		// eslint-disable-next-line no-await-in-loop
 		await new Product(el).save()
-		//	.then((x) => {
-		//		// eslint-disable-next-line security/detect-non-literal-fs-filename
-		//		try {
-		//			fs.renameSync(
-		//				path.join(__dirname, `../../public/assets/products/${category}/${el.id}.png`),
-		//				// @ts-ignore
-		//				path.join(__dirname, `../../public/assets/products/${category}/${x.image}.png`)
-		//			)
-		//		} catch (error) { }
-		//	})
+			.then((x) => {
+				// eslint-disable-next-line security/detect-non-literal-fs-filename
+				try {
+					fs.renameSync(
+						path.join(__dirname, `../../public/assets/original-products/${category}/${el.id}.png`),
+						// @ts-ignore
+						path.join(__dirname, `../../public/assets/original-products/${category}/${x.image}.png`)
+					)
+				} catch (error) { }
+			})
 	}
 }
 
@@ -49,8 +49,8 @@ const saveCategories = async () => {
 	await new Category({ name: 'Temizlik' }).save()
 }
 
-export const load = async () => {
-	Mongo.connect('mongodb://127.0.0.1:27017')
+export const prepareDatabase = async () => {
+	await Mongo.connect('mongodb://127.0.0.1:27017')
 	await saveCategories()
 	await saveProducts(atistirmalik, Categories.SNACK)
 	await saveProducts(bebek, Categories.BABY)
@@ -60,7 +60,7 @@ export const load = async () => {
 	await saveProducts(kahvaltilik, Categories.BREAKFAST)
 	await saveProducts(kisisel, Categories.PERSONAL_CARE)
 	await saveProducts(temizlik, Categories.CLEANING)
-	console.log('done')
+	console.log('mongo done')
 }
 
 export const test = () => {
@@ -72,5 +72,3 @@ export const test = () => {
 		console.log('2', res)
 	})
 }
-
-load()
