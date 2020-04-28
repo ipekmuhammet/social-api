@@ -18,9 +18,9 @@ export const updateCategory = (categoryId: string, categoryContext: CategoryDocu
 	Category.findByIdAndUpdate(categoryId, categoryContext)
 )
 
-export const saveCategoryToCache = (category: CategoryDocument | any) => (
+export const saveCategoryToCache = () => (
 	Category.find().then((categories) => (
-		Redis.getInstance.setAsync('categories', JSON.stringify(categories)).then(() => category)
+		Redis.getInstance.setAsync('categories', JSON.stringify(categories))
 	))
 )
 

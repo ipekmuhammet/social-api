@@ -49,6 +49,10 @@ describe('sequentially run tests', () => {
 			console.log('Admin deleted', deletedAdmin)
 		})
 
+		Category.deleteOne({ name: 'testCategory' }).then((deletedCategory) => { // delete event if it is not updated
+			console.log('category deleted', deletedCategory)
+		})
+
 		Category.deleteOne({ name: 'testCategoryUpdated' }).then((deletedCategory) => {
 			console.log('category deleted', deletedCategory)
 		})

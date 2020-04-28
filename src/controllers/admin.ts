@@ -55,7 +55,7 @@ router.put('/verify-manager/:_id', (req, res) => {
 
 router.post('/category', (req, res, next) => {
 	saveCategoryToDatabase(req.body)
-		.then((category) => saveCategoryToCache(category))
+		.then((category) => saveCategoryToCache().then(() => category))
 		.then((category) => {
 			res.json(category)
 		})
@@ -66,7 +66,7 @@ router.post('/category', (req, res, next) => {
 
 router.put('/category/:_id', (req, res, next) => {
 	updateCategory(req.params._id, req.body)
-		.then((category) => saveCategoryToCache(category))
+		.then((category) => saveCategoryToCache().then(() => category))
 		.then((category) => {
 			res.json(category)
 		})
