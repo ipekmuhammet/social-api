@@ -76,8 +76,8 @@ export default () => describe('POST /address', () => {
 			})
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
 
 				expect(response.body).to.contains.all.keys('_id')

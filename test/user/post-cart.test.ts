@@ -2,179 +2,55 @@ import request from 'supertest'
 import { expect } from 'chai'
 
 import app from '../../src/app'
-import { isTextContainsAllKeys } from '../tools'
+import ErrorMessages from '../../src/errors/ErrorMessages'
 
-const singleProduct = {
-	brand: 'ETİ',
-	id: 41705,
-	kindName: '',
-	name: 'Eti Petito Ayıcık 8 Gr  (50 Adet) ',
-	oldPrice: 23.22,
-	price: 23.22,
-	title: 'ETİ Eti Petito Ayıcık 8 Gr  (50 Adet)  - Paket 50',
-	category_breadcrumb: 'Atıştırmalık/Bisküvi & Kek & Gofret/Bisküvi',
-	images: ['25c95_Eti_Petito_Ayicik_8_Gr__50_Adet_.jpg'],
-	image_types: {
-		mini: 'https://cdnd.bizimtoptan.com.tr/product/250x250/',
-		thumbnail: 'https://cdnd.bizimtoptan.com.tr/product/480x480/',
-		original: 'https://cdnd.bizimtoptan.com.tr/product/1000x1000/'
-	},
-	units: 'Adet',
-	quantity: 1
-}
-
-const brokenProducts = {
-	noBrand: { ...singleProduct, brand: undefined },
-	noName: { ...singleProduct, name: undefined },
-	noPrice: { ...singleProduct, price: undefined },
-	noTitle: { ...singleProduct, title: undefined },
-	noQuantity: { ...singleProduct, quantity: undefined }
-}
-
-const cart = {
-	41705: {
-		brand: 'ETİ',
-		id: 41705,
-		kindName: '',
-		name: 'Eti Petito Ayıcık 8 Gr  (50 Adet) ',
-		oldPrice: 23.22,
-		price: 23.22,
-		title: 'ETİ Eti Petito Ayıcık 8 Gr  (50 Adet)  - Paket 50',
-		category_breadcrumb: 'Atıştırmalık/Bisküvi & Kek & Gofret/Bisküvi',
-		images: ['25c95_Eti_Petito_Ayicik_8_Gr__50_Adet_.jpg'],
-		image_types: {
-			mini: 'https://cdnd.bizimtoptan.com.tr/product/250x250/',
-			thumbnail: 'https://cdnd.bizimtoptan.com.tr/product/480x480/',
-			original: 'https://cdnd.bizimtoptan.com.tr/product/1000x1000/'
-		},
-		units: 'Adet',
-		quantity: 1
-	},
-	37999: {
-		brand: 'NAZAR',
-		id: 37999,
-		kindName: 'Çilek',
-		name: 'Nazar Sakız Stick Çilek Aromalı 5 li (20 Adet)',
-		oldPrice: 9.94,
-		price: 9.94,
-		title: 'NAZAR Nazar Sakız Stick Çilek Aromalı 5 li (20 Adet) - Paket 20',
-		category_breadcrumb: 'Atıştırmalık/Sakız & Şekerleme/Sakız',
-		images: [
-			'0023684-0.93289700-nazar-sakiz-stick-cilek-aromali-5-li-20-adet.png',
-			'0023684-0.40281600-nazar-sakiz-stick-cilek-aromali-5-li-20-adet.png'
-		],
-		image_types: {
-			mini: 'https://cdnd.bizimtoptan.com.tr/product/250x250/',
-			thumbnail: 'https://cdnd.bizimtoptan.com.tr/product/480x480/',
-			original: 'https://cdnd.bizimtoptan.com.tr/product/1000x1000/'
-		},
-		units: 'Adet',
+const cart = [// TODO serverda buradaki değerler değiştirilecek
+	{
+		_id: '5ea7ac324756fd198887099a',
 		quantity: 2
 	},
-	41238: {
-		brand: 'ÜLKER ',
-		id: 41238,
-		kindName: '',
-		name: 'Ülker Dido Sütlü Frambuazlı 37 Gr (24 Adet)',
-		oldPrice: 32.4,
-		price: 32.4,
-		title: 'ÜLKER  Ülker Dido Sütlü Frambuazlı 37 Gr (24 Adet) - Paket 24',
-		category_breadcrumb: 'Atıştırmalık/Çikolata & Çikolata Kaplamalı/Çikolata',
-		images: [
-			'61440_ULKER_DIDO_SUTLU_CIKOLATA_KAPLAMALI_FRAMBUAZLI_40_.jpg',
-			'331ba_ULKER_DIDO_SUTLU_CIKOLATA_KAPLAMALI_FRAMBUAZLI_40_.jpg'
-		],
-		image_types: {
-			mini: 'https://cdnd.bizimtoptan.com.tr/product/250x250/',
-			thumbnail: 'https://cdnd.bizimtoptan.com.tr/product/480x480/',
-			original: 'https://cdnd.bizimtoptan.com.tr/product/1000x1000/'
-		},
-		units: 'Adet',
-		quantity: 4
+	{
+		_id: '5ea7ac324756fd1988870999',
+		quantity: 2
+	},
+	{
+		_id: '5ea7ac324756fd198887099b',
+		quantity: 2
 	}
+]
+
+const unknownProduct = {
+	_id: '12345',
+	quantity: 2
 }
 
 export default () => describe('POST /cart', () => {
-	it('with no brand product', (done) => (
+	it('with unknown product', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: process.env.token })
-			.send({ ...cart, ...{ 12345: brokenProducts.noBrand } })
-			.expect(400)
+			.send([...cart, unknownProduct])
+			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
-				expect(isTextContainsAllKeys(response.body.error, ['brand', 'required'])).to.equal(true)
+				expect(response.body.error).to.equal(ErrorMessages.NON_EXISTS_PRODUCT)
 				done()
 			})
 	))
 
-	it('with no name product', (done) => (
-		request(app)
-			.post('/user/cart')
-			.set({ Authorization: process.env.token })
-			.send({ ...cart, ...{ 12345: brokenProducts.noName } })
-			.expect(400)
-			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
-				expect(isTextContainsAllKeys(response.body.error, ['name', 'required'])).to.equal(true)
-				done()
-			})
-	))
-
-	it('with no name product', (done) => (
-		request(app)
-			.post('/user/cart')
-			.set({ Authorization: process.env.token })
-			.send({ ...cart, ...{ 12345: brokenProducts.noPrice } })
-			.expect(400)
-			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
-				expect(isTextContainsAllKeys(response.body.error, ['price', 'required'])).to.equal(true)
-				done()
-			})
-	))
-
-	it('with no title product', (done) => (
-		request(app)
-			.post('/user/cart')
-			.set({ Authorization: process.env.token })
-			.send({ ...cart, ...{ 12345: brokenProducts.noTitle } })
-			.expect(400)
-			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
-				expect(isTextContainsAllKeys(response.body.error, ['title', 'required'])).to.equal(true)
-				done()
-			})
-	))
-
-	it('with no quantity product', (done) => (
-		request(app)
-			.post('/user/cart')
-			.set({ Authorization: process.env.token })
-			.send({ ...cart, ...{ 12345: brokenProducts.noQuantity } })
-			.expect(400)
-			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
-				expect(isTextContainsAllKeys(response.body.error, ['quantity', 'required'])).to.equal(true)
-				done()
-			})
-	))
-
-	it('correct', () => (
+	it('correct', (done) => (
 		request(app)
 			.post('/user/cart')
 			.set({ Authorization: process.env.token })
 			.send(cart)
 			.expect(200)
+			.end((error, response) => {
+				if (response.body.error) {
+					done(response.body.error)
+				}
+
+				expect(response.body.length).to.equal(cart.length)
+				expect(cart.every((product, index) => product._id === response.body[index]._id)).to.equal(true)
+				done()
+			})
 	))
 })

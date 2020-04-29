@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import HttpStatusCodes from 'http-status-codes'
-import jwt from 'jsonwebtoken'
 
 import {
 	Manager,
@@ -10,8 +9,14 @@ import {
 import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
 import ServerError from '../errors/ServerError'
-import { validatePostProduct, validateUpdateProduct } from '../validators/admin-validator'
 import { createToken } from '../services/unauthorized'
+
+import {
+	validatePostProduct,
+	validateUpdateProduct,
+	validatePostCategory,
+	validateUpdateCategory
+} from '../validators/admin-validator'
 
 import {
 	saveProductToDatabase,
@@ -54,7 +59,7 @@ router.put('/verify-manager/:_id', (req, res) => {
 })
 
 router.post('/category', (req, res, next) => {
-	saveCategoryToDatabase(req.body)
+	validatePostCategory(req.body).then(() => saveCategoryToDatabase(req.body))
 		.then((category) => saveCategoryToCache().then(() => category))
 		.then((category) => {
 			res.json(category)
@@ -65,7 +70,7 @@ router.post('/category', (req, res, next) => {
 })
 
 router.put('/category/:_id', (req, res, next) => {
-	updateCategory(req.params._id, req.body)
+	validateUpdateCategory(req.body).then(() => updateCategory(req.params._id, req.body))
 		.then((category) => saveCategoryToCache().then(() => category))
 		.then((category) => {
 			res.json(category)

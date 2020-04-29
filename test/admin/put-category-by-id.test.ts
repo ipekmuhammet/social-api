@@ -22,9 +22,10 @@ export default () => describe('PUT /admin/category/:_id', () => {
 			.set({ Authorization: process.env.adminToken })
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				expect(Object.values(response.body).some(((category: CategoryDocument) => category.name === 'testCategoryUpdated'))).to.equal(true)
 				done()
 			})

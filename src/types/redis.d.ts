@@ -642,6 +642,8 @@ export interface Commands<R> {
      * Get the values of all given keys.
      */
 	mget: OverloadedCommand<string, string[], R>;
+	mgetAsync: OverloadedCommand<string, string[], Promise<any>>;
+	mget: OverloadedCommand<string, string[], R>;
 	MGET: OverloadedCommand<string, string[], R>;
 
     /**

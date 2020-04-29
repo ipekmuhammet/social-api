@@ -10,9 +10,10 @@ export default () => describe('PUT /orders/confirm/:_id', () => {
 			.set({ Authorization: process.env.managerToken })
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				expect(response.body.customer).to.equal('testUser')
 				expect(response.body.address).to.equal(JSON.parse(process.env.confirmOrder).address)
 				expect(response.body.status).to.equal(true)

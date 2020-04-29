@@ -85,7 +85,7 @@ export default () => describe('POST /register-manager', () => {
 			.post('/register-manager')
 			.send({
 				phoneNumber: '905555555555',
-				email: `${Math.random()}@hotmail.com`,
+				email: 'testUser@hotmail.com',
 				activationCode,
 				password: '1234'
 			})

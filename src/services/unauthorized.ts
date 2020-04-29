@@ -104,7 +104,7 @@ export const addProductToCart = (productId: string, product: any, cart: any, use
 						JSON.stringify(Object.assign(
 							JSON.parse(cart),
 							{
-								[productId]: JSON.parse(product)
+								[productId]: { ...JSON.parse(product), quantity: 1 }
 							}
 						))
 					)

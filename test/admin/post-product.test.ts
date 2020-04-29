@@ -29,9 +29,10 @@ export default () => describe('POST /admin/product', () => {
 			.send(product)
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				expect(response.body.name).to.be.equal('Test Product')
 				process.env.testProduct = JSON.stringify(response.body)
 				done()

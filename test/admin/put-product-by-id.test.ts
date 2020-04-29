@@ -13,9 +13,10 @@ export default () => describe('PUT /admin/product/:_id', () => {
 			})
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				expect(response.body.brand).to.equal('Test Marka 2')
 				done()
 			})

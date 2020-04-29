@@ -11,7 +11,6 @@ export default () => describe('POST /admin/category', () => {
 			.post('/admin/category')
 			.set({ Authorization: process.env.adminToken })
 			.send({
-				id: Math.random(),
 				name: 'testCategory'
 			})
 			.expect(200)
@@ -31,9 +30,10 @@ export default () => describe('POST /admin/category', () => {
 			.set({ Authorization: process.env.adminToken })
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				expect(Object.values(response.body).some(((category: CategoryDocument) => category.name === 'testCategory'))).to.equal(true)
 				done()
 			})

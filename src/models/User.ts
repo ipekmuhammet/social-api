@@ -10,7 +10,8 @@ export type UserDocument = Document & {
 	nameSurname: string,
 	email: string,
 	password: string,
-	addresses: AddressDocument[]
+	addresses: AddressDocument[],
+	cardUserKey: string
 }
 
 const userSchema = new Schema({
@@ -31,7 +32,11 @@ const userSchema = new Schema({
 		type: String,
 		required: true
 	},
-	addresses: [Address.schema]
+	addresses: [Address.schema],
+	cardUserKey: {
+		type: String,
+		default: null
+	}
 	// cart: {}
 }, {
 	timestamps: true

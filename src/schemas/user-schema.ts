@@ -9,21 +9,11 @@ export const phoneSchema = Joi.object({
 })
 
 export const productSchema = Joi.object({
-	brand: Joi.string().required(),
-	id: [
-		Joi.string().required(),
-		Joi.number().required()
-	],
-	kindName: Joi.string().allow(null, ''),
-	name: Joi.string().required(),
-	oldPrice: Joi.number().allow(null, ''),
-	price: Joi.number().required(),
-	title: Joi.string().required(),
-	category_breadcrumb: Joi.string().allow(null, ''),
-	images: Joi.array().items(Joi.string()).required(),
-	// images: Joi.array().items(Joi.string().required()).required(),
-	image_types: Joi.object().required(),
-	units: Joi.string().allow(null, ''),
+	_id: Joi.string().required(),
+	//	brand: Joi.string().required(),
+	//	name: Joi.string().required(),
+	//	price: Joi.number().required(),
+	//	images: Joi.array().items(Joi.string()).required(),
 	quantity: Joi.number().min(1).required()
 }).unknown()
 

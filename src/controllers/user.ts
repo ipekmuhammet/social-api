@@ -14,9 +14,12 @@ import {
 	deleteAddress,
 	getCart,
 	saveOrderToDatabase,
+	completePayment,
 	checkMakeOrderValues,
 	saveAddressToDatabase,
-	cacheUser
+	cacheUser,
+	deleteCard,
+	createCart
 } from '../services/user'
 
 import {
@@ -36,8 +39,8 @@ const router = Router()
 router.use(validateAuthority(Authority.USER))
 
 router.get('/list-cards', (req, res, next) => {
-	// listCards(req.body.cardUserKey)
-	listCards('ojBya0o8ecs7ynou3l94xmdB8f8=').then((cards) => {
+	// @ts-ignore
+	listCards(req.user.cardUserKey).then((cards) => {
 		res.json(cards)
 	}).catch((reason) => {
 		next(handleError(reason, 'GET /user/list-cards'))
@@ -45,7 +48,18 @@ router.get('/list-cards', (req, res, next) => {
 })
 
 router.post('/payment-card', (req, res, next) => {
-	addCardToUser('ojBya0o8ecs7ynou3l94xmdB8f8=', req.body.card).then((result) => {
+	// @ts-ignore
+	// addCardToUser(req.user.cardUserKey, req.body.card).then((result) => {
+	addCardToUser(req.user, req.body.card).then((result) => {
+		res.json(result)
+	}).catch((reason) => {
+		next(handleError(reason, 'POST /user/payment-card'))
+	})
+})
+
+router.put('/payment-card', (req, res, next) => {
+	// @ts-ignore
+	deleteCard(req.user, req.body.cardToken).then((result) => {
 		res.json(result)
 	}).catch((reason) => {
 		next(handleError(reason, 'POST /user/payment-card'))
@@ -68,10 +82,13 @@ router.put('/profile', (req, res, next) => {
 router.post('/cart', (req, res, next) => {
 	validateSaveCartRequest(req.body)
 		// @ts-ignore
-		.then(() => saveCart(req.user._id.toString(), req.body))
+		.then(() => createCart(req.body))
+		// @ts-ignore
+		.then((cart) => saveCart(req.user._id.toString(), cart))
 		.then((result) => {
 			res.json(result)
-		}).catch((reason) => {
+		})
+		.catch((reason) => {
 			next(handleError(reason, 'POST /user/cart'))
 		})
 })
@@ -114,9 +131,11 @@ router.post('/order', (req, res, next) => {
 		// @ts-ignore
 		.then(() => checkMakeOrderValues(req.user, req.body))
 		// @ts-ignore
-		.then(({ cart, selectedAddress }) => saveOrderToDatabase(req.user, cart, selectedAddress))
+		.then(({ cart, card, selectedAddress }) => completePayment(req.user, JSON.parse(cart), selectedAddress.openAddress, card).then((result) => ({ cart, selectedAddress, result })))
 		// @ts-ignore
-		.then((order) => saveOrderToCache(req.user, order))
+		.then(({ cart, selectedAddress, result }) => saveOrderToDatabase(req.user, cart, selectedAddress).then((order) => ({ order, result })))
+		// @ts-ignore
+		.then(({ order, result }) => saveOrderToCache(req.user, order).then(() => ({ result, order })))
 		.then((result) => {
 			res.json(result)
 		})

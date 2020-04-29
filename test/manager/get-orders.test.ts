@@ -10,9 +10,10 @@ export default () => describe('GET /manager/orders', () => {
 			.set({ Authorization: process.env.managerToken })
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				expect(Object.values(response.body)).to.be.an('array')
 				done()
 			})

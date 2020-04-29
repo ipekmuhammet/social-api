@@ -12,9 +12,10 @@ export default () => describe('GET /admin/manager-requests', () => {
 			.set({ Authorization: process.env.adminToken })
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				expect(Object.values(response.body)).to.be.an('array')
 				const testManager = Object.values(response.body).find((manager: ManagerDocument) => manager.nameSurname === 'testUser')
 				expect(testManager).to.contains.all.keys(
