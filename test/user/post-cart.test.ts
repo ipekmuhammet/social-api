@@ -48,8 +48,10 @@ export default () => describe('POST /cart', () => {
 					done(response.body.error)
 				}
 
-				expect(response.body.length).to.equal(cart.length)
-				expect(cart.every((product, index) => product._id === response.body[index]._id)).to.equal(true)
+				expect(Object.values(response.body).length).to.equal(cart.length)
+				// @ts-ignore
+				// eslint-disable-next-line security/detect-object-injection
+				expect(cart.every((product, index) => product._id === Object.values(response.body)[index]._id)).to.equal(true)
 				done()
 			})
 	))

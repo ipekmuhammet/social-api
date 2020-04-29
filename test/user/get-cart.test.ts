@@ -22,9 +22,9 @@ export default () => describe('GET /cart', () => {
 					done(response.body.error)
 				}
 
-				expect(response.body).to.be.an('array')
+				expect(Object.values(response.body)).to.be.an('array')
 				expect(
-					response.body.every((product: ProductDocument) => (
+					Object.values(response.body).every((product: ProductDocument) => (
 						cartProductIds.includes(product._id)
 					))
 				).to.equal(true)
