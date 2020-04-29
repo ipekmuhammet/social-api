@@ -25,16 +25,18 @@ export const updateUser = (userId: string, userContext: any) => (
 export const createCart = (body: { _id: string, quantity: number }[]) => {
 	const productIds = body.map((product) => product._id)
 	return Redis.getInstance.mgetAsync(productIds).then((products: string[]) => (
-		products.map((product, index) => {
-			if (!product) {
+		products.reduce((json, product, index) => {
+			if (!JSON.parse(product)) {
 				throw new Error(ErrorMessages.NON_EXISTS_PRODUCT)
 			}
-
 			return {
-				...JSON.parse(product),
-				quantity: body[index].quantity
+				...json,
+				[JSON.parse(product)._id.toString()]: {
+					...JSON.parse(product),
+					quantity: body[index].quantity
+				}
 			}
-		})
+		}, {})
 	))
 }
 
@@ -54,6 +56,16 @@ export const getCart = (userId: string) => ( // "5ea7ac324756fd198887099a", "5ea
 		// Redis.getInstance.hdel('cart', userId)
 		Redis.getInstance.hgetAsync('cart', userId).then((cart) => {
 			resolve(JSON.parse(cart))
+		}).catch((reason) => {
+			reject(new Error(reason.message))
+		})
+	})
+)
+
+export const clearCart = (userId: string) => (
+	new Promise((resolve, reject) => {
+		Redis.getInstance.hdelAsync('cart', userId).then(() => {
+			resolve()
 		}).catch((reason) => {
 			reject(new Error(reason.message))
 		})

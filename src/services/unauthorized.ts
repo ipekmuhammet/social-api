@@ -20,6 +20,8 @@ import {
 import { UserDocument } from '../models/User'
 // eslint-disable-next-line no-unused-vars
 import { ManagerDocument } from '../models/Manager'
+// eslint-disable-next-line no-unused-vars
+import { ProductDocument } from '../models/Product'
 
 export const sendSms = (to: string, message: string) => {
 	const smsManager: any = new Nexmo({
@@ -46,7 +48,7 @@ export const getAllProducts = () => (
 	})
 )
 
-export const getProduct = (productId: string, user: UserDocument) => (
+export const getProduct = (productId: string, user: UserDocument) => ( // "5ea7ac324756fd198887099a", "5ea7ac324756fd1988870999", "5ea7ac324756fd198887099b"
 	new Promise((resolve, reject) => {
 		const multi = Redis.getInstance.multi()
 
@@ -58,7 +60,7 @@ export const getProduct = (productId: string, user: UserDocument) => (
 			multi.hget('cart', user._id.toString())
 		}
 
-		multi.execAsync().then((results) => { // 37695 38532 37295
+		multi.execAsync().then((results) => {
 			if (results[0]) {
 				resolve({ product: results[0], cart: results[1] })
 			} else {
@@ -67,47 +69,50 @@ export const getProduct = (productId: string, user: UserDocument) => (
 		}).catch((reason) => {
 			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
 		})
-
-		//	multi.getAsync(productId).then((obj: any) => {
-		//		res.json(JSON.parse(obj))
-		//	})
 	})
 )
 
-export const addProductToCart = (productId: string, product: any, cart: any, user: UserDocument) => (
+export const addProductToCart = (product: ProductDocument, cart: any, user: UserDocument) => (
 	new Promise((resolve) => {
 		// @ts-ignore
 		if (user?._id.toString()) {
 			if (cart) {
-				if (Object.keys(JSON.parse(cart)).includes(productId)) {
+				if (Object.keys(cart).includes(product._id.toString())) {
 					Redis.getInstance.hset(
 						'cart',
 						// @ts-ignore
 						user._id.toString(),
-						JSON.stringify(Object.assign(
-							JSON.parse(cart),
-							{
-								[productId]: Object.assign(
-									JSON.parse(product),
-									{
-										quantity: (JSON.parse(cart)[productId].quantity ?? 1) + 1
-									}
-								)
+						JSON.stringify({
+							...cart,
+							[product._id.toString()]: {
+								...product,
+								quantity: (cart[product._id.toString()].quantity ?? 1) + 1
 							}
-						))
+						})
 					)
+
+					resolve({
+						...product,
+						quantity: (cart[product._id.toString()].quantity ?? 1) + 1
+					})
 				} else {
 					Redis.getInstance.hset(
 						'cart',
 						// @ts-ignore
 						user._id.toString(),
-						JSON.stringify(Object.assign(
-							JSON.parse(cart),
-							{
-								[productId]: { ...JSON.parse(product), quantity: 1 }
+						JSON.stringify({
+							...cart,
+							[product._id.toString()]: {
+								...product,
+								quantity: 1
 							}
-						))
+						})
 					)
+
+					resolve({
+						...product,
+						quantity: 1
+					})
 				}
 			} else {
 				Redis.getInstance.hset(
@@ -115,12 +120,66 @@ export const addProductToCart = (productId: string, product: any, cart: any, use
 					// @ts-ignore
 					user._id.toString(),
 					JSON.stringify({
-						[productId]: Object.assign(JSON.parse(product), { quantity: 1 })
+						[product._id.toString()]: {
+							...product,
+							quantity: 1
+						}
 					})
 				)
+
+				resolve({
+					...product,
+					quantity: 1
+				})
+			}
+		} else {
+			resolve(product)
+		}
+	})
+)
+
+export const takeOffProductFromCart = (product: ProductDocument, cart: any, user: UserDocument) => (
+	new Promise((resolve, reject) => {
+		if (user?._id.toString()) {
+			if (cart) {
+				if (Object.keys(cart).includes(product._id.toString())) {
+					if (cart[product._id.toString()].quantity > 1) {
+						Redis.getInstance.hset(
+							'cart',
+							// @ts-ignore
+							user._id.toString(),
+							JSON.stringify(Object.assign(
+								cart,
+								{
+									[product._id.toString()]: Object.assign(
+										product,
+										{
+											quantity: (cart[product._id.toString()].quantity) - 1
+										}
+									)
+								}
+							))
+						)
+					} else if (cart[product._id.toString()].quantity === 1) {
+						// eslint-disable-next-line no-param-reassign
+						delete cart[product._id.toString()]
+						Redis.getInstance.hset(
+							'cart',
+							// @ts-ignore
+							user._id.toString(),
+							JSON.stringify(cart)
+						)
+					} else {
+						reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, ErrorMessages.NON_EXISTS_PRODUCT, false))
+					}
+				} else {
+					reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, ErrorMessages.NON_EXISTS_PRODUCT, false))
+				}
+			} else {
+				reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, ErrorMessages.NON_EXISTS_PRODUCT, false))
 			}
 		}
-		resolve(JSON.parse(product))
+		resolve(product)
 	})
 )
 

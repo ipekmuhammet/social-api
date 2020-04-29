@@ -19,7 +19,8 @@ import {
 	isManagerVerified,
 	handleError,
 	checkConvenientOfActivationCodeRequest,
-	createToken
+	createToken,
+	takeOffProductFromCart
 } from '../services/unauthorized'
 
 import {
@@ -68,7 +69,19 @@ router.get('/product/:_id', (req, res, next) => {
 	// @ts-ignore
 	getProduct(req.params._id, req.user)
 		// @ts-ignore
-		.then(({ product, cart }) => addProductToCart(req.params._id, product, cart, req.user))
+		.then(({ product, cart }) => addProductToCart(JSON.parse(product), cart ? JSON.parse(cart) : null, req.user))
+		.then((response) => {
+			res.json(response)
+		}).catch((reason) => {
+			next((handleError(reason, 'POST /product/:_id')))
+		})
+})
+
+router.delete('/product/:_id', (req, res, next) => {
+	// @ts-ignore
+	getProduct(req.params._id, req.user)
+		// @ts-ignore
+		.then(({ product, cart }) => takeOffProductFromCart(JSON.parse(product), cart ? JSON.parse(cart) : null, req.user))
 		.then((response) => {
 			res.json(response)
 		}).catch((reason) => {

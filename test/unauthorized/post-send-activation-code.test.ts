@@ -13,9 +13,6 @@ export default () => describe('POST /send-activation-code', () => {
 				.send({ phoneNumber: '905555555555' })
 				.expect(400)
 				.end((error, response) => {
-					if (error) {
-						done(error)
-					}
 					expect(isTextContainsAllKeys(response.body.error, ['activationCode', 'required'])).to.equal(true)
 					done()
 				})
@@ -30,9 +27,6 @@ export default () => describe('POST /send-activation-code', () => {
 				})
 				.expect(400)
 				.end((error, response) => {
-					if (error) {
-						done(error)
-					}
 					expect(isTextContainsAllKeys(response.body.error, ['activationCodeType', 'less'])).to.equal(true)
 					done()
 				})
@@ -44,9 +38,6 @@ export default () => describe('POST /send-activation-code', () => {
 				.send({ phoneNumber: '915555555555' })
 				.expect(400)
 				.end((error, response) => {
-					if (error) {
-						done(error)
-					}
 					expect(isTextContainsAllKeys(response.body.error, ['Phone', 'invalid'])).to.equal(true)
 					done()
 				})

@@ -8,11 +8,12 @@ export default () => describe('GET /categories', () => {
 		request(app)
 			.get('/categories')
 			.expect(200)
-			.end((error, res) => {
-				if (error) {
-					done(error)
+			.end((error, response) => {
+				if (response.body.error) {
+					done(response.body.error)
 				}
-				expect(Object.values(res.body)).to.be.an('array')
+
+				expect(Object.values(response.body)).to.be.an('array')
 				done()
 			})
 	})

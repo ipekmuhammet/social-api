@@ -19,7 +19,8 @@ import {
 	saveAddressToDatabase,
 	cacheUser,
 	deleteCard,
-	createCart
+	createCart,
+	clearCart
 } from '../services/user'
 
 import {
@@ -91,6 +92,15 @@ router.post('/cart', (req, res, next) => {
 		.catch((reason) => {
 			next(handleError(reason, 'POST /user/cart'))
 		})
+})
+
+router.delete('/cart', (req, res, next) => {
+	//  @ts-ignore
+	clearCart(req.user._id.toString()).then(() => {
+		res.json()
+	}).catch((reason) => {
+		next(handleError(reason, 'GET /user/cart'))
+	})
 })
 
 router.get('/cart', (req, res, next) => {

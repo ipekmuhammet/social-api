@@ -13,9 +13,10 @@ export default () => describe('POST /login-manager after verified', () => {
 			})
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				expect(response.body.manager.phoneNumber).to.equal('0555 555 55 55')
 				expect(response.body.manager.password).to.not.equal('1234')
 				process.env.managerToken = response.body.token

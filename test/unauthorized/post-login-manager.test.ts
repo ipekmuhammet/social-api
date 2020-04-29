@@ -14,9 +14,6 @@ export default () => describe('POST /login-manager', () => {
 			})
 			.expect(401)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(response.body.error).to.equal(ErrorMessages.MANAGER_IS_NOT_VERIFIED)
 				done()
 			})

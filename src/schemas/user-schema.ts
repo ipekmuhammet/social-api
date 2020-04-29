@@ -18,7 +18,7 @@ export const productSchema = Joi.object({
 }).unknown()
 
 export const updateProfileSchema = Joi.object({
-	phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'national', strict: true }),
+	// phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'national', strict: true }),
 	email: Joi.string().email(),
 	nameSurname: Joi.string().required()
 })
