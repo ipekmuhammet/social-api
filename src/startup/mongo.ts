@@ -8,7 +8,10 @@ class Mongo {
 
 	static connect(url: string) {
 		mongoose.connect(url, {
-			useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: true
+			useNewUrlParser: true,
+			useFindAndModify: false,
+			useCreateIndex: true,
+			useUnifiedTopology: true
 		})
 
 		mongoose.connection.on('open', () => {
