@@ -17,7 +17,7 @@ export const validatePhoneNumber = (requestBody: any) => (
 )
 
 export const validateProducts = (products: ProductDocument[]) => (
-	Joi.array().items(productSchema).sparse(true).validateAsync(products)
+	Joi.array().items(productSchema).sparse(false).validateAsync(products)
 )
 
 export const validateUpdateProfileRequest = (context: any) => (

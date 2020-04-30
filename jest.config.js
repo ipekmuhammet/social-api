@@ -5,6 +5,7 @@ module.exports = {
 			tsConfig: 'tsconfig.json'
 		}
 	},
+	globalSetup: '<rootDir>/test/globalSetup.ts',
 	moduleFileExtensions: [
 		'ts',
 		'js'

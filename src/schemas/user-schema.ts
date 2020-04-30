@@ -15,7 +15,7 @@ export const productSchema = Joi.object({
 	//	price: Joi.number().required(),
 	//	images: Joi.array().items(Joi.string()).required(),
 	quantity: Joi.number().min(1).required()
-}).unknown()
+})
 
 export const updateProfileSchema = Joi.object({
 	// phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'national', strict: true }),

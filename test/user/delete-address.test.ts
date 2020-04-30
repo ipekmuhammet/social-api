@@ -5,7 +5,7 @@ import { expect } from 'chai'
 import { AddressDocument } from '../../src/models/Address'
 import app from '../../src/app'
 
-export default () => describe('DELETE /address', () => {
+export default () => describe('DELETE /user/address', () => {
 	it('correct', (done) => (
 		request(app)
 			.delete(`/user/address/${JSON.parse(process.env.user).addresses[0]._id}`)

@@ -7,7 +7,7 @@ import { AddressDocument } from '../../src/models/Address'
 import app from '../../src/app'
 import { isTextContainsAllKeys } from '../tools'
 
-export default () => describe('POST /address', () => {
+export default () => describe('POST /user/address', () => {
 	it('with no body', () => (
 		request(app)
 			.post('/user/address')

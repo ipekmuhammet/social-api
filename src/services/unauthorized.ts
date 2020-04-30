@@ -151,15 +151,21 @@ export const takeOffProductFromCart = (product: ProductDocument, cart: any, user
 							JSON.stringify(Object.assign(
 								cart,
 								{
-									[product._id.toString()]: Object.assign(
-										product,
-										{
+									[product._id.toString()]: {
+										...product,
+										...{
 											quantity: (cart[product._id.toString()].quantity) - 1
 										}
-									)
+									}
 								}
 							))
 						)
+						resolve({
+							...product,
+							...{
+								quantity: (cart[product._id.toString()].quantity) - 1
+							}
+						})
 					} else if (cart[product._id.toString()].quantity === 1) {
 						// eslint-disable-next-line no-param-reassign
 						delete cart[product._id.toString()]
@@ -178,8 +184,10 @@ export const takeOffProductFromCart = (product: ProductDocument, cart: any, user
 			} else {
 				reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, ErrorMessages.NON_EXISTS_PRODUCT, false))
 			}
+		} else {
+			resolve(product)
 		}
-		resolve(product)
+
 	})
 )
 

@@ -36,29 +36,16 @@ describe('sequentially run tests', () => {
 	user()
 	manager()
 
-	afterAll(() => {
-		User.deleteOne({ phoneNumber: '0555 555 55 55' }).then((deletedUser) => { // Phone number converted to regional
-			console.log('User deleted', deletedUser)
-		})
-
-		Manager.deleteOne({ phoneNumber: '0555 555 55 55' }).then((deletedManager) => { // Phone number converted to regional
-			console.log('Manager deleted', deletedManager)
-		})
-
-		Admin.deleteOne({ phoneNumber: '555 555 55 55' }).then((deletedAdmin) => {
-			console.log('Admin deleted', deletedAdmin)
-		})
-
-		Category.deleteOne({ name: 'testCategory' }).then((deletedCategory) => { // delete event if it is not updated
-			console.log('category deleted', deletedCategory)
-		})
-
-		Category.deleteOne({ name: 'testCategoryUpdated' }).then((deletedCategory) => {
-			console.log('category deleted', deletedCategory)
-		})
-
-		Order.deleteMany({ customer: 'testUser' }).then((deletedOrders) => {
-			console.log('orders deleted', deletedOrders)
+	afterAll((done) => {
+		Promise.all([
+			User.deleteOne({ phoneNumber: '0555 555 55 55' }),
+			Manager.deleteOne({ phoneNumber: '0555 555 55 55' }),
+			Admin.deleteOne({ phoneNumber: '555 555 55 55' }),
+			Category.deleteOne({ name: 'testCategory' }),
+			Category.deleteOne({ name: 'testCategoryUpdated' }),
+			Order.deleteMany({ customer: 'testUser' })
+		]).then(() => {
+			done()
 		})
 	})
 })

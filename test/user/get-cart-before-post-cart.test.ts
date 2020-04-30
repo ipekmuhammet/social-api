@@ -2,16 +2,13 @@ import request from 'supertest'
 import { expect } from 'chai'
 
 import app from '../../src/app'
-// eslint-disable-next-line no-unused-vars
-import { ProductDocument } from '../../src/models/Product'
 
-const cartProductIds = [// TODO serverda buradaki değerler değiştirilecek
-	'5ea7ac324756fd198887099a',
+const cartProductIds = [
 	'5ea7ac324756fd1988870999',
 	'5ea7ac324756fd198887099b'
 ]
 
-export default () => describe('GET /user/cart', () => {
+export default () => describe('GET /cart before post cart', () => {
 	it('correct', (done) => (
 		request(app)
 			.get('/user/cart')
@@ -24,8 +21,8 @@ export default () => describe('GET /user/cart', () => {
 
 				expect(Object.values(response.body)).to.be.an('array')
 				expect(
-					Object.values(response.body).every((product: ProductDocument) => (
-						cartProductIds.includes(product._id)
+					Object.values(response.body).every((product: any) => (
+						cartProductIds.includes(product._id) || product.quantity === 2
 					))
 				).to.equal(true)
 				done()

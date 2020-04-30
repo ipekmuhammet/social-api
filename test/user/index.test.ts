@@ -1,3 +1,5 @@
+import getCartBeforePostCartTests from './get-cart-before-post-cart.test'
+import deleteCartTests from './delete-cart.test'
 import postOrderTests from './post-order.test'
 import postCartTests from './post-cart.test'
 import getCartTests from './get-cart.test'
@@ -7,10 +9,12 @@ import postPaymentCardTests from './post-payment-card.test'
 import getListCardsTests from './get-list-cards.test'
 
 export default () => describe('user', () => {
+	getCartBeforePostCartTests()
 	postAddressTests()
 	postPaymentCardTests()
-	// getListCardsTests()
+	getListCardsTests()
 	postOrderTests()
+	deleteCartTests()
 	postCartTests()
 	getCartTests()
 	deleteAddressTests()

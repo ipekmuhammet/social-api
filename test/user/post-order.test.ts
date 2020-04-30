@@ -55,6 +55,17 @@ export default () => describe('POST /order', () => {
 			})
 	))
 
+	it('with manually created cart (Products added to cart one by one in unauthorized get product by id with token)', () => (
+		request(app)
+			.post('/user/order')
+			.set({ Authorization: process.env.token })
+			.send({
+				address: JSON.parse(process.env.user).addresses[0]._id,
+				card: process.env.cardToken
+			})
+			.expect(200)
+	))
+
 	it('with empty cart', (done) => (
 		request(app)
 			.post('/user/order')
@@ -65,9 +76,6 @@ export default () => describe('POST /order', () => {
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(response.body.error).to.equal(ErrorMessages.EMPTY_CART)
 				done()
 			})
@@ -91,9 +99,6 @@ export default () => describe('POST /order', () => {
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(response.body.error).to.equal(ErrorMessages.NO_ADDRESS)
 				done()
 			})

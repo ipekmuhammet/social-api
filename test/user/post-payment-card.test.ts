@@ -3,7 +3,7 @@ import { expect } from 'chai'
 
 import app from '../../src/app'
 
-export default () => describe('POST /payment-card', () => {
+export default () => describe('POST /user/payment-card', () => {
 	it('correct', (done) => (
 		request(app)
 			.post('/user/payment-card')

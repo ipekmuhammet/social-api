@@ -2,7 +2,7 @@ import request from 'supertest'
 
 import app from '../../src/app'
 
-export default () => describe('DELETE /payment-card', () => {
+export default () => describe('DELETE /user/payment-card', () => {
 	it('correct', () => (
 		request(app)
 			.delete('/user/payment-card')

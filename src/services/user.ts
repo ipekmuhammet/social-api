@@ -63,13 +63,7 @@ export const getCart = (userId: string) => ( // "5ea7ac324756fd198887099a", "5ea
 )
 
 export const clearCart = (userId: string) => (
-	new Promise((resolve, reject) => {
-		Redis.getInstance.hdelAsync('cart', userId).then(() => {
-			resolve()
-		}).catch((reason) => {
-			reject(new Error(reason.message))
-		})
-	})
+	Redis.getInstance.hdelAsync('cart', userId)
 )
 
 export const deleteAddress = (userId: string, deletedAddressId: string) => (

@@ -6,7 +6,7 @@ import app from '../../src/app'
 import { CategoryDocument } from '../../src/models/Category'
 
 export default () => describe('PUT /admin/category/:_id', () => {
-	it('correct', () => (
+	it('correct', (done) => (
 		request(app)
 			.put(`/admin/category/${JSON.parse(process.env.testCategory)._id}`)
 			.set({ Authorization: process.env.adminToken })
@@ -14,6 +14,14 @@ export default () => describe('PUT /admin/category/:_id', () => {
 				name: 'testCategoryUpdated'
 			})
 			.expect(200)
+			.end((error, response) => {
+				if (response.body.error) {
+					done(response.body.error)
+				}
+
+				expect(response.body.name).to.equal('testCategory')
+				done()
+			})
 	))
 
 	it('should categories contain testCategory', (done) => (

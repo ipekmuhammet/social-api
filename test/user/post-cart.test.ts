@@ -24,7 +24,7 @@ const unknownProduct = {
 	quantity: 2
 }
 
-export default () => describe('POST /cart', () => {
+export default () => describe('POST /user/cart', () => {
 	it('with unknown product', (done) => (
 		request(app)
 			.post('/user/cart')
