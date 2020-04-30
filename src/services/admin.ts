@@ -1,10 +1,15 @@
 import { Redis } from '../startup'
 
 // eslint-disable-next-line no-unused-vars
-import Product, { ProductDocument } from '../models/Product'
-// eslint-disable-next-line no-unused-vars
-import Category, { CategoryDocument } from '../models/Category'
-import { Manager } from '../models'
+import {
+	Product,
+	Category,
+	Manager,
+	// eslint-disable-next-line no-unused-vars
+	ProductDocument,
+	// eslint-disable-next-line no-unused-vars
+	CategoryDocument
+} from '../models'
 
 export const verifyManager = (managerId: string) => (
 	Manager.findByIdAndUpdate(managerId, { verified: true }, { new: true })

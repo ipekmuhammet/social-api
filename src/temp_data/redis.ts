@@ -1,9 +1,8 @@
 import { Redis } from '../startup'
-import { Product, Category } from '../models'
-// eslint-disable-next-line no-unused-vars
-import { CategoryDocument } from '../models/Category'
-// eslint-disable-next-line no-unused-vars
-import { ProductDocument } from '../models/Product'
+import {
+	// eslint-disable-next-line no-unused-vars
+	Product, Category, ProductDocument, CategoryDocument
+} from '../models'
 
 const main = () => {
 	Redis.getInstance.del('categories')

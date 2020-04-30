@@ -18,7 +18,7 @@ Redis.connect(process.env.REDIS_HOST)
 
 //	prepareDatabase()
 //	.then(prepareRedis)
-// .then(prepareElasticsearch)
+//	.then(prepareElasticsearch)
 
 app.use('/', controller)
 app.use(errorHandlerMiddleware)

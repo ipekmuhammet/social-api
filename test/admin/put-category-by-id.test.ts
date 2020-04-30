@@ -3,7 +3,7 @@ import { expect } from 'chai'
 
 import app from '../../src/app'
 // eslint-disable-next-line no-unused-vars
-import { CategoryDocument } from '../../src/models/Category'
+import { CategoryDocument } from '../../src/models'
 
 export default () => describe('PUT /admin/category/:_id', () => {
 	it('correct', (done) => (

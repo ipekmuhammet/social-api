@@ -33,43 +33,12 @@ const orderSchema = new Schema({
 		default: Date.now()
 	},
 	products: {
-		type: [
-			{
-				id: {
-					type: Number
-				},
-				category: {
-					type: Number
-				},
-				brand: {
-					type: String
-				},
-				kindName: {
-					type: String
-				},
-				name: {
-					type: String
-				},
-				oldPrice: {
-					type: Number
-				},
-				price: {
-					type: Number
-				},
-				title: {
-					type: String
-				},
-				image: {
-					type: String
-				},
-				units: {
-					type: String
-				},
-				quantity: {
-					type: Number
-				}
+		type: [{
+			...Product.schema.obj,
+			quantity: {
+				type: Number
 			}
-		],
+		}],
 		required: true
 	},
 	status: {

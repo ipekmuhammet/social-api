@@ -4,7 +4,10 @@ import Nexmo from 'nexmo'
 
 import { Redis, Elasticsearch } from '../startup'
 import ServerError from '../errors/ServerError'
-import { User, Manager } from '../models'
+import {
+	// eslint-disable-next-line no-unused-vars
+	User, Manager, UserDocument, ManagerDocument, ProductDocument
+} from '../models'
 import ErrorMessages from '../errors/ErrorMessages'
 import ActivationCodes from '../enums/activation-code-enum'
 
@@ -15,13 +18,6 @@ import {
 	isManagerNonExists,
 	isManagerExists
 } from '../validators'
-
-// eslint-disable-next-line no-unused-vars
-import { UserDocument } from '../models/User'
-// eslint-disable-next-line no-unused-vars
-import { ManagerDocument } from '../models/Manager'
-// eslint-disable-next-line no-unused-vars
-import { ProductDocument } from '../models/Product'
 
 export const sendSms = (to: string, message: string) => {
 	const smsManager: any = new Nexmo({
@@ -187,7 +183,6 @@ export const takeOffProductFromCart = (product: ProductDocument, cart: any, user
 		} else {
 			resolve(product)
 		}
-
 	})
 )
 

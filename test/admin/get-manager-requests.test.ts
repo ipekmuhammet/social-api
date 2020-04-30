@@ -3,7 +3,7 @@ import { expect } from 'chai'
 
 import app from '../../src/app'
 // eslint-disable-next-line no-unused-vars
-import { ManagerDocument } from '../../src/models/Manager'
+import { ManagerDocument } from '../../src/models'
 
 export default () => describe('GET /admin/manager-requests', () => {
 	it('correct', (done) => {

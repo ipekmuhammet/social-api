@@ -3,14 +3,13 @@ import Iyzipay from 'iyzipay'
 
 import ErrorMessages from '../errors/ErrorMessages'
 import ServerError from '../errors/ServerError'
-import { User, Order, Product } from '../models'
 import { Redis } from '../startup'
-// eslint-disable-next-line no-unused-vars
-import { UserDocument } from '../models/User'
-// eslint-disable-next-line no-unused-vars
-import { OrderDocument } from '../models/Order'
-// eslint-disable-next-line no-unused-vars
-import { ProductDocument } from '../models/Product'
+
+import {
+	User, Order,
+	// eslint-disable-next-line no-unused-vars
+	UserDocument, OrderDocument, ProductDocument
+} from '../models'
 
 const iyzipay = new Iyzipay({
 	apiKey: 'sandbox-hbjzTU7CZDxarIUKVMhWLvHOIMIb3Z40',
@@ -27,12 +26,13 @@ export const createCart = (body: { _id: string, quantity: number }[]) => {
 	return Redis.getInstance.mgetAsync(productIds).then((products: string[]) => (
 		products.reduce((json, product, index) => {
 			if (!JSON.parse(product)) {
-				throw new Error(ErrorMessages.NON_EXISTS_PRODUCT)
+				throw new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, ErrorMessages.NON_EXISTS_PRODUCT, false)
 			}
 			return {
 				...json,
 				[JSON.parse(product)._id.toString()]: {
 					...JSON.parse(product),
+					// eslint-disable-next-line security/detect-object-injection
 					quantity: body[index].quantity
 				}
 			}
@@ -42,7 +42,6 @@ export const createCart = (body: { _id: string, quantity: number }[]) => {
 
 export const saveCart = (userId: string, cart: ProductDocument[]) => (
 	new Promise((resolve, reject) => {
-		// @ts-ignore
 		Redis.getInstance.hsetAsync('cart', userId, JSON.stringify(cart)).then(() => {
 			resolve(cart)
 		}).catch((reason) => {
@@ -283,6 +282,7 @@ export const createPaymentWithRegisteredCard = (user: UserDocument, price: numbe
 export const completePayment = (user: UserDocument, cart: any, address: string, cardToken: string) => (
 	createPaymentWithRegisteredCard(
 		user,
+		// @ts-ignore
 		Object.values(cart).reduce((previousValue: number, currentValue: any) => previousValue + (currentValue.price * currentValue.quantity), 0).toFixed(2),
 		Object.values(cart).map(({
 			_id,

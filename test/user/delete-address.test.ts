@@ -1,8 +1,10 @@
 import request from 'supertest'
 import { expect } from 'chai'
 
-// eslint-disable-next-line no-unused-vars
-import { AddressDocument } from '../../src/models/Address'
+import {
+	// eslint-disable-next-line no-unused-vars
+	AddressDocument
+} from '../../src/models'
 import app from '../../src/app'
 
 export default () => describe('DELETE /user/address', () => {

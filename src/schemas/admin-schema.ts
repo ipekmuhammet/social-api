@@ -15,7 +15,6 @@ export const saveProductSchema = Joi.object({
 	price: Joi.number().required()
 }).required()
 
-// eslint-disable-next-line import/prefer-default-export
 export const updateProductSchema = Joi.object({
 	category: Joi.number().allow(null),
 	brand: Joi.string().allow(null),

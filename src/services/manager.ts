@@ -1,7 +1,9 @@
 import { Redis } from '../startup'
-import { Order } from '../models'
-// eslint-disable-next-line no-unused-vars
-import { OrderDocument } from '../models/Order'
+import {
+	Order,
+	// eslint-disable-next-line no-unused-vars
+	OrderDocument
+} from '../models'
 
 export const getOrderById = (orderId: string) => (
 	Redis.getInstance.hgetAsync('orders', orderId)

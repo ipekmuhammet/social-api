@@ -10,14 +10,15 @@ import {
 } from '../schemas/user-schema'
 
 // eslint-disable-next-line no-unused-vars
-import { ProductDocument } from '../models/Product'
+import { ProductDocument } from '../models'
 
 export const validatePhoneNumber = (requestBody: any) => (
 	phoneSchema.validate(requestBody)
 )
 
 export const validateProducts = (products: ProductDocument[]) => (
-	Joi.array().items(productSchema).sparse(false).validateAsync(products)
+	Joi.array().min(1).items(productSchema).sparse(false)
+		.validateAsync(products)
 )
 
 export const validateUpdateProfileRequest = (context: any) => (

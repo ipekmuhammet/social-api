@@ -3,7 +3,7 @@ import { expect } from 'chai'
 
 import app from '../../src/app'
 // eslint-disable-next-line no-unused-vars
-import { ProductDocument } from '../../src/models/Product'
+import { ProductDocument } from '../../src/models'
 
 const cartProductIds = [// TODO serverda buradaki değerler değiştirilecek
 	'5ea7ac324756fd198887099a',
