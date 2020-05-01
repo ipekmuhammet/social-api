@@ -12,7 +12,7 @@ export default () => describe('POST /user/payment-card', () => {
 				card: {
 					cardAlias: 'deneme cart',
 					cardHolderName: 'Muhammet İpek',
-					cardNumber: '374427000000003',
+					cardNumber: '5311570000000005',
 					expireMonth: '12',
 					expireYear: '2030'
 				}
@@ -24,7 +24,7 @@ export default () => describe('POST /user/payment-card', () => {
 				}
 
 				expect(response.body.status).to.equal('success')
-				expect(response.body.lastFourDigits).to.equal('0003')
+				expect(response.body.lastFourDigits).to.equal('0005')
 				process.env.cardToken = response.body.cardToken
 				done()
 			})

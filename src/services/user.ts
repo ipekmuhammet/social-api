@@ -83,15 +83,15 @@ export const checkMakeOrderValues = (user: UserDocument, context: any) => (
 		// @ts-ignore
 		Redis.getInstance.hgetAsync('cart', user._id.toString()).then((cart) => {
 			if (!cart) {
-				reject(new ServerError(ErrorMessages.EMPTY_CART, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
+				reject(new ServerError(ErrorMessages.EMPTY_CART, HttpStatusCodes.BAD_REQUEST, null, false))
 				// @ts-ignore
 			} else if (!selectedAddress) {
-				reject(new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, 'POST /user/order', false))
+				reject(new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, null, false))
 			} else {
 				resolve({ cart, selectedAddress, card: context.card })
 			}
 		}).catch((reason) => {
-			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
+			reject(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, true))
 		})
 	})
 )
@@ -107,7 +107,7 @@ export const saveOrderToDatabase = (user: UserDocument, cart: any, address: any)
 
 export const saveOrderToCache = (user: UserDocument, order: OrderDocument) => (
 	new Promise((resolve, reject) => {
-		// starts : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)
+		// stars : 2.2 // Müşteri daha önce memnuniyetsizliğini belirttiyse bi güzellik yapılabilir. :)
 		// price: (23.43 * 5) + (76.36 * 2), // Online ödemelerde manager'ın ücret ile işi yok.
 
 		const multi = Redis.getInstance.multi()

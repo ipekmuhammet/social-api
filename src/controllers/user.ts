@@ -32,7 +32,9 @@ import {
 	validateSaveCartRequest,
 	validateSaveAddressRequest,
 	validateChangePasswordRequest,
-	validateMakeOrderRequest
+	validateMakeOrderRequest,
+	validatePostPaymentCardRequest,
+	validateDeletePaymentCardRequest
 } from '../validators/user-validator'
 
 const router = Router()
@@ -49,22 +51,26 @@ router.get('/list-cards', (req, res, next) => {
 })
 
 router.post('/payment-card', (req, res, next) => {
-	// @ts-ignore
 	// addCardToUser(req.user.cardUserKey, req.body.card).then((result) => {
-	addCardToUser(req.user, req.body.card).then((result) => {
-		res.json(result)
-	}).catch((reason) => {
-		next(handleError(reason, 'POST /user/payment-card'))
-	})
+	validatePostPaymentCardRequest(req.body.card)
+		// @ts-ignore
+		.then(() => addCardToUser(req.user, req.body.card))
+		.then((result) => {
+			res.json(result)
+		}).catch((reason) => {
+			next(handleError(reason, 'POST /user/payment-card'))
+		})
 })
 
 router.put('/payment-card', (req, res, next) => {
-	// @ts-ignore
-	deleteCard(req.user, req.body.cardToken).then((result) => {
-		res.json(result)
-	}).catch((reason) => {
-		next(handleError(reason, 'POST /user/payment-card'))
-	})
+	validateDeletePaymentCardRequest(req.body.card)
+		// @ts-ignore
+		.then(() => deleteCard(req.user, req.body.cardToken))
+		.then((result) => {
+			res.json(result)
+		}).catch((reason) => {
+			next(handleError(reason, 'POST /user/payment-card'))
+		})
 })
 
 router.put('/profile', (req, res, next) => {
