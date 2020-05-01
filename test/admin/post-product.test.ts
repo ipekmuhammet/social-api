@@ -5,20 +5,9 @@ import app from '../../src/app'
 
 const product = {
 	brand: 'Test Marka',
-	id: 9999,
-	kind_name: '',
-	product_name: 'Test Product',
-	old_price: 9,
-	price: 9,
-	title: 'Test Product - Adet 1',
-	category_breadcrumb: 'Test Category',
-	images: ['0010544-0.69847100-ulker-finger-biskuvi-multipack-900-gr.jpg'],
-	image_types: {
-		mini: 'https://cdnd.bizimtoptan.com.tr/product/250x250/',
-		thumbnail: 'https://cdnd.bizimtoptan.com.tr/product/480x480/',
-		original: 'https://cdnd.bizimtoptan.com.tr/product/1000x1000/'
-	},
-	unit: 'Adet'
+	category: 1,
+	name: 'Test Product',
+	price: 9
 }
 
 export default () => describe('POST /admin/product', () => {
@@ -29,10 +18,12 @@ export default () => describe('POST /admin/product', () => {
 			.send(product)
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
-				expect(response.body.product_name).to.be.equal('Test Product')
+
+				expect(response.body.name).to.be.equal('Test Product')
+				process.env.testProduct = JSON.stringify(response.body)
 				done()
 			})
 	))

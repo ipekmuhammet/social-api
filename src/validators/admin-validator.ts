@@ -1,7 +1,8 @@
-// eslint-disable-next-line no-unused-vars
-import { ProductDocument } from '../models/Product'
-// eslint-disable-next-line no-unused-vars
-import { CategoryDocument } from '../models/Category'
+import {
+	// eslint-disable-next-line no-unused-vars
+	ProductDocument, CategoryDocument
+} from '../models'
+
 import {
 	saveProductSchema,
 	updateProductSchema,

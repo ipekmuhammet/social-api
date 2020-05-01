@@ -4,7 +4,10 @@ import Nexmo from 'nexmo'
 
 import { Redis, Elasticsearch } from '../startup'
 import ServerError from '../errors/ServerError'
-import { User, Manager } from '../models'
+import {
+	// eslint-disable-next-line no-unused-vars
+	User, Manager, UserDocument, ManagerDocument, ProductDocument
+} from '../models'
 import ErrorMessages from '../errors/ErrorMessages'
 import ActivationCodes from '../enums/activation-code-enum'
 
@@ -15,11 +18,6 @@ import {
 	isManagerNonExists,
 	isManagerExists
 } from '../validators'
-
-// eslint-disable-next-line no-unused-vars
-import { UserDocument } from '../models/User'
-// eslint-disable-next-line no-unused-vars
-import { ManagerDocument } from '../models/Manager'
 
 export const sendSms = (to: string, message: string) => {
 	const smsManager: any = new Nexmo({
@@ -46,7 +44,7 @@ export const getAllProducts = () => (
 	})
 )
 
-export const getProduct = (productId: string, user: UserDocument) => (
+export const getProduct = (productId: string, user: UserDocument) => ( // "5ea7ac324756fd198887099a", "5ea7ac324756fd1988870999", "5ea7ac324756fd198887099b"
 	new Promise((resolve, reject) => {
 		const multi = Redis.getInstance.multi()
 
@@ -58,7 +56,7 @@ export const getProduct = (productId: string, user: UserDocument) => (
 			multi.hget('cart', user._id.toString())
 		}
 
-		multi.execAsync().then((results) => { // 37695 38532 37295
+		multi.execAsync().then((results) => {
 			if (results[0]) {
 				resolve({ product: results[0], cart: results[1] })
 			} else {
@@ -67,53 +65,124 @@ export const getProduct = (productId: string, user: UserDocument) => (
 		}).catch((reason) => {
 			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
 		})
-
-		//	multi.getAsync(productId).then((obj: any) => {
-		//		res.json(JSON.parse(obj))
-		//	})
 	})
 )
 
-export const addProductToCart = (productId: string, product: any, cart: any, user: UserDocument) => (
+export const addProductToCart = (product: ProductDocument, cart: any, user: UserDocument) => (
 	new Promise((resolve) => {
 		// @ts-ignore
 		if (user?._id.toString()) {
 			if (cart) {
-				if (Object.keys(JSON.parse(cart)).includes(productId)) {
+				if (Object.keys(cart).includes(product._id.toString())) {
 					Redis.getInstance.hset(
 						'cart',
 						// @ts-ignore
 						user._id.toString(),
-						JSON.stringify(Object.assign(
-							JSON.parse(cart),
-							{
-								[productId]: Object.assign(JSON.parse(product), {
-									quantity: (JSON.parse(cart)[productId].quantity ?? 1) + 1
-								})
+						JSON.stringify({
+							...cart,
+							[product._id.toString()]: {
+								...product,
+								quantity: (cart[product._id.toString()].quantity ?? 1) + 1
 							}
-						))
+						})
 					)
+
+					resolve({
+						...product,
+						quantity: (cart[product._id.toString()].quantity ?? 1) + 1
+					})
 				} else {
 					Redis.getInstance.hset(
 						'cart',
 						// @ts-ignore
 						user._id.toString(),
-						JSON.stringify(Object.assign(
-							JSON.parse(cart),
-							{ [productId]: product }
-						))
+						JSON.stringify({
+							...cart,
+							[product._id.toString()]: {
+								...product,
+								quantity: 1
+							}
+						})
 					)
+
+					resolve({
+						...product,
+						quantity: 1
+					})
 				}
 			} else {
 				Redis.getInstance.hset(
 					'cart',
 					// @ts-ignore
 					user._id.toString(),
-					JSON.stringify({ [productId]: Object.assign(JSON.parse(product), { quantity: 1 }) })
+					JSON.stringify({
+						[product._id.toString()]: {
+							...product,
+							quantity: 1
+						}
+					})
 				)
+
+				resolve({
+					...product,
+					quantity: 1
+				})
 			}
+		} else {
+			resolve(product)
 		}
-		resolve(JSON.parse(product))
+	})
+)
+
+export const takeOffProductFromCart = (product: ProductDocument, cart: any, user: UserDocument) => (
+	new Promise((resolve, reject) => {
+		if (user?._id.toString()) {
+			if (cart) {
+				if (Object.keys(cart).includes(product._id.toString())) {
+					if (cart[product._id.toString()].quantity > 1) {
+						Redis.getInstance.hset(
+							'cart',
+							// @ts-ignore
+							user._id.toString(),
+							JSON.stringify(Object.assign(
+								cart,
+								{
+									[product._id.toString()]: {
+										...product,
+										...{
+											quantity: (cart[product._id.toString()].quantity) - 1
+										}
+									}
+								}
+							))
+						)
+						resolve({
+							...product,
+							...{
+								quantity: (cart[product._id.toString()].quantity) - 1
+							}
+						})
+					} else if (cart[product._id.toString()].quantity === 1) {
+						// eslint-disable-next-line no-param-reassign
+						delete cart[product._id.toString()]
+						Redis.getInstance.hset(
+							'cart',
+							// @ts-ignore
+							user._id.toString(),
+							JSON.stringify(cart)
+						)
+					} else {
+						reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, ErrorMessages.NON_EXISTS_PRODUCT, false))
+					}
+				} else {
+					reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, ErrorMessages.NON_EXISTS_PRODUCT, false))
+				}
+			} else {
+				reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, ErrorMessages.NON_EXISTS_PRODUCT, false))
+			}
+		} else {
+			resolve(product)
+		}
 	})
 )
 
@@ -133,7 +202,7 @@ export const search = (name: string) => (
 						// },
 						{
 							match_phrase_prefix: {
-								product_name: name
+								name
 							}
 						}
 					]
@@ -180,61 +249,47 @@ export const login = (user: UserDocument | ManagerDocument, password: string) =>
 	new Promise((resolve, reject) => {
 		// @ts-ignore
 		comparePasswords(user.password, password, ErrorMessages.WRONG_PHONE_OR_PASSWORD).then(() => {
-			jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
-				if (jwtErr) {
-					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, ErrorMessages.UNEXPECTED_ERROR, true))
-				} else {
-					resolve({ token, user })
-				}
-			})
+			resolve(user)
 		}).catch((error) => {
 			reject(new ServerError(error.message, HttpStatusCodes.UNAUTHORIZED, null, true))
 		})
 	})
 )
 
-export const isManagerVerified = (manager: any, retrnVal: any) => (
+export const isManagerVerified = (manager: any) => (
 	new Promise((resolve, reject) => {
 		if (!manager.verified) {
 			reject(new ServerError(ErrorMessages.MANAGER_IS_NOT_VERIFIED, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.MANAGER_IS_NOT_VERIFIED, true))
 		} else {
-			resolve(retrnVal)
+			resolve()
 		}
 	})
 )
 
-export const registerUser = (userContext: any, phoneNumber: string) => (
-	new Promise((resolve, reject) => {
-		new User(userContext).save().then((user) => {
-			// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
-			jwt.sign({ payload: user }, 'secret', (jwtErr: Error, token: any) => {
-				if (jwtErr) {
-					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, jwtErr.message, true))
-				} else {
-					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER_USER}`)
-					resolve({ token, user })
-				}
-			})
-		}).catch((reason) => {
-			reject(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, reason.message, true))
-		})
+export const registerUser = (userContext: any) => (
+	new User(userContext).save().then((user) => {
+		// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
+		Redis.getInstance.del(`${user.phoneNumber}:activationCode:${ActivationCodes.REGISTER_USER}`)
+		return user
 	})
 )
 
-export const registerManager = (managerContext: any, phoneNumber: string) => (
+export const registerManager = (managerContext: any) => (
+	new Manager(managerContext).save().then((manager) => {
+		// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
+		Redis.getInstance.del(`${managerContext.phoneNumber}:activationCode:${ActivationCodes.REGISTER_MANAGER}`)
+		return manager
+	})
+)
+
+export const createToken = (context: any) => (
 	new Promise((resolve, reject) => {
-		new Manager(managerContext).save().then((manager) => {
-			// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
-			jwt.sign({ payload: manager }, 'secret', (jwtErr: Error, token: any) => {
-				if (jwtErr) {
-					reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'POST /register-manager', true))
-				} else {
-					Redis.getInstance.del(`${phoneNumber}:activationCode:${ActivationCodes.REGISTER_MANAGER}`)
-					resolve({ token, manager })
-				}
-			})
-		}).catch((reason) => {
-			reject(new ServerError(reason.message, HttpStatusCodes.BAD_REQUEST, 'POST /register-manager', true))
+		jwt.sign({ payload: context }, process.env.SECRET, (jwtErr: Error, token: string) => {
+			if (jwtErr) {
+				reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, true))
+			} else {
+				resolve(token)
+			}
 		})
 	})
 )

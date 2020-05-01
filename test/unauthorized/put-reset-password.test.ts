@@ -29,9 +29,6 @@ export default () => describe('PUT /reset-password', () => {
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(isTextContainsAllKeys(response.body.error, ['phoneNumber', 'required'])).to.equal(true)
 				done()
 			})
@@ -45,9 +42,6 @@ export default () => describe('PUT /reset-password', () => {
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(isTextContainsAllKeys(response.body.error, ['newPassword', 'required'])).to.equal(true)
 				done()
 			})
@@ -63,9 +57,6 @@ export default () => describe('PUT /reset-password', () => {
 			})
 			.expect(401)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(response.body.error).to.equal(ErrorMessages.USER_IS_NOT_EXISTS)
 				done()
 			})

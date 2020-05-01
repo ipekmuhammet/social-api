@@ -9,26 +9,16 @@ export const phoneSchema = Joi.object({
 })
 
 export const productSchema = Joi.object({
-	brand: Joi.string().required(),
-	id: [
-		Joi.string().required(),
-		Joi.number().required()
-	],
-	kind_name: Joi.string().allow(null, ''),
-	product_name: Joi.string().required(),
-	old_price: Joi.number().allow(null, ''),
-	price: Joi.number().required(),
-	title: Joi.string().required(),
-	category_breadcrumb: Joi.string().allow(null, ''),
-	images: Joi.array().items(Joi.string()).required(),
-	// images: Joi.array().items(Joi.string().required()).required(),
-	image_types: Joi.object().required(),
-	units: Joi.string().allow(null, ''),
+	_id: Joi.string().required(),
+	//	brand: Joi.string().required(),
+	//	name: Joi.string().required(),
+	//	price: Joi.number().required(),
+	//	images: Joi.array().items(Joi.string()).required(),
 	quantity: Joi.number().min(1).required()
-}).unknown()
+})
 
 export const updateProfileSchema = Joi.object({
-	phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'national', strict: true }),
+	// phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'national', strict: true }),
 	email: Joi.string().email(),
 	nameSurname: Joi.string().required()
 })
@@ -50,4 +40,17 @@ export const changePasswordSchema = Joi.object({
 export const makeOrderSchema = Joi.object({
 	address: Joi.string().required(),
 	card: Joi.string().required()
+})
+
+export const postPaymentCardSchema = Joi.object({
+	cardAlias: Joi.string().required(),
+	cardHolderName: Joi.string().required(),
+	cardNumber: Joi.string().min(16).max(16).creditCard()
+		.required(),
+	expireYear: Joi.string().min(4).max(4).required(), // TODO
+	expireMonth: Joi.string().min(2).max(2).required(), // TODO
+})
+
+export const deletePaymentCardSchema = Joi.object({
+	cardToken: Joi.string().required()
 })

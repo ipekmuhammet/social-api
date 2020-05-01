@@ -10,7 +10,8 @@ export type OrderDocument = Document & {
 	phoneNumber: string,
 	address: string,
 	date: Date,
-	products: ProductDocument[]
+	products: ProductDocument[],
+	status: boolean
 }
 
 const orderSchema = new Schema({
@@ -32,43 +33,12 @@ const orderSchema = new Schema({
 		default: Date.now()
 	},
 	products: {
-		type: [
-			{
-				id: {
-					type: Number
-				},
-				category: {
-					type: Number
-				},
-				brand: {
-					type: String
-				},
-				kind_name: {
-					type: String
-				},
-				product_name: {
-					type: String
-				},
-				old_price: {
-					type: Number
-				},
-				price: {
-					type: Number
-				},
-				title: {
-					type: String
-				},
-				image: {
-					type: String
-				},
-				units: {
-					type: String
-				},
-				quantity: {
-					type: Number
-				}
+		type: [{
+			...Product.schema.obj,
+			quantity: {
+				type: Number
 			}
-		],
+		}],
 		required: true
 	},
 	status: {

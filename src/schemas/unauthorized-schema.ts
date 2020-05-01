@@ -15,7 +15,6 @@ export const registerSchema = Joi.object({
 	email: Joi.string().email().required(),
 	password: Joi.string().min(4).required(),
 	activationCode: Joi.number().min(1000).max(9999).required()
-	// activationCodeType: Joi.number().equal(ActivationCodes.REGISTER_USER).required()
 })
 
 export const registerManagerSchema = Joi.object({
@@ -24,7 +23,6 @@ export const registerManagerSchema = Joi.object({
 	email: Joi.string().email().required(),
 	password: Joi.string().min(4).required(),
 	activationCode: Joi.number().min(1000).max(9999).required()
-	// activationCodeType: Joi.number().equal(ActivationCodes.REGISTER_MANAGER).required()
 })
 
 export const loginSchema = Joi.object({
@@ -35,6 +33,5 @@ export const loginSchema = Joi.object({
 export const resetPasswordSchema = Joi.object({
 	phoneNumber: Joi.string().phoneNumber({ defaultCountry: 'TR', format: 'national', strict: true }).required(),
 	newPassword: Joi.string().min(4).required(),
-	activationCode: Joi.number().min(1000).max(9999).required(),
-	// activationCodeType: Joi.number().equal(ActivationCodes.RESET_PASSWORD).required(),
+	activationCode: Joi.number().min(1000).max(9999).required()
 })

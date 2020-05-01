@@ -3,33 +3,25 @@ import { expect } from 'chai'
 
 import app from '../../src/app'
 // eslint-disable-next-line no-unused-vars
-import { CategoryDocument } from '../../src/models/Category'
+import { CategoryDocument } from '../../src/models'
 
-let testCategory
-
-export default () => describe('PUT /admin/category/:id', () => {
-	it('get test category to update', (done) => {
+export default () => describe('PUT /admin/category/:_id', () => {
+	it('correct', (done) => (
 		request(app)
-			.get('/categories')
-			.expect(200)
-			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
-				// eslint-disable-next-line prefer-destructuring
-				testCategory = Object.values(response.body).find((category: CategoryDocument) => category.name === 'testCategory')
-				done()
-			})
-	})
-
-	it('correct', () => (
-		request(app)
-			.put(`/admin/category/${testCategory._id}`)
+			.put(`/admin/category/${JSON.parse(process.env.testCategory)._id}`)
 			.set({ Authorization: process.env.adminToken })
 			.send({
 				name: 'testCategoryUpdated'
 			})
 			.expect(200)
+			.end((error, response) => {
+				if (response.body.error) {
+					done(response.body.error)
+				}
+
+				expect(response.body.name).to.equal('testCategory')
+				done()
+			})
 	))
 
 	it('should categories contain testCategory', (done) => (
@@ -38,9 +30,10 @@ export default () => describe('PUT /admin/category/:id', () => {
 			.set({ Authorization: process.env.adminToken })
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				expect(Object.values(response.body).some(((category: CategoryDocument) => category.name === 'testCategoryUpdated'))).to.equal(true)
 				done()
 			})

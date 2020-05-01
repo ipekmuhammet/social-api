@@ -1,5 +1,13 @@
-import mongoose, { Schema } from 'mongoose'
+// eslint-disable-next-line no-unused-vars
+import mongoose, { Schema, Document } from 'mongoose'
 import bcrypt from 'bcrypt'
+
+export type AdminDocument = Document & {
+	phoneNumber: string,
+	nameSurname: string,
+	email: string,
+	password: string
+}
 
 const adminSchema = new Schema({
 	phoneNumber: {
@@ -36,4 +44,4 @@ adminSchema.pre('save', function (next) { // do not update.
 })
 
 
-export default mongoose.model('Admin', adminSchema)
+export default mongoose.model<AdminDocument>('Admin', adminSchema)

@@ -43,10 +43,10 @@ router.get('/order/:_id', (req, res, next) => {
 
 router.put('/orders/cancel/:_id', (req, res, next) => {
 	updateOrderStatus(req.params._id, false)
-		.then((order) => saveOrderToCache(order))
-		.then((result) => {
+		.then((order) => saveOrderToCache(order).then(() => order))
+		.then((order) => {
 			// sendSms(JSON.parse(order).phoneNumber, '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, Y nedeniyle iptal edilmiştir. Ödemeniz en kısa sürece hesabına geri aktarılacaktır. Anlayışınız için teşekkürler.')
-			res.json(result)
+			res.json(order)
 		}).catch((reason) => {
 			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:_id', true))
 		})
@@ -54,10 +54,10 @@ router.put('/orders/cancel/:_id', (req, res, next) => {
 
 router.put('/orders/confirm/:_id', (req, res, next) => {
 	updateOrderStatus(req.params._id, true)
-		.then((order) => saveOrderToCache(order))
-		.then((result) => {
+		.then((order) => saveOrderToCache(order).then(() => order))
+		.then((order) => {
 			// sendSms(JSON.parse(order).phoneNumber, '21:26 25/03/2020 Tarihinde verdiğiniz. X Siparişi, X Kargoya verilmiştir, Kargo takip numarası : 0123456789')
-			res.json(result)
+			res.json(order)
 		}).catch((reason) => {
 			next(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, 'PUT /orders/confirm/:_id', true))
 		})

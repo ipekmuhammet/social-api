@@ -1,13 +1,18 @@
 import { Redis } from '../startup'
 
 // eslint-disable-next-line no-unused-vars
-import Product, { ProductDocument } from '../models/Product'
-// eslint-disable-next-line no-unused-vars
-import Category, { CategoryDocument } from '../models/Category'
-import { Manager } from '../models'
+import {
+	Product,
+	Category,
+	Manager,
+	// eslint-disable-next-line no-unused-vars
+	ProductDocument,
+	// eslint-disable-next-line no-unused-vars
+	CategoryDocument
+} from '../models'
 
 export const verifyManager = (managerId: string) => (
-	Manager.findByIdAndUpdate(managerId, { verified: true })
+	Manager.findByIdAndUpdate(managerId, { verified: true }, { new: true })
 )
 
 export const saveCategoryToDatabase = (categoryContext: CategoryDocument) => (
@@ -18,9 +23,9 @@ export const updateCategory = (categoryId: string, categoryContext: CategoryDocu
 	Category.findByIdAndUpdate(categoryId, categoryContext)
 )
 
-export const saveCategoryToCache = (category: CategoryDocument | any) => (
+export const saveCategoryToCache = () => (
 	Category.find().then((categories) => (
-		Redis.getInstance.setAsync('categories', JSON.stringify(categories)).then(() => category)
+		Redis.getInstance.setAsync('categories', JSON.stringify(categories))
 	))
 )
 
@@ -29,9 +34,9 @@ export const saveProductToDatabase = (productContext: ProductDocument) => (
 )
 
 export const saveProductToCache = (product: ProductDocument | any) => (
-	Redis.getInstance.setAsync(product.id, JSON.stringify(product)).then(() => product)// TODO product._id
+	Redis.getInstance.setAsync(product._id.toString(), JSON.stringify(product)).then(() => product)
 )
 
 export const updateProduct = (productId: string, productContext: ProductDocument) => (
-	Product.findByIdAndUpdate(productId, productContext)
+	Product.findByIdAndUpdate(productId, productContext, { new: true })
 )

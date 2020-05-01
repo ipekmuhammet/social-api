@@ -79,7 +79,7 @@ const putMapping = () => (
 					// 		}
 					// 	}
 					// },
-					product_name: {
+					name: {
 						type: 'text'
 					}
 				}

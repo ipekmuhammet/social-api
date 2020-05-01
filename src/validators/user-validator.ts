@@ -6,18 +6,21 @@ import {
 	saveAddressSchema,
 	changePasswordSchema,
 	phoneSchema,
-	makeOrderSchema
+	makeOrderSchema,
+	postPaymentCardSchema,
+	deletePaymentCardSchema
 } from '../schemas/user-schema'
 
 // eslint-disable-next-line no-unused-vars
-import { ProductDocument } from '../models/Product'
+import { ProductDocument } from '../models'
 
 export const validatePhoneNumber = (requestBody: any) => (
 	phoneSchema.validate(requestBody)
 )
 
 export const validateProducts = (products: ProductDocument[]) => (
-	Joi.array().items(productSchema).sparse(true).validateAsync(products)
+	Joi.array().min(1).items(productSchema).sparse(false)
+		.validateAsync(products)
 )
 
 export const validateUpdateProfileRequest = (context: any) => (
@@ -38,4 +41,12 @@ export const validateChangePasswordRequest = (context: any) => (
 
 export const validateMakeOrderRequest = (context: any) => (
 	makeOrderSchema.validateAsync(context)
+)
+
+export const validatePostPaymentCardRequest = (card: any) => (
+	postPaymentCardSchema.validateAsync(card)
+)
+
+export const validateDeletePaymentCardRequest = (card: any) => (
+	deletePaymentCardSchema.validateAsync(card)
 )

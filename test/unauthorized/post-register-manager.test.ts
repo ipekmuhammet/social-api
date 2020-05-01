@@ -33,9 +33,6 @@ export default () => describe('POST /register-manager', () => {
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(isTextContainsAllKeys(response.body.error, ['Phone', 'invalid'])).to.equal(true)
 				done()
 			})
@@ -53,9 +50,6 @@ export default () => describe('POST /register-manager', () => {
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(response.body.error).to.equal(ErrorMessages.WRONG_ACTIVATION_CODE)
 				done()
 			})
@@ -72,9 +66,6 @@ export default () => describe('POST /register-manager', () => {
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(isTextContainsAllKeys(response.body.error, ['password', 'required'])).to.equal(true)
 				done()
 			})
@@ -85,15 +76,12 @@ export default () => describe('POST /register-manager', () => {
 			.post('/register-manager')
 			.send({
 				phoneNumber: '905555555555',
-				email: `${Math.random()}@hotmail.com`,
+				email: 'testUser@hotmail.com',
 				activationCode,
 				password: '1234'
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(isTextContainsAllKeys(response.body.error, ['nameSurname', 'required'])).to.equal(true)
 				done()
 			})
@@ -111,9 +99,10 @@ export default () => describe('POST /register-manager', () => {
 			})
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
+
 				done()
 				//	expect(response.body.user.phoneNumber).to.equal('0555 555 55 55') // regional
 				//	expect(response.body.token).to.be.a('string')

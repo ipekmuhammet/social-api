@@ -2,49 +2,45 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
 export type ProductDocument = Document & {
-	id: number,
-	category: string,
+	category: number,
 	brand: string,
-	kind_name: string, // TODO
-	product_name: string, // TODO
-	old_price: string, // TODO
+	name: string,
 	price: number,
-	title: string,
-	image: string,
-	units: string
+	image: number
 }
 
 const productSchema = new Schema({
-	id: {
-		type: Number
-	},
 	category: {
 		type: Number
 	},
 	brand: {
 		type: String
 	},
-	kind_name: {
+	name: {
 		type: String
-	},
-	product_name: {
-		type: String
-	},
-	old_price: {
-		type: Number
 	},
 	price: {
 		type: Number
 	},
-	title: {
-		type: String
-	},
 	image: {
-		type: String
-	},
-	units: {
-		type: String
+		type: Number,
+		default: 0
 	}
 })
 
-export default mongoose.model('Product', productSchema)
+// eslint-disable-next-line func-names
+productSchema.pre('save', function (next) {
+	const product = this
+	if (product.isNew) {
+		// eslint-disable-next-line no-use-before-define
+		Product.find().sort({ image: -1 }).limit(1).then((total) => {
+			// @ts-ignore
+			product.image = total.length === 0 ? 0 : total[0].image + 1
+			next()
+		})
+	}
+})
+
+const Product = mongoose.model('Product', productSchema)
+
+export default Product

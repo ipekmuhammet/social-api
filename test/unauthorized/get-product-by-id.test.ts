@@ -4,15 +4,12 @@ import { expect } from 'chai'
 import app from '../../src/app'
 import ErrorMessages from '../../src/errors/ErrorMessages'
 
-export default () => describe('GET /product/:id', () => {
+export default () => describe('GET /product/:_id', () => {
 	it('unknown product', (done) => {
 		request(app)
-			.get('/product/12345')
+			.get('/product/12356')
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(response.body.error).to.equal(ErrorMessages.NON_EXISTS_PRODUCT)
 				done()
 			})
@@ -20,10 +17,14 @@ export default () => describe('GET /product/:id', () => {
 
 	it('correct', (done) => {
 		request(app)
-			.get('/product/37695')
+			.get(`/product/${JSON.parse(process.env.product)._id}`)
 			.expect(200)
-			.end((err, res) => {
-				expect(res.body).to.be.an('object').to.contains.all.keys('_id', 'id', 'brand', 'product_name', 'price')
+			.end((error, response) => {
+				if (response.body.error) {
+					done(response.body.error)
+				}
+
+				expect(response.body).to.be.an('object').to.contains.all.keys('_id', 'brand', 'name', 'price')
 				done()
 			})
 	})

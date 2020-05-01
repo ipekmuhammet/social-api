@@ -14,9 +14,6 @@ export default () => describe('POST /login', () => {
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(isTextContainsAllKeys(response.body.error, ['phoneNumber', 'required'])).to.equal(true)
 				done()
 			})
@@ -30,9 +27,6 @@ export default () => describe('POST /login', () => {
 			})
 			.expect(400)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(isTextContainsAllKeys(response.body.error, ['password', 'required'])).to.equal(true)
 				done()
 			})
@@ -47,9 +41,6 @@ export default () => describe('POST /login', () => {
 			})
 			.expect(401)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(response.body.error).to.equal(ErrorMessages.USER_IS_NOT_EXISTS)
 				done()
 			})
@@ -64,9 +55,6 @@ export default () => describe('POST /login', () => {
 			})
 			.expect(401)
 			.end((error, response) => {
-				if (error) {
-					done(error)
-				}
 				expect(response.body.error).to.equal(ErrorMessages.WRONG_PHONE_OR_PASSWORD)
 				done()
 			})
@@ -80,11 +68,7 @@ export default () => describe('POST /login', () => {
 				password: '1234'
 			})
 			.expect(200)
-			// eslint-disable-next-line consistent-return
 			.end((error, response) => {
-				if (error) {
-					return done(error)
-				}
 				expect(response.body.user.phoneNumber).to.equal('0555 555 55 55') // regional
 				expect(response.body.token).to.be.a('string')
 				expect(response.body.user).to.be.a('object')

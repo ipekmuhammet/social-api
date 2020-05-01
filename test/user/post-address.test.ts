@@ -2,12 +2,12 @@ import request from 'supertest'
 import { expect } from 'chai'
 
 // eslint-disable-next-line no-unused-vars
-import { AddressDocument } from '../../src/models/Address'
+import { AddressDocument } from '../../src/models'
 
 import app from '../../src/app'
 import { isTextContainsAllKeys } from '../tools'
 
-export default () => describe('POST /address', () => {
+export default () => describe('POST /user/address', () => {
 	it('with no body', () => (
 		request(app)
 			.post('/user/address')
@@ -76,12 +76,11 @@ export default () => describe('POST /address', () => {
 			})
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
 
 				expect(response.body).to.contains.all.keys('_id')
-				// eslint-disable-next-line camelcase
 				expect(response.body.addresses.some((address: AddressDocument) => (
 					address.openAddress === 'Test Mah.'
 				))).to.equal(true)
@@ -91,4 +90,4 @@ export default () => describe('POST /address', () => {
 				done()
 			})
 	))
-}
+})

@@ -3,7 +3,7 @@ import { expect } from 'chai'
 
 import app from '../../src/app'
 // eslint-disable-next-line no-unused-vars
-import { ManagerDocument } from '../../src/models/Manager'
+import { ManagerDocument } from '../../src/models'
 
 export default () => describe('GET /admin/manager-requests', () => {
 	it('correct', (done) => {
@@ -12,11 +12,22 @@ export default () => describe('GET /admin/manager-requests', () => {
 			.set({ Authorization: process.env.adminToken })
 			.expect(200)
 			.end((error, response) => {
-				if (error) {
-					done(error)
+				if (response.body.error) {
+					done(response.body.error)
 				}
-				// eslint-disable-next-line prefer-destructuring
-				process.env.manager = JSON.stringify(Object.values(response.body).find((manager: ManagerDocument) => manager.nameSurname === 'testUser'))
+
+				expect(Object.values(response.body)).to.be.an('array')
+				const testManager = Object.values(response.body).find((manager: ManagerDocument) => manager.nameSurname === 'testUser')
+				expect(testManager).to.contains.all.keys(
+					'__v',
+					'_id',
+					'phoneNumber',
+					'nameSurname',
+					'email',
+					'password',
+					'verified'
+				)
+				process.env.manager = JSON.stringify(testManager)
 				done()
 			})
 	})

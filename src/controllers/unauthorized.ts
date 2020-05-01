@@ -18,7 +18,9 @@ import {
 	addProductToCart,
 	isManagerVerified,
 	handleError,
-	checkConvenientOfActivationCodeRequest
+	checkConvenientOfActivationCodeRequest,
+	createToken,
+	takeOffProductFromCart
 } from '../services/unauthorized'
 
 import {
@@ -63,15 +65,27 @@ router.get('/products', (req, res, next) => {
 	})
 })
 
-router.get('/product/:id', (req, res, next) => {
+router.get('/product/:_id', (req, res, next) => {
 	// @ts-ignore
-	getProduct(req.params.id, req.user)
+	getProduct(req.params._id, req.user)
 		// @ts-ignore
-		.then(({ product, cart }) => addProductToCart(req.params.id, product, cart, req.user))
+		.then(({ product, cart }) => addProductToCart(JSON.parse(product), cart ? JSON.parse(cart) : null, req.user))
 		.then((response) => {
 			res.json(response)
 		}).catch((reason) => {
-			next((handleError(reason, 'POST /product/:id')))
+			next((handleError(reason, 'POST /product/:_id')))
+		})
+})
+
+router.delete('/product/:_id', (req, res, next) => {
+	// @ts-ignore
+	getProduct(req.params._id, req.user)
+		// @ts-ignore
+		.then(({ product, cart }) => takeOffProductFromCart(JSON.parse(product), cart ? JSON.parse(cart) : null, req.user))
+		.then((response) => {
+			res.json(response)
+		}).catch((reason) => {
+			next((handleError(reason, 'POST /product/:_id')))
 		})
 })
 
@@ -99,7 +113,8 @@ router.post('/register', (req, res, next) => {
 		.then(() => isUserNonExists(req.body.phoneNumber))
 		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.REGISTER_USER))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
-		.then(() => registerUser(req.body, req.body.phoneNumber))
+		.then(() => registerUser(req.body))
+		.then((user) => createToken(user).then((token) => ({ user, token })))
 		.then(({ user, token }) => cacheUser(user).then(() => ({ user, token })))
 		.then((response) => {
 			res.json(response)
@@ -114,7 +129,8 @@ router.post('/register-manager', (req, res, next) => {
 		.then(() => isManagerNonExists(req.body.phoneNumber))
 		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.REGISTER_MANAGER))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
-		.then(() => registerManager({ ...req.body, ...{ verified: false } }, req.body.phoneNumber))
+		.then(() => registerManager({ ...req.body, ...{ verified: false } }))
+		.then((manager) => createToken(manager).then((token) => ({ manager, token })))
 		.then((response) => {
 			res.json(response)
 		})
@@ -127,7 +143,8 @@ router.post('/login-manager', (req, res, next) => {
 	validateLoginRequest(req.body)
 		.then(() => isManagerExists(req.body.phoneNumber))
 		.then((manager) => login(manager, req.body.password))
-		.then(({ user, token }) => isManagerVerified(user, { user, token }))
+		.then((manager) => isManagerVerified(manager).then(() => manager))
+		.then((manager) => createToken(manager).then((token) => ({ manager, token })))
 		.then((response) => {
 			res.json(response)
 		})
@@ -140,7 +157,8 @@ router.post('/login', (req, res, next) => {
 	validateLoginRequest(req.body)
 		.then(() => isUserExists(req.body.phoneNumber))
 		.then((user) => login(user, req.body.password))
-		.then(({ user, token }) => cacheUser(user).then(() => ({ user, token })))
+		.then((user) => cacheUser(user).then(() => user))
+		.then((user) => createToken(user).then((token) => ({ user, token })))
 		.then((response) => {
 			res.json(response)
 		})
