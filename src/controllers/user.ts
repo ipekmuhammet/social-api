@@ -63,7 +63,7 @@ router.post('/payment-card', (req, res, next) => {
 })
 
 router.put('/payment-card', (req, res, next) => {
-	validateDeletePaymentCardRequest(req.body.card)
+	validateDeletePaymentCardRequest(req.body)
 		// @ts-ignore
 		.then(() => deleteCard(req.user, req.body.cardToken))
 		.then((result) => {

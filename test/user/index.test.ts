@@ -7,11 +7,13 @@ import postAddressTests from './post-address.test'
 import deleteAddressTests from './delete-address.test'
 import postPaymentCardTests from './post-payment-card.test'
 import getListCardsTests from './get-list-cards.test'
+import deleteCardTests from './delete-card.test'
 
 export default () => describe('user', () => {
 	getCartBeforePostCartTests()
 	postAddressTests()
 	postPaymentCardTests()
+	deleteCardTests()
 	getListCardsTests()
 	postOrderTests()
 	deleteCartTests()
