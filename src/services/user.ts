@@ -150,7 +150,7 @@ export const createPaymentUserWithCard = (user: UserDocument, card: any) => (
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})
@@ -167,7 +167,7 @@ export const addNewCard = (cardUserKey: string, card: any) => (
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})
@@ -193,7 +193,7 @@ export const deleteCard = (user: UserDocument, cardToken: string) => (
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})
@@ -212,7 +212,7 @@ export const listCards = (cardUserKey: string) => (
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})
@@ -271,7 +271,7 @@ export const createPaymentWithRegisteredCard = (user: UserDocument, price: numbe
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})
