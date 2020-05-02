@@ -88,6 +88,7 @@ const putMapping = () => (
 	})
 )
 
+// eslint-disable-next-line no-unused-vars
 const saveCategories = () => (
 	Elasticsearch.getClient.bulk({
 		index,
@@ -96,6 +97,7 @@ const saveCategories = () => (
 		body: categories.reduce((previousValue, currentValue) => previousValue.concat({
 			index: {
 				_index: index,
+				// @ts-ignore
 				_id: currentValue.id
 			}
 		}, currentValue), [])
@@ -110,6 +112,7 @@ const saveProducts = () => (
 		body: products.reduce((previousValue, currentValue) => previousValue.concat({
 			index: {
 				_index: index,
+				// @ts-ignore
 				_id: currentValue.id
 			}
 		}, currentValue), [])
