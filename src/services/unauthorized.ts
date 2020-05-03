@@ -255,7 +255,6 @@ export const isManagerVerified = (manager: ManagerDocument) => (
 
 export const registerUser = (userContext: any) => (
 	new User(userContext).save().then((user) => {
-		// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
 		Redis.getInstance.del(`${user.phoneNumber}:activationCode:${ActivationCodes.REGISTER_USER}`)
 		return user
 	})
@@ -263,7 +262,6 @@ export const registerUser = (userContext: any) => (
 
 export const registerManager = (managerContext: any) => (
 	new Manager(managerContext).save().then((manager) => {
-		// sendSms(phoneNumber, `${activationCode} is your activation code to activate your account.`)
 		Redis.getInstance.del(`${managerContext.phoneNumber}:activationCode:${ActivationCodes.REGISTER_MANAGER}`)
 		return manager
 	})
@@ -289,11 +287,11 @@ export const changePassword = (user: UserDocument, newPassword: string) => {
 	})
 }
 
-export const handleError = (error: any, path: string) => {
+export const handleError = (error: any, path: string): Error => {
 	if (error.httpCode) {
 		return error
 	}
-	if (error._original) { // JOI ERROR
+	if (error.isJoi) {
 		return new ServerError(error.message, HttpStatusCodes.BAD_REQUEST, path, true)
 	}
 	return new ServerError(error.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, path, true)
