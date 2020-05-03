@@ -4,6 +4,13 @@
 		"plugin:security/recommended"
 	],
 	"rules": {
-		"no-underscore-dangle": "off"
+		"no-underscore-dangle": "off",
+		"indent": [
+			"error",
+			"tab",
+			{
+				"SwitchCase": 1
+			}
+		]
 	}
 }

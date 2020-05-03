@@ -3,7 +3,6 @@ import HttpStatusCodes from 'http-status-codes'
 
 import Authority from '../enums/authority-enum'
 
-// eslint-disable-next-line no-unused-vars
 import { validateAuthority, validatePhone } from '../middlewares/auth-middleware'
 
 import {
@@ -20,7 +19,8 @@ import {
 	handleError,
 	checkConvenientOfActivationCodeRequest,
 	createToken,
-	takeOffProductFromCart
+	takeOffProductFromCart,
+	resetPassword
 } from '../services/unauthorized'
 
 import {
@@ -41,7 +41,6 @@ import {
 } from '../validators/unauthorized-validator'
 
 import ActivationCodes from '../enums/activation-code-enum'
-import { Redis } from '../startup'
 import { cacheUser } from '../services/user'
 
 const router = Router()
@@ -73,7 +72,7 @@ router.get('/product/:_id', (req, res, next) => {
 		.then((response) => {
 			res.json(response)
 		}).catch((reason) => {
-			next((handleError(reason, 'POST /product/:_id')))
+			next((handleError(reason, 'GET /product/:_id')))
 		})
 })
 
@@ -84,15 +83,20 @@ router.delete('/product/:_id', (req, res, next) => {
 		.then(({ product, cart }) => takeOffProductFromCart(JSON.parse(product), cart ? JSON.parse(cart) : null, req.user))
 		.then((response) => {
 			res.json(response)
-		}).catch((reason) => {
-			next((handleError(reason, 'POST /product/:_id')))
+		})
+		.catch((reason) => {
+			next((handleError(reason, 'DELETE /product/:_id')))
 		})
 })
 
-router.get('/search-product', (req, res) => {
-	search(req.query.name).then((vals: any) => {
-		res.json(vals.body.hits.hits)
-	})
+router.get('/search-product', (req, res, next) => {
+	search(req.query.name)
+		.then((vals: any) => {
+			res.json(vals.body.hits.hits)
+		})
+		.catch((reason) => {
+			next((handleError(reason, 'GET /search-product')))
+		})
 })
 
 router.post('/send-activation-code', (req, res, next) => {
@@ -100,7 +104,7 @@ router.post('/send-activation-code', (req, res, next) => {
 		.then(() => checkConvenientOfActivationCodeRequest(req.body.phoneNumber, req.body.activationCodeType))
 		.then(() => createActivationCode(req.body.phoneNumber, req.body.activationCodeType))
 		.then(() => {
-			res.status(HttpStatusCodes.ACCEPTED).json({ status: true })
+			res.status(HttpStatusCodes.ACCEPTED).json()
 		})
 		.catch((reason) => {
 			next(handleError(reason, 'POST /send-activation-code'))
@@ -112,10 +116,10 @@ router.post('/register', (req, res, next) => {
 	validateRegisterRequest(req.body)
 		.then(() => isUserNonExists(req.body.phoneNumber))
 		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.REGISTER_USER))
-		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
+		.then((activationCode) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => registerUser(req.body))
+		.then((user) => cacheUser(user).then(() => user))
 		.then((user) => createToken(user).then((token) => ({ user, token })))
-		.then(({ user, token }) => cacheUser(user).then(() => ({ user, token })))
 		.then((response) => {
 			res.json(response)
 		})
@@ -171,16 +175,11 @@ router.put('/reset-password', (req, res, next) => {
 	validateResetPasswordRequest(req.body)
 		.then(() => isUserExists(req.body.phoneNumber))
 		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.RESET_PASSWORD))
-		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
+		.then((activationCode) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => isUserExists(req.body.phoneNumber))
-		.then((user) => {
-			// @ts-ignore
-			// eslint-disable-next-line no-param-reassign
-			user.password = req.body.newPassword
-			user.save().then(() => {
-				Redis.getInstance.del(`${req.body.phoneNumber}:activationCode:${ActivationCodes.RESET_PASSWORD}`)
-				res.json({ status: true })
-			})
+		.then((user) => resetPassword(user, req.body.newPassword))
+		.then(() => {
+			res.json()
 		})
 		.catch((reason) => {
 			next(handleError(reason, 'PUT /reset-password'))

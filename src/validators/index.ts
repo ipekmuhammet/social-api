@@ -58,17 +58,11 @@ export const isUserExists = (phoneNumber: string) => (
 
 /** Returns activation code of phoneNumber from Redis */
 export const getActivationCode = (phoneNumber: string, activationCodeType: ActivationCodes) => (
-	new Promise((resolve, reject) => {
-		// @ts-ignore
-		Redis.getInstance.getAsync(`${phoneNumber}:activationCode:${activationCodeType}`).then((activationCode) => {
-			if (!activationCode) {
-				reject(new ServerError('Aktivasyon kodu bulunamadı!', HttpStatusCodes.BAD_REQUEST, 'Aktivasyon kodu bulunamadı!', false))
-			} else {
-				resolve(activationCode)
-			}
-		}).catch((reason) => {
-			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason?.message, true))
-		})
+	Redis.getInstance.getAsync(`${phoneNumber}:activationCode:${activationCodeType}`).then((activationCode) => {
+		if (!activationCode) {
+			throw new ServerError(ErrorMessages.UNKNOWN_ACTIVATION_CODE, HttpStatusCodes.BAD_REQUEST, null, false)
+		}
+		return activationCode
 	})
 )
 

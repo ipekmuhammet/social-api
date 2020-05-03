@@ -13,7 +13,7 @@ export default (error: Error | any, req: Request, res: Response, next: NextFunct
 	}
 
 	if (error.httpCode) {
-		res.status(error.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.name, errorCode: error.errorCode })
+		res.status(error.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.name })
 	} else {
 		res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: ErrorMessages.UNEXPECTED_ERROR })
 	}

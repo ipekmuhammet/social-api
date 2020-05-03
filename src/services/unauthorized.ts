@@ -44,29 +44,24 @@ export const getAllProducts = () => (
 	})
 )
 
-export const getProduct = (productId: string, user: UserDocument) => ( // "5ea7ac324756fd198887099a", "5ea7ac324756fd1988870999", "5ea7ac324756fd198887099b"
-	new Promise((resolve, reject) => {
-		const multi = Redis.getInstance.multi()
+export const getProduct = (productId: string, user: UserDocument) => { // "5ea7ac324756fd198887099a", "5ea7ac324756fd1988870999", "5ea7ac324756fd198887099b"
+	const multi = Redis.getInstance.multi()
 
-		multi.getAsync(productId)
+	multi.getAsync(productId)
 
+	// @ts-ignore
+	if (user?._id) {
 		// @ts-ignore
-		if (user?._id) {
-			// @ts-ignore
-			multi.hget('cart', user._id.toString())
-		}
+		multi.hget('cart', user._id.toString())
+	}
 
-		multi.execAsync().then((results) => {
-			if (results[0]) {
-				resolve({ product: results[0], cart: results[1] })
-			} else {
-				reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, null, false))
-			}
-		}).catch((reason) => {
-			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
-		})
+	return multi.execAsync().then((results) => {
+		if (results[0]) {
+			return ({ product: results[0], cart: results[1] })
+		}
+		throw new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, null, false)
 	})
-)
+}
 
 export const addProductToCart = (product: ProductDocument, cart: any, user: UserDocument) => (
 	new Promise((resolve) => {
@@ -212,51 +207,35 @@ export const search = (name: string) => (
 	})
 )
 
-export const checkConvenientOfActivationCodeRequest = (phoneNumber: string, activationCodeType: ActivationCodes) => (
-	new Promise((resolve, reject) => {
-		if (activationCodeType === ActivationCodes.REGISTER_USER) {
-			resolve(isUserNonExists(phoneNumber))
-		}
-		if (activationCodeType === ActivationCodes.RESET_PASSWORD) {
-			resolve(isUserExists(phoneNumber))
-		}
-		if (activationCodeType === ActivationCodes.REGISTER_MANAGER) {
-			resolve(isManagerNonExists(phoneNumber))
-		}
-		if (activationCodeType === ActivationCodes.RESET_MANAGER_PASSWORD) {
-			resolve(isManagerExists(phoneNumber))
-		}
-		reject(new Error('Unknown type of activation code'))
+export const checkConvenientOfActivationCodeRequest = (phoneNumber: string, activationCodeType: ActivationCodes): Promise<UserDocument | ManagerDocument | void> => {
+	switch (activationCodeType) {
+		case ActivationCodes.REGISTER_USER: return isUserNonExists(phoneNumber)
+
+		case ActivationCodes.RESET_PASSWORD: return isUserExists(phoneNumber)
+
+		case ActivationCodes.REGISTER_MANAGER: return isManagerNonExists(phoneNumber)
+
+		case ActivationCodes.RESET_MANAGER_PASSWORD: return isManagerExists(phoneNumber)
+
+		default: throw new ServerError(ErrorMessages.UNKNOWN_TYPE_OF_ACTIVATION_CODE, HttpStatusCodes.BAD_REQUEST, null, false)
+	}
+}
+
+export const createActivationCode = (phoneNumber: string, activationCodeType: ActivationCodes) => {
+	const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()
+	console.log(activationCode)
+
+	// @ts-ignore
+	return Redis.getInstance.setAsync(`${phoneNumber}:activationCode:${activationCodeType}`, activationCode).then(() => {
+		Redis.getInstance.expire(`${phoneNumber}:activationCode:${activationCodeType}`, 60 * 3)
 	})
+}
+
+export const login = (user: any, password: string) => (
+	comparePasswords(user.password, password, ErrorMessages.WRONG_PHONE_OR_PASSWORD).then(() => user)
 )
 
-export const createActivationCode = (phoneNumber: string, activationCodeType: ActivationCodes) => (
-	new Promise((resolve, reject) => {
-		const activationCode = parseInt(Math.floor(1000 + Math.random() * 9000).toString(), 10).toString()
-		console.log(activationCode)
-
-		// @ts-ignore
-		Redis.getInstance.setAsync(`${phoneNumber}:activationCode:${activationCodeType}`, activationCode).then(() => {
-			Redis.getInstance.expire(`${phoneNumber}:activationCode:${activationCodeType}`, 60 * 3)
-			resolve()
-		}).catch((reason) => {
-			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason.message, true))
-		})
-	})
-)
-
-export const login = (user: UserDocument | ManagerDocument, password: string) => (
-	new Promise((resolve, reject) => {
-		// @ts-ignore
-		comparePasswords(user.password, password, ErrorMessages.WRONG_PHONE_OR_PASSWORD).then(() => {
-			resolve(user)
-		}).catch((error) => {
-			reject(new ServerError(error.message, HttpStatusCodes.UNAUTHORIZED, null, true))
-		})
-	})
-)
-
-export const isManagerVerified = (manager: any) => (
+export const isManagerVerified = (manager: ManagerDocument) => (
 	new Promise((resolve, reject) => {
 		if (!manager.verified) {
 			reject(new ServerError(ErrorMessages.MANAGER_IS_NOT_VERIFIED, HttpStatusCodes.UNAUTHORIZED, ErrorMessages.MANAGER_IS_NOT_VERIFIED, true))
@@ -282,17 +261,25 @@ export const registerManager = (managerContext: any) => (
 	})
 )
 
-export const createToken = (context: any) => (
+export const createToken = (context: UserDocument | ManagerDocument): Promise<string> => (
 	new Promise((resolve, reject) => {
 		jwt.sign({ payload: context }, process.env.SECRET, (jwtErr: Error, token: string) => {
 			if (jwtErr) {
-				reject(new ServerError(jwtErr.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, true))
+				reject(jwtErr)
 			} else {
 				resolve(token)
 			}
 		})
 	})
 )
+
+export const resetPassword = (user: UserDocument, newPassword: string) => {
+	// eslint-disable-next-line no-param-reassign
+	user.password = newPassword
+	return user.save().then(() => {
+		Redis.getInstance.del(`${user.phoneNumber}:activationCode:${ActivationCodes.RESET_PASSWORD}`)
+	})
+}
 
 export const handleError = (error: any, path: string) => {
 	if (error.httpCode) {
