@@ -20,7 +20,8 @@ import {
 	checkConvenientOfActivationCodeRequest,
 	createToken,
 	takeOffProductFromCart,
-	changePassword
+	changePassword,
+	sendActivationCode
 } from '../services/unauthorized'
 
 import {
@@ -103,6 +104,7 @@ router.post('/send-activation-code', (req, res, next) => {
 	validateSendActivationCodeRequest({ phoneNumber: req.body.phoneNumber, activationCodeType: req.body.activationCodeType })
 		.then(() => checkConvenientOfActivationCodeRequest(req.body.phoneNumber, req.body.activationCodeType))
 		.then(() => createActivationCode(req.body.phoneNumber, req.body.activationCodeType))
+		// .then((activationCode) => sendActivationCode(activationCode)) // TODO AÇ
 		.then(() => {
 			res.status(HttpStatusCodes.ACCEPTED).json()
 		})

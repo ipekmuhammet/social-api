@@ -228,8 +228,16 @@ export const createActivationCode = (phoneNumber: string, activationCodeType: Ac
 	// @ts-ignore
 	return Redis.getInstance.setAsync(`${phoneNumber}:activationCode:${activationCodeType}`, activationCode).then(() => {
 		Redis.getInstance.expire(`${phoneNumber}:activationCode:${activationCodeType}`, 60 * 3)
+		return activationCode
 	})
 }
+
+export const sendActivationCode = (activationCode: string) => (
+	new Promise((resolve) => {
+		sendSms('+905468133198', `Onay kodu: ${activationCode}`)
+		resolve()
+	})
+)
 
 export const login = (user: any, password: string) => (
 	comparePasswords(user.password, password).then(() => user)
