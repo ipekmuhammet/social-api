@@ -6,7 +6,7 @@ import { Redis, Elasticsearch } from '../startup'
 import ServerError from '../errors/ServerError'
 import {
 	// eslint-disable-next-line no-unused-vars
-	User, Manager, UserDocument, ManagerDocument, ProductDocument
+	User, Manager, UserDocument, ManagerDocument, ProductDocument, AdminDocument
 } from '../models'
 import ErrorMessages from '../errors/ErrorMessages'
 import ActivationCodes from '../enums/activation-code-enum'
@@ -232,7 +232,7 @@ export const createActivationCode = (phoneNumber: string, activationCodeType: Ac
 }
 
 export const login = (user: any, password: string) => (
-	comparePasswords(user.password, password, ErrorMessages.WRONG_PHONE_OR_PASSWORD).then(() => user)
+	comparePasswords(user.password, password).then(() => user)
 )
 
 export const isManagerVerified = (manager: ManagerDocument) => (
@@ -261,7 +261,7 @@ export const registerManager = (managerContext: any) => (
 	})
 )
 
-export const createToken = (context: UserDocument | ManagerDocument): Promise<string> => (
+export const createToken = (context: UserDocument | ManagerDocument | AdminDocument): Promise<string> => (
 	new Promise((resolve, reject) => {
 		jwt.sign({ payload: context }, process.env.SECRET, (jwtErr: Error, token: string) => {
 			if (jwtErr) {
@@ -273,7 +273,7 @@ export const createToken = (context: UserDocument | ManagerDocument): Promise<st
 	})
 )
 
-export const resetPassword = (user: UserDocument, newPassword: string) => {
+export const changePassword = (user: UserDocument, newPassword: string) => {
 	// eslint-disable-next-line no-param-reassign
 	user.password = newPassword
 	return user.save().then(() => {

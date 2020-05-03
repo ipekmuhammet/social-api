@@ -20,7 +20,7 @@ import {
 	checkConvenientOfActivationCodeRequest,
 	createToken,
 	takeOffProductFromCart,
-	resetPassword
+	changePassword
 } from '../services/unauthorized'
 
 import {
@@ -177,7 +177,7 @@ router.put('/reset-password', (req, res, next) => {
 		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.RESET_PASSWORD))
 		.then((activationCode) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => isUserExists(req.body.phoneNumber))
-		.then((user) => resetPassword(user, req.body.newPassword))
+		.then((user) => changePassword(user, req.body.newPassword))
 		.then(() => {
 			res.json()
 		})

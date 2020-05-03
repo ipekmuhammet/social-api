@@ -8,10 +8,10 @@ import ErrorMessages from '../errors/ErrorMessages'
 // eslint-disable-next-line no-unused-vars
 import ActivationCodes from '../enums/activation-code-enum'
 
-export const comparePasswords = (oldPassword: string, newPassword: string, errorMessage: string) => (
+export const comparePasswords = (oldPassword: string, newPassword: string) => (
 	bcrypt.compare(newPassword, oldPassword).then((validPassword) => {
 		if (!validPassword) {
-			throw new Error(errorMessage)
+			throw new ServerError(ErrorMessages.WRONG_PHONE_OR_PASSWORD, HttpStatusCodes.UNAUTHORIZED, null, false)
 		}
 	})
 )
