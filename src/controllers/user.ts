@@ -2,8 +2,11 @@ import { Router } from 'express'
 
 import { validateAuthority } from '../middlewares/auth-middleware'
 import Authority from '../enums/authority-enum'
-import ErrorMessages from '../errors/ErrorMessages'
-import { handleError } from '../services/unauthorized'
+
+import {
+	handleError,
+	changePassword
+} from '../services/unauthorized'
 
 import {
 	listCards,
@@ -137,7 +140,8 @@ router.delete('/address/:_id', (req, res, next) => {
 		.then((user) => cacheUser(user).then(() => user))
 		.then((user) => {
 			res.json(user)
-		}).catch((reason) => {
+		})
+		.catch((reason) => {
 			next(handleError(reason, 'DELETE /user/address/:id'))
 		})
 })
@@ -163,16 +167,13 @@ router.post('/order', (req, res, next) => {
 router.put('/change-password', (req, res, next) => {
 	validateChangePasswordRequest(req.body)
 		// @ts-ignore
-		.then(() => comparePasswords(req.user.password, req.body.oldPassword, ErrorMessages.WRONG_PASSWORD))
+		.then(() => comparePasswords(req.user.password, req.body.oldPassword))
+		// @ts-ignore
+		.then(() => changePassword(req.user, req.body.newPassword))
 		.then(() => {
-			// @ts-ignore
-			// eslint-disable-next-line no-param-reassign
-			req.user.password = req.body.newPassword
-			// @ts-ignore
-			req.user.save().then(() => {
-				res.json({ status: true })
-			})
-		}).catch((reason) => {
+			res.json()
+		})
+		.catch((reason) => {
 			next(handleError(reason, 'PUT /user/change-password'))
 		})
 })

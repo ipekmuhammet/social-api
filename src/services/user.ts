@@ -75,26 +75,22 @@ export const deleteAddress = (userId: string, deletedAddressId: string) => (
 	}, { new: true })
 )
 
-export const checkMakeOrderValues = (user: UserDocument, context: any) => (
-	new Promise((resolve, reject) => {
-		// @ts-ignore
-		const selectedAddress = user.addresses.find((address) => address._id.toString() === context.address)
+export const checkMakeOrderValues = (user: UserDocument, context: any) => {
+	// @ts-ignore
+	const selectedAddress = user.addresses.find((address) => address._id.toString() === context.address)
 
-		// @ts-ignore
-		Redis.getInstance.hgetAsync('cart', user._id.toString()).then((cart) => {
-			if (!cart) {
-				reject(new ServerError(ErrorMessages.EMPTY_CART, HttpStatusCodes.BAD_REQUEST, null, false))
-				// @ts-ignore
-			} else if (!selectedAddress) {
-				reject(new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, null, false))
-			} else {
-				resolve({ cart, selectedAddress, card: context.card })
-			}
-		}).catch((reason) => {
-			reject(new ServerError(reason.message, HttpStatusCodes.INTERNAL_SERVER_ERROR, null, true))
-		})
+	// @ts-ignore
+	return Redis.getInstance.hgetAsync('cart', user._id.toString()).then((cart) => {
+		if (!cart) {
+			throw new ServerError(ErrorMessages.EMPTY_CART, HttpStatusCodes.BAD_REQUEST, null, false)
+			// @ts-ignore
+		} else if (!selectedAddress) {
+			throw new ServerError(ErrorMessages.NO_ADDRESS, HttpStatusCodes.BAD_REQUEST, null, false)
+		} else {
+			return ({ cart, selectedAddress, card: context.card })
+		}
 	})
-)
+}
 
 export const saveOrderToDatabase = (user: UserDocument, cart: any, address: any) => (
 	new Order({
@@ -127,7 +123,7 @@ export const saveOrderToCache = (user: UserDocument, order: OrderDocument) => (
 	})
 )
 
-export const cacheUser = (user: any) => (Redis.getInstance.setAsync(user.phoneNumber.toString(), JSON.stringify(user)))
+export const cacheUser = (user: UserDocument) => (Redis.getInstance.setAsync(user.phoneNumber.toString(), JSON.stringify(user)))
 
 export const getUserFromCache = (phoneNumber: string) => (Redis.getInstance.getAsync(phoneNumber))
 
@@ -150,7 +146,7 @@ export const createPaymentUserWithCard = (user: UserDocument, card: any) => (
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})
@@ -167,7 +163,7 @@ export const addNewCard = (cardUserKey: string, card: any) => (
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})
@@ -193,7 +189,7 @@ export const deleteCard = (user: UserDocument, cardToken: string) => (
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})
@@ -212,7 +208,7 @@ export const listCards = (cardUserKey: string) => (
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})
@@ -271,7 +267,7 @@ export const createPaymentWithRegisteredCard = (user: UserDocument, price: numbe
 			if (error) {
 				reject(error)
 			} if (result.status === 'failure') {
-				reject(new Error(result.errorMessage))
+				reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, result.errorMessage, true))
 			}
 			resolve(result)
 		})

@@ -15,14 +15,18 @@ class ErrorMessages {
 
     static NO_ADDRESS = 'Lütfen adres seçiniz'
 
-    static WRONG_PHONE_OR_PASSWORD = 'Wrong Phone number or Password!'
+    static WRONG_PHONE_OR_PASSWORD = 'Hatalı telefon ya da şifre'
+
+    static UNKNOWN_TYPE_OF_ACTIVATION_CODE = 'Aktivasyon tipi bulunamadı'
+
+    static UNKNOWN_ACTIVATION_CODE = 'Aktivasyon kodu bulunamadı'
 
 
     static MANAGER_ALREADY_EXISTS = 'Telefon numarasına ait yönetici var'
 
     static MANAGER_IS_NOT_EXISTS = 'Telefon numarasına ait yönetici bulunamadı'
 
-    static MANAGER_IS_NOT_VERIFIED = 'Manager is not verified'
+    static MANAGER_IS_NOT_VERIFIED = 'Yönetici henüz onaylanmamış'
 }
 
 export default ErrorMessages

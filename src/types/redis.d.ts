@@ -449,7 +449,7 @@ export interface Commands<R> {
     /**
      * Get the value of a key.
      */
-    getAsync(key: string, cb?: Callback<string | null>): Promise<any>;
+    getAsync(key: string, cb?: Callback<string | null>): Promise<string>;
     GET(key: string, cb?: Callback<string | null>): R;
 
     /**
@@ -487,14 +487,14 @@ export interface Commands<R> {
      * Get the value of a hash field.
      */
     hget(key: string, field: string, cb?: Callback<string>): R;
-    hgetAsync(key: string, field: string, cb?: Callback<string>): Promise<any>;
+    hgetAsync(key: string, field: string, cb?: Callback<string>): Promise<string>;
     HGET(key: string, field: string, cb?: Callback<string>): R;
 
     /**
      * Get all fields and values in a hash.
      */
     hgetall(key: string, cb?: Callback<{ [key: string]: string }>): R;
-    hgetallAsync(key: string, cb?: Callback<{ [key: string]: string }>): Promise<R>;
+    hgetallAsync(key: string, cb?: Callback<{ [key: string]: string }>): Promise<string>;
     HGETALL(key: string, cb?: Callback<{ [key: string]: string }>): R;
 
     /**
@@ -1245,7 +1245,7 @@ export const Multi: new () => Multi
 
 export interface Multi extends Commands<Multi> {
     exec(cb?: Callback<any[]>): boolean;
-    execAsync(cb?: Callback<any[]>): Promise<any>;
+    execAsync(cb?: Callback<any[]>): Promise<string[]>;
     EXEC(cb?: Callback<any[]>): boolean;
 
     exec_atomic(cb?: Callback<any[]>): boolean;

@@ -8,10 +8,10 @@ import ErrorMessages from '../errors/ErrorMessages'
 // eslint-disable-next-line no-unused-vars
 import ActivationCodes from '../enums/activation-code-enum'
 
-export const comparePasswords = (oldPassword: string, newPassword: string, errorMessage: string) => (
+export const comparePasswords = (oldPassword: string, newPassword: string) => (
 	bcrypt.compare(newPassword, oldPassword).then((validPassword) => {
 		if (!validPassword) {
-			throw new Error(errorMessage)
+			throw new ServerError(ErrorMessages.WRONG_PHONE_OR_PASSWORD, HttpStatusCodes.UNAUTHORIZED, null, false)
 		}
 	})
 )
@@ -58,17 +58,11 @@ export const isUserExists = (phoneNumber: string) => (
 
 /** Returns activation code of phoneNumber from Redis */
 export const getActivationCode = (phoneNumber: string, activationCodeType: ActivationCodes) => (
-	new Promise((resolve, reject) => {
-		// @ts-ignore
-		Redis.getInstance.getAsync(`${phoneNumber}:activationCode:${activationCodeType}`).then((activationCode) => {
-			if (!activationCode) {
-				reject(new ServerError('Aktivasyon kodu bulunamadı!', HttpStatusCodes.BAD_REQUEST, 'Aktivasyon kodu bulunamadı!', false))
-			} else {
-				resolve(activationCode)
-			}
-		}).catch((reason) => {
-			reject(new ServerError(ErrorMessages.UNEXPECTED_ERROR, HttpStatusCodes.INTERNAL_SERVER_ERROR, reason?.message, true))
-		})
+	Redis.getInstance.getAsync(`${phoneNumber}:activationCode:${activationCodeType}`).then((activationCode) => {
+		if (!activationCode) {
+			throw new ServerError(ErrorMessages.UNKNOWN_ACTIVATION_CODE, HttpStatusCodes.BAD_REQUEST, null, false)
+		}
+		return activationCode
 	})
 )
 
