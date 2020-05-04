@@ -5,10 +5,10 @@ import app from '../../src/app'
 // eslint-disable-next-line no-unused-vars
 import { CategoryDocument } from '../../src/models'
 
-export default () => describe('PUT /admin/category/:_id', () => {
+export default () => describe('DELETE /admin/category/:_id', () => {
 	it('correct', (done) => (
 		request(app)
-			.put(`/admin/category/${JSON.parse(process.env.testCategory)._id}`)
+			.delete(`/admin/category/${JSON.parse(process.env.testCategory)._id}`)
 			.set({ Authorization: process.env.adminToken })
 			.send({
 				name: 'testCategoryUpdated'
@@ -19,12 +19,12 @@ export default () => describe('PUT /admin/category/:_id', () => {
 					done(response.body.error)
 				}
 
-				expect(response.body.name).to.equal('testCategory')
+				expect(response.body.name).to.equal('testCategoryUpdated')
 				done()
 			})
 	))
 
-	it('should categories contain testCategoryUpdated', (done) => (
+	it('should not categories contain testCategoryUpdated', (done) => (
 		request(app)
 			.get('/categories')
 			.set({ Authorization: process.env.adminToken })
@@ -34,7 +34,7 @@ export default () => describe('PUT /admin/category/:_id', () => {
 					done(response.body.error)
 				}
 
-				expect(Object.values(response.body).some(((category: CategoryDocument) => category.name === 'testCategoryUpdated'))).to.equal(true)
+				expect(Object.values(response.body).some(((category: CategoryDocument) => category.name === 'testCategoryUpdated'))).to.equal(false)
 				done()
 			})
 	))

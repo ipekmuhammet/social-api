@@ -20,10 +20,13 @@ import {
 import {
 	saveProductToDatabase,
 	saveProductToCache,
+	deleteProductFromCache,
 	updateProduct,
+	deleteProductFromDatabase,
 	updateCategory,
 	saveCategoryToCache,
 	saveCategoryToDatabase,
+	deleteCategoryFromDatabase,
 	verifyManager
 } from '../services/admin'
 
@@ -79,6 +82,17 @@ router.post('/category', (req, res, next) => {
 		})
 })
 
+router.delete('/category/:_id', (req, res, next) => {
+	deleteCategoryFromDatabase(req.params._id)
+		.then((category) => saveCategoryToCache().then(() => category))
+		.then((category) => {
+			res.json(category)
+		})
+		.catch((reason) => {
+			next(handleError(reason, 'POST /admin/category'))
+		})
+})
+
 router.put('/category/:_id', (req, res, next) => {
 	validateUpdateCategory(req.body)
 		.then(() => updateCategory(req.params._id, req.body))
@@ -109,6 +123,17 @@ router.put('/product/:_id', (req, res, next) => {
 		.then((product) => saveProductToCache(product))
 		.then((product) => {
 			res.json(product)
+		})
+		.catch((reason) => {
+			next(handleError(reason, 'PUT /admin/product/:_id'))
+		})
+})
+
+router.delete('/product/:_id', (req, res, next) => {
+	deleteProductFromDatabase(req.params._id)
+		.then((product) => deleteProductFromCache(product))
+		.then(() => {
+			res.json()
 		})
 		.catch((reason) => {
 			next(handleError(reason, 'PUT /admin/product/:_id'))

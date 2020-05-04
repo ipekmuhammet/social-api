@@ -19,6 +19,10 @@ export const saveCategoryToDatabase = (categoryContext: CategoryDocument) => (
 	new Category(categoryContext).save()
 )
 
+export const deleteCategoryFromDatabase = (categoryId: string) => (
+	Category.findByIdAndDelete(categoryId)
+)
+
 export const updateCategory = (categoryId: string, categoryContext: CategoryDocument) => (
 	Category.findByIdAndUpdate(categoryId, categoryContext)
 )
@@ -37,6 +41,14 @@ export const saveProductToCache = (product: ProductDocument | any) => (
 	Redis.getInstance.setAsync(product._id.toString(), JSON.stringify(product)).then(() => product)
 )
 
+export const deleteProductFromCache = (product: ProductDocument | any) => (
+	Redis.getInstance.del(product._id.toString())
+)
+
 export const updateProduct = (productId: string, productContext: ProductDocument) => (
 	Product.findByIdAndUpdate(productId, productContext, { new: true })
+)
+
+export const deleteProductFromDatabase = (productId: string) => (
+	Product.findByIdAndDelete(productId)
 )
