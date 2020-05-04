@@ -38,7 +38,8 @@
     "morgan": "^1.10.0",
     "nexmo": "^2.6.0",
     "redis": "^3.0.2",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2"
   },
   "devDependencies": {
     "@ipekmuhammet/eslint-config-base-typescript": "^0.1.0",

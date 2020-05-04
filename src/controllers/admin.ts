@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import path from 'path'
 
 import {
 	Manager,
@@ -29,6 +30,16 @@ import {
 const router = Router()
 
 router.use(validateAuthority(Authority.ADMIN))
+
+router.get('/log', (req, res) => {
+	const file = path.join(__dirname, `../../logs/info/${new Date().toLocaleDateString('tr', { day: '2-digit', month: '2-digit', year: 'numeric' })}.log`)
+	res.download(file)
+})
+
+router.get('/error-log', (req, res) => {
+	const file = path.join(__dirname, `../../logs/error/${new Date().toLocaleDateString('tr', { day: '2-digit', month: '2-digit', year: 'numeric' })}.log`)
+	res.download(file)
+})
 
 router.post('/save', (req, res) => {
 	new Admin(req.body).save()
