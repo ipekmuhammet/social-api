@@ -6,7 +6,7 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import helmet from 'helmet'
 import path from 'path'
-import 'dotenv/config'
+import 'winston-daily-rotate-file'
 
 export default (app: Application) => {
 	app.use(express.static(path.join(__dirname, '../../public')))
@@ -18,20 +18,24 @@ export default (app: Application) => {
 	const options = {
 		file: {
 			level: 'info',
-			filename: './logs/all-logs.log',
+			filename: './logs/info/%DATE%.log',
+			datePattern: 'YYYY-MM-DD',
+			zippedArchive: true,
 			handleExceptions: true,
 			json: true,
-			maxsize: 5242880, // 5MB
-			maxFiles: 5,
+			maxSize: '20m',
+			maxFiles: '14d',
 			colorize: true
 		},
 		errorFile: {
-			level: 'info',
-			filename: './logs/error-logs.log',
+			level: 'error',
+			filename: './logs/error/%DATE%.log',
+			datePattern: 'YYYY-MM-DD',
+			zippedArchive: true,
 			handleExceptions: true,
 			json: true,
-			maxsize: 5242880, // 5MB
-			maxFiles: 5,
+			maxSize: '20m',
+			maxFiles: '14d',
 			colorize: true
 		},
 		console: {
@@ -44,7 +48,7 @@ export default (app: Application) => {
 
 	const loggerOptions = {
 		transports: [
-			new winston.transports.File(options.file),
+			new (winston.transports.DailyRotateFile)(options.file),
 			// new winston.transports.Console(options.console)
 		],
 		exitOnError: false
@@ -52,7 +56,7 @@ export default (app: Application) => {
 
 	const errorLoggerOptions = {
 		transports: [
-			new winston.transports.File(options.errorFile),
+			new (winston.transports.DailyRotateFile)(options.errorFile),
 		],
 		exitOnError: false
 	}
