@@ -232,9 +232,9 @@ export const createActivationCode = (phoneNumber: string, activationCodeType: Ac
 	})
 }
 
-export const sendActivationCode = (activationCode: string) => (
+export const sendActivationCode = (phoneNumber: string, activationCode: string) => (
 	new Promise((resolve) => {
-		sendSms('+905468133198', `Onay kodu: ${activationCode}`)
+		sendSms(`9${phoneNumber.split(' ').join('')}`, `Onay kodu: ${activationCode}`)
 		resolve()
 	})
 )
