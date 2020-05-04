@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run serve",
-    "start:dev": "ts-node-dev src/server.ts",
+    "start": "NODE_ENV=prod & npm run serve",
+    "start:dev": "set NODE_ENV=dev & ts-node-dev src/server.ts",
     "build": "npm run build-ts",
     "serve": "node dist/server.js",
     "build-ts": "tsc",

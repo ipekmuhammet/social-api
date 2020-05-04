@@ -6,7 +6,6 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import helmet from 'helmet'
 import path from 'path'
-import 'dotenv/config'
 
 export default (app: Application) => {
 	app.use(express.static(path.join(__dirname, '../../public')))
