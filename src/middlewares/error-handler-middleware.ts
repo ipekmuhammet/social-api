@@ -12,9 +12,7 @@ export default (error: Error | any, req: Request, res: Response, next: NextFunct
 		winston.loggers.get('error-logger').error('', error)
 	}
 
-	if (error.httpCode) {
-		res.status(error.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.name })
-	} else {
-		res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: ErrorMessages.UNEXPECTED_ERROR })
-	}
+	res.status(error.httpCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+		error: error.httpCode === HttpStatusCodes.INTERNAL_SERVER_ERROR ? ErrorMessages.UNEXPECTED_ERROR : error.name
+	})
 }

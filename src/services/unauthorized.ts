@@ -154,7 +154,7 @@ export const takeOffProductFromCart = (product: ProductDocument, cart: any, user
 						resolve({
 							...product,
 							...{
-								quantity: (cart[product._id.toString()].quantity) - 1
+								quantity: (cart[product._id.toString()].quantity)
 							}
 						})
 					} else if (cart[product._id.toString()].quantity === 1) {
@@ -166,6 +166,12 @@ export const takeOffProductFromCart = (product: ProductDocument, cart: any, user
 							user._id.toString(),
 							JSON.stringify(cart)
 						)
+						resolve({
+							...product,
+							...{
+								quantity: 0
+							}
+						})
 					} else {
 						reject(new ServerError(ErrorMessages.NON_EXISTS_PRODUCT, HttpStatusCodes.BAD_REQUEST, ErrorMessages.NON_EXISTS_PRODUCT, false))
 					}
