@@ -6,20 +6,34 @@ services:
   #  ports:
   #    - 9200:9200
   #    - 9300:9300
+  #  volumes:
+  #    - esdata:/usr/share/elasticsearch/data
 
   redis:
     image: redis:latest
     ports:
       - 6379:6379
+    volumes:
+      - redis:/data
 
   mongo:
     image: mongo:latest
     ports:
       - 27017:27017
+    volumes:
+      - mongo:/data/db
 
-  #backend:
-  #  depends_on:
-  #    - redis
-  #  image: backend
-  #  ports:
-  #    - 3000:3000
+  backend:
+    depends_on:
+      - redis
+    image: backend
+    ports:
+      - 3000:3000
+
+
+volumes:
+  esdata:
+  
+  mongo:
+
+  redis:
