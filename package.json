@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=prod & npm run serve",
+    "start": "env NODE_ENV=prod npm run serve",
     "start:dev": "set NODE_ENV=dev & ts-node-dev src/server.ts",
     "build": "npm run build-ts",
     "serve": "node dist/server.js",
