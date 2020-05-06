@@ -149,9 +149,9 @@ router.post('/register-manager', (req, res, next) => {
 		.then(() => getActivationCode(req.body.phoneNumber, ActivationCodes.REGISTER_MANAGER))
 		.then((activationCode: string) => compareActivationCode(req.body.activationCode, activationCode))
 		.then(() => registerManager({ ...req.body, ...{ verified: false } }))
-		.then((manager) => createToken(manager).then((token) => ({ manager, token })))
-		.then((response) => {
-			res.json(response)
+		// .then((manager) => createToken(manager).then((token) => ({ manager, token })))
+		.then(() => {
+			res.json()
 		})
 		.catch((reason) => {
 			next(handleError(reason, 'POST /register-manager'))

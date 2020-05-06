@@ -35,22 +35,35 @@ export const validateAuthority = (authority: Authority) => (req: Request, res: R
 			if (decoded) {
 				if (authority === Authority.USER) {
 					getUserFromCache(decoded.payload.phoneNumber).then((user) => {
-						// @ts-ignore
-						req.user = JSON.parse(user)
-						next()
+						if (user) {
+							// @ts-ignore
+							req.user = JSON.parse(user)
+							next()
+						} else {
+							res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
+						}
 					})
 				} else if (authority === Authority.MANAGER) {
 					// @ts-ignore
 					Manager.findById(decoded.payload._id).then((manager) => {
-						// @ts-ignore
-						req.manager = manager
-						next()
+						if (manager) {
+							// @ts-ignore
+							req.manager = manager
+							next()
+						} else {
+							res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
+						}
+
 					})
 				} else if (authority === Authority.ADMIN) {
 					Admin.findById(decoded.payload._id).then((admin) => {
-						// @ts-ignore
-						req.admin = admin
-						next()
+						if (admin) {
+							// @ts-ignore
+							req.admin = admin
+							next()
+						} else {
+							res.status(HttpStatusCodes.UNAUTHORIZED).end('Unauthorized')
+						}
 					})
 				}
 			} else {
