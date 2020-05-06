@@ -104,7 +104,7 @@ export default () => describe('POST /order', () => {
 			})
 	))
 
-	it('make order 1', (done) => (
+	it('make order 1', () => (
 		request(app)
 			.post('/user/order')
 			.set({ Authorization: process.env.token })
@@ -113,14 +113,6 @@ export default () => describe('POST /order', () => {
 				card: process.env.cardToken
 			})
 			.expect(200)
-			.end((error, response) => {
-				if (response.body.error) {
-					done(response.body.error)
-				}
-
-				process.env.cancelOrder = JSON.stringify(response.body.order)
-				done()
-			})
 	))
 
 	it('POST /cart to make succesfully order 2', () => (
