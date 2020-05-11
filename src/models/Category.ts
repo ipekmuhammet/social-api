@@ -25,7 +25,7 @@ categorySchema.pre('save', function (next) {
 		// eslint-disable-next-line no-use-before-define
 		Category.find().sort({ imagePath: -1 }).limit(1).then((total) => {
 			// @ts-ignore
-			category.imagePath = total.length === 0 ? 0 : total[0].imagePath + 1
+			category.imagePath = total.length === 0 ? 1 : total[0].imagePath + 1
 			next()
 		})
 	}

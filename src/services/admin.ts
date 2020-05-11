@@ -37,9 +37,20 @@ export const saveProductToDatabase = (productContext: ProductDocument) => (
 	new Product(productContext).save()
 )
 
-export const saveProductToCache = (product: ProductDocument | any) => (
-	Redis.getInstance.setAsync(product._id.toString(), JSON.stringify(product)).then(() => product)
-)
+export const saveProductToCache = (product: ProductDocument | any) => {
+	const multi = Redis.getInstance.multi()
+	return Redis.getInstance.hgetAsync('products', product.category.toString()).then((products) => {
+		const productList = products ? JSON.parse(products)[product.category.toString()] : []
+		multi.set(product._id.toString(), JSON.stringify(product))
+		multi.hset(
+			'products',
+			product.category.toString(),
+			JSON.stringify({ [product.category.toString()]: [...productList, product] })
+		)
+
+		return multi.execAsync().then(() => product)
+	})
+}
 
 export const deleteProductFromCache = (product: ProductDocument | any) => (
 	Redis.getInstance.del(product._id.toString())

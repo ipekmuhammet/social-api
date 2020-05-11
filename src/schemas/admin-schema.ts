@@ -16,6 +16,7 @@ export const saveProductSchema = Joi.object({
 }).required()
 
 export const updateProductSchema = Joi.object({
+	image: Joi.number().allow(null),
 	category: Joi.number().allow(null),
 	brand: Joi.string().allow(null),
 	name: Joi.string().allow(null),

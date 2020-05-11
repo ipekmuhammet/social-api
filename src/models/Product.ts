@@ -35,7 +35,7 @@ productSchema.pre('save', function (next) {
 		// eslint-disable-next-line no-use-before-define
 		Product.find().sort({ image: -1 }).limit(1).then((total) => {
 			// @ts-ignore
-			product.image = total.length === 0 ? 0 : total[0].image + 1
+			product.image = total.length === 0 ? 1 : total[0].image + 1
 			next()
 		})
 	}

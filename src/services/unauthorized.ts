@@ -36,6 +36,7 @@ export const getCategories = () => (
 
 export const getAllProducts = () => (
 	new Promise((resolve, reject) => {
+		// Redis.getInstance.del('products')
 		Redis.getInstance.hgetallAsync('products').then((products) => {
 			resolve(Object.values(products).reduce((previousValue, currentValue) => Object.assign(previousValue, JSON.parse(currentValue)), {}))
 		}).catch((reason) => {
