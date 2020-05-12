@@ -1,13 +1,19 @@
 version: "3"
 
 services:
-  #elasticsearch:
-  #  image: elasticsearch:6.5.0
-  #  ports:
-  #    - 9200:9200
-  #    - 9300:9300
-  #  volumes:
-  #    - esdata:/usr/share/elasticsearch/data
+  elasticsearch:
+    image: elasticsearch:6.5.0
+    ports:
+      - 9200:9200
+      - 9300:9300
+    ulimits:
+      nofile:
+         soft: 65536
+         hard: 65536
+    environment:
+          ES_JAVA_OPTS: "-Xms750m -Xmx750m"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
   redis:
     image: redis:latest
@@ -23,17 +29,17 @@ services:
     volumes:
       - mongo:/data/db
 
-  backend:
-    depends_on:
-      - redis
-    image: backend
-    ports:
-      - 3000:3000
+  #backend:
+  #  depends_on:
+  #    - redis
+  #  image: backend
+  #  ports:
+  #    - 3000:3000
 
 
 volumes:
   esdata:
-  
+
   mongo:
 
   redis:
