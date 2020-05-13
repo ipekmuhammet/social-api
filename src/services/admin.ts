@@ -1,4 +1,4 @@
-import { Redis } from '../startup'
+import { Redis, Elasticsearch } from '../startup'
 
 // eslint-disable-next-line no-unused-vars
 import {
@@ -10,6 +10,10 @@ import {
 	// eslint-disable-next-line no-unused-vars
 	CategoryDocument
 } from '../models'
+
+const replaceProductId = (product: ProductDocument) => (
+	JSON.parse(JSON.stringify(product).split('"_id":').join('"id":')) // TODO ??
+)
 
 export const verifyManager = (managerId: string) => (
 	Manager.findByIdAndUpdate(managerId, { verified: true }, { new: true })
@@ -51,6 +55,17 @@ export const saveProductToCache = (product: ProductDocument | any) => {
 		return multi.execAsync().then(() => product)
 	})
 }
+
+export const indexProduct = (product: ProductDocument) => (
+	Elasticsearch.getClient
+		.index({
+			index: 'doc',
+			type: 'doc',
+			// refresh: true,
+			body: replaceProductId(product)
+		})
+		.then(() => product)
+)
 
 export const deleteProductFromCache = (product: ProductDocument | any) => (
 	Redis.getInstance.del(product._id.toString())

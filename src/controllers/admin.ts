@@ -27,12 +27,13 @@ import {
 	saveCategoryToCache,
 	saveCategoryToDatabase,
 	deleteCategoryFromDatabase,
-	verifyManager
+	verifyManager,
+	indexProduct
 } from '../services/admin'
 
 const router = Router()
 
-router.use(validateAuthority(Authority.ADMIN))
+router.use(validateAuthority(Authority.ANONIM))
 
 router.get('/log', (req, res) => {
 	const file = path.join(__dirname, `../../logs/info/${new Date().toLocaleDateString('tr', { day: '2-digit', month: '2-digit', year: 'numeric' })}.log`)
@@ -109,6 +110,7 @@ router.post('/product', (req, res, next) => {
 	validatePostProduct(req.body)
 		.then(() => saveProductToDatabase(req.body))
 		.then((product) => saveProductToCache(product))
+		.then((product) => indexProduct(product))
 		.then((product) => {
 			res.json(product)
 		})
