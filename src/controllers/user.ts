@@ -168,7 +168,8 @@ router.put('/change-password', (req, res, next) => {
 		// @ts-ignore
 		.then(() => comparePasswords(req.user.password, req.body.oldPassword))
 		// @ts-ignore
-		.then(() => changePassword(req.user, req.body.newPassword))
+		.then(() => isUserExists(req.body.phoneNumber))
+		.then((user) => changePassword(user, req.body.newPassword))
 		.then(() => {
 			res.json()
 		})
