@@ -27,7 +27,8 @@ import {
 } from '../services/user'
 
 import {
-	comparePasswords
+	comparePasswords,
+	isUserExists
 } from '../validators'
 
 import {
